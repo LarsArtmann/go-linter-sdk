@@ -88,7 +88,14 @@ func (r RuleFunc) Category() Category { return r.Meta.Cat }
 // Severity implements Rule.
 func (r RuleFunc) Severity() finding.Severity { return r.Meta.Sev }
 
-// Check implements Rule.
+// Check implements Rule. If Run returns an error, it is wrapped into a
+// *RuleError carrying the rule's identity, so callers of Registry.Run and
+// DetectorFromRegistry can identify which rule failed via errors.As.
 func (r RuleFunc) Check(ctx context.Context, dir string) ([]finding.Finding, error) {
-	return r.Run(ctx, dir)
+	findings, err := r.Run(ctx, dir)
+	if err != nil {
+		return findings, NewRuleError(r.Meta.Name, err)
+	}
+
+	return findings, nil
 }

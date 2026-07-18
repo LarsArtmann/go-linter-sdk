@@ -14,11 +14,11 @@ Shared scaffolding for LarsArtmann Go linters — `Rule` interface, registry, de
 
 Three LarsArtmann linters — `branching-flow`, `hierarchical-errors`, `go-structure-linter` — each independently reinvented the same three layers:
 
-| Layer | branching-flow | hierarchical-errors | go-structure-linter |
-|---|---|---|---|
-| Rule interface | custom | custom | custom |
-| Registry | custom | custom | custom |
-| **Violation → `finding.Finding` converter** | **1,871 LOC** | **1,214 LOC** | **0** (`type Issue = finding.Finding`) |
+| Layer                                       | branching-flow | hierarchical-errors | go-structure-linter                    |
+| ------------------------------------------- | -------------- | ------------------- | -------------------------------------- |
+| Rule interface                              | custom         | custom              | custom                                 |
+| Registry                                    | custom         | custom              | custom                                 |
+| **Violation → `finding.Finding` converter** | **1,871 LOC**  | **1,214 LOC**       | **0** (`type Issue = finding.Finding`) |
 
 The third row is the killer. branching-flow and hierarchical-errors each maintain a substantial bridge package purely because their native domain types (`Violation`, `ErrorViolation`) predate `finding.Finding`. Every new finding field requires touching the converter. Every refactor cascades.
 
@@ -89,24 +89,24 @@ The working directory is read via `finding.WorkingDirFromContext(ctx)`, so modul
 
 ### Types
 
-| Type | Purpose |
-|---|---|
-| `Rule` interface | `Name()` / `Description()` / `Category()` / `Severity()` / `Check(ctx, dir) ([]Finding, error)` |
-| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule` |
-| `RuleMeta` struct | Declarative identity: `Name`, `Description`, `Cat`, `Sev` |
-| `Category` | `CategoryDesign` / `CategoryStructure` / `CategoryErrorHandling` / `CategoryCorrectness` / `CategoryStyle` / `CategoryPerformance` / `CategorySecurity` / `CategoryConfiguration` |
-| `Registry` | Holds rules; thread-safe with `sync.RWMutex` |
+| Type              | Purpose                                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface  | `Name()` / `Description()` / `Category()` / `Severity()` / `Check(ctx, dir) ([]Finding, error)`                                                                                   |
+| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`                                                                                                      |
+| `RuleMeta` struct | Declarative identity: `Name`, `Description`, `Cat`, `Sev`                                                                                                                         |
+| `Category`        | `CategoryDesign` / `CategoryStructure` / `CategoryErrorHandling` / `CategoryCorrectness` / `CategoryStyle` / `CategoryPerformance` / `CategorySecurity` / `CategoryConfiguration` |
+| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                      |
 
 ### Functions
 
-| Function | Returns | Purpose |
-|---|---|---|
-| `NewRegistry()` | `*Registry` | Empty registry |
-| `(*Registry).Register(rule)` | — | Add a rule (panics on duplicate name) |
-| `(*Registry).All()` | `[]Rule` | Snapshot of registered rules |
-| `(*Registry).Run(ctx, dir)` | `*finding.Report, error` | Run all rules; aggregate findings |
-| `DetectorFromRegistry(r, toolName)` | `finding.Detector` | Adapt registry to the canonical ecosystem Detector interface |
-| `ExitCodeFromReport(report)` | `int` | 0 if clean, 1 if findings — the ecosystem exit-code convention |
+| Function                            | Returns                  | Purpose                                                        |
+| ----------------------------------- | ------------------------ | -------------------------------------------------------------- |
+| `NewRegistry()`                     | `*Registry`              | Empty registry                                                 |
+| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate name)                          |
+| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                   |
+| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                              |
+| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to the canonical ecosystem Detector interface   |
+| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention |
 
 ---
 
@@ -137,6 +137,7 @@ Each step compiles and runs independently. No big-bang migration.
 ## Consumers
 
 Planned:
+
 - `go-structure-linter` — cleanest existing pattern; pilot target
 - `branching-flow` (1,871 LOC of converters to delete)
 - `hierarchical-errors` (1,214 LOC of converters to delete)

@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/larsartmann/go-finding"
@@ -125,5 +126,76 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	if code := ExitCodeFromReport(report); code != 1 {
 		t.Errorf("non-empty report should be exit 1, got %d", code)
+	}
+}
+
+var errSentinel = errors.New("sentinel test error")
+
+func failingRule(name string) Rule {
+	return RuleFunc{
+		Meta: RuleMeta{Name: name, Description: "fails", Cat: CategoryDesign, Sev: finding.SeverityWarning},
+		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, errSentinel },
+	}
+}
+
+func TestRegistry_Run_WrapsRuleError(t *testing.T) {
+	r := NewRegistry()
+	r.Register(failingRule("boom"))
+
+	_, err := r.Run(context.Background(), ".")
+
+	var ruleErr *RuleError
+	if !errors.As(err, &ruleErr) {
+		t.Fatalf("expected *RuleError, got %T: %v", err, err)
+	}
+
+	if ruleErr.RuleName != "boom" {
+		t.Errorf("expected rule name 'boom', got %q", ruleErr.RuleName)
+	}
+
+	if !errors.Is(ruleErr, errSentinel) {
+		t.Errorf("expected cause to unwrap to errSentinel, got: %v", ruleErr.Cause)
+	}
+
+	if !errors.Is(err, ErrRuleFailed) {
+		t.Errorf("expected errors.Is(err, ErrRuleFailed) to be true")
+	}
+}
+
+func TestRegistry_Run_NoDoubleWrap(t *testing.T) {
+	r := NewRegistry()
+	r.Register(failingRule("once"))
+
+	_, err := r.Run(context.Background(), ".")
+
+	var ruleErr *RuleError
+	errors.As(err, &ruleErr)
+
+	// RuleFunc.Check wraps once; Registry.Run must not wrap again.
+	if ruleErr.Cause == errSentinel {
+		return // cause is the raw sentinel — wrapped exactly once
+	}
+
+	var inner *RuleError
+	if errors.As(ruleErr.Cause, &inner) {
+		t.Fatalf("error double-wrapped: outer RuleName=%s, inner RuleName=%s", ruleErr.RuleName, inner.RuleName)
+	}
+}
+
+func TestDetectorFromRegistry_WrapsRuleError(t *testing.T) {
+	r := NewRegistry()
+	r.Register(failingRule("detect-boom"))
+
+	detector := DetectorFromRegistry(r, "test-linter")
+
+	_, err := detector.Detect(context.Background())
+
+	var ruleErr *RuleError
+	if !errors.As(err, &ruleErr) {
+		t.Fatalf("expected *RuleError from detector, got %T: %v", err, err)
+	}
+
+	if ruleErr.RuleName != "detect-boom" {
+		t.Errorf("expected rule name 'detect-boom', got %q", ruleErr.RuleName)
 	}
 }

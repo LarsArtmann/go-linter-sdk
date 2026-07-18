@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/larsartmann/go-finding"
@@ -47,9 +48,23 @@ func (r *Registry) All() []Rule {
 	return out
 }
 
+// wrapRuleError ensures err is a *RuleError tagged with name. If err is
+// already a *RuleError (e.g. produced by RuleFunc.Check), it passes through
+// unchanged to avoid double-wrapping.
+func wrapRuleError(name string, err error) error {
+	var ruleErr *RuleError
+	if errors.As(err, &ruleErr) {
+		return err
+	}
+
+	return NewRuleError(name, err)
+}
+
 // Run executes every rule against dir, aggregating findings. This is the
 // standalone execution path (the linter's own CLI). The BuildFlow integration
 // path uses DetectorFromRegistry instead.
+//
+// If a rule fails, the returned error is a *RuleError identifying the rule.
 func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error) {
 	toolName := finding.ToolName("linter")
 	report := finding.NewReport(finding.ToolInfo{Name: string(toolName)})
@@ -57,7 +72,7 @@ func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error)
 	for _, rule := range r.All() {
 		findings, err := rule.Check(ctx, dir)
 		if err != nil {
-			return nil, err
+			return nil, wrapRuleError(rule.Name(), err)
 		}
 
 		report.AddFindings(findings)
@@ -84,7 +99,7 @@ func DetectorFromRegistry(r *Registry, toolName string) finding.Detector {
 		for _, rule := range r.All() {
 			findings, err := rule.Check(ctx, dir)
 			if err != nil {
-				return nil, err
+				return nil, wrapRuleError(rule.Name(), err)
 			}
 
 			all = append(all, findings...)
