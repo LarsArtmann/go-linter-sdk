@@ -32,14 +32,16 @@ import (
 // reporting. Maps to finding.Category at the finding boundary.
 type Category string
 
+// Category values classify what kind of issue a rule detects, for filtering
+// and reporting. Each maps to finding.Category at the finding boundary.
 const (
-	CategoryDesign       Category = "design"       // design smells (coupling, cohesion)
-	CategoryStructure    Category = "structure"    // file/package layout
+	CategoryDesign        Category = "design"    // design smells (coupling, cohesion)
+	CategoryStructure     Category = "structure" // file/package layout
 	CategoryErrorHandling Category = "error-handling"
-	CategoryCorrectness  Category = "correctness"
-	CategoryStyle        Category = "style"
-	CategoryPerformance  Category = "performance"
-	CategorySecurity     Category = "security"
+	CategoryCorrectness   Category = "correctness"
+	CategoryStyle         Category = "style"
+	CategoryPerformance   Category = "performance"
+	CategorySecurity      Category = "security"
 	CategoryConfiguration Category = "configuration"
 )
 

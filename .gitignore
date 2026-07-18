@@ -1,3 +1,9 @@
+# Nix build output
+/result
+/result-*
+.envrc
+.direnv/
+
 # >>> buildflow-managed (.gitignore) >>>
 # Auto-managed by buildflow. Edit outside these markers; this block is regenerated on `buildflow --fix`.
 
@@ -54,3 +60,11 @@ go.work
 go.work.sum
 /go-linter-sdk
 # <<< buildflow-managed (.gitignore) <<<
+
+# Keep the reports/ directory present on fresh clones. BuildFlow's
+# test-coverage step writes reports/coverage.out and fails if the directory is
+# missing. The managed block above ignores reports/ wholesale, so re-include
+# the directory itself, ignore its contents, then keep only the marker file.
+!reports/
+reports/*
+!reports/.gitkeep

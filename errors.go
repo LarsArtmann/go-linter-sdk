@@ -37,7 +37,7 @@ func (e *RuleError) Unwrap() error {
 }
 
 // Is supports errors.Is against ErrRuleFailed.
-func (e *RuleError) Is(target error) bool {
+func (*RuleError) Is(target error) bool {
 	return target == ErrRuleFailed
 }
 

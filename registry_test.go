@@ -11,13 +11,13 @@ import (
 func makeRule(name string, findings []finding.Finding) Rule {
 	return RuleFunc{
 		Meta: RuleMeta{Name: name, Description: name + " rule", Cat: CategoryDesign, Sev: finding.SeverityWarning},
-		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) {
-			return findings, nil
-		},
+		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return findings, nil },
 	}
 }
 
 func TestRegistry_RegisterAndAll(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 	r.Register(makeRule("r1", nil))
 	r.Register(makeRule("r2", nil))
@@ -29,6 +29,8 @@ func TestRegistry_RegisterAndAll(t *testing.T) {
 }
 
 func TestRegistry_DuplicatePanics(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 	r.Register(makeRule("dup", nil))
 
@@ -42,6 +44,8 @@ func TestRegistry_DuplicatePanics(t *testing.T) {
 }
 
 func TestRegistry_Run_AggregatesFindings(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 
 	f1 := finding.NewBuilder("rule-a", "test", "a", finding.SeverityWarning,
@@ -63,14 +67,17 @@ func TestRegistry_Run_AggregatesFindings(t *testing.T) {
 }
 
 func TestDetectorFromRegistry_ReadsWorkDirFromContext(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 
 	seen := ""
 
 	r.Register(RuleFunc{
-		Meta:  RuleMeta{Name: "ctx-rule"},
-		Run:  func(_ context.Context, dir string) ([]finding.Finding, error) {
+		Meta: RuleMeta{Name: "ctx-rule"},
+		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
+
 			return nil, nil
 		},
 	})
@@ -88,14 +95,17 @@ func TestDetectorFromRegistry_ReadsWorkDirFromContext(t *testing.T) {
 }
 
 func TestDetectorFromRegistry_DefaultDir(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 
 	seen := ""
 
 	r.Register(RuleFunc{
-		Meta:  RuleMeta{Name: "default-dir-rule"},
-		Run:  func(_ context.Context, dir string) ([]finding.Finding, error) {
+		Meta: RuleMeta{Name: "default-dir-rule"},
+		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
+
 			return nil, nil
 		},
 	})
@@ -111,6 +121,8 @@ func TestDetectorFromRegistry_DefaultDir(t *testing.T) {
 }
 
 func TestExitCodeFromReport(t *testing.T) {
+	t.Parallel()
+
 	if code := ExitCodeFromReport(nil); code != 0 {
 		t.Errorf("nil report should be exit 0, got %d", code)
 	}
@@ -139,6 +151,8 @@ func failingRule(name string) Rule {
 }
 
 func TestRegistry_Run_WrapsRuleError(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 	r.Register(failingRule("boom"))
 
@@ -163,26 +177,31 @@ func TestRegistry_Run_WrapsRuleError(t *testing.T) {
 }
 
 func TestRegistry_Run_NoDoubleWrap(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 	r.Register(failingRule("once"))
 
 	_, err := r.Run(context.Background(), ".")
 
 	var ruleErr *RuleError
-	errors.As(err, &ruleErr)
-
-	// RuleFunc.Check wraps once; Registry.Run must not wrap again.
-	if ruleErr.Cause == errSentinel {
-		return // cause is the raw sentinel — wrapped exactly once
+	if !errors.As(err, &ruleErr) {
+		t.Fatalf("expected *RuleError, got %T: %v", err, err)
 	}
 
+	// RuleFunc.Check wraps once; Registry.Run must not wrap again. A second
+	// wrapping would make ruleErr.Cause itself a *RuleError, which is the
+	// double-wrap bug this test guards against.
 	var inner *RuleError
 	if errors.As(ruleErr.Cause, &inner) {
-		t.Fatalf("error double-wrapped: outer RuleName=%s, inner RuleName=%s", ruleErr.RuleName, inner.RuleName)
+		t.Fatalf("error double-wrapped: outer RuleName=%s, inner RuleName=%s",
+			ruleErr.RuleName, inner.RuleName)
 	}
 }
 
 func TestDetectorFromRegistry_WrapsRuleError(t *testing.T) {
+	t.Parallel()
+
 	r := NewRegistry()
 	r.Register(failingRule("detect-boom"))
 
@@ -197,5 +216,9 @@ func TestDetectorFromRegistry_WrapsRuleError(t *testing.T) {
 
 	if ruleErr.RuleName != "detect-boom" {
 		t.Errorf("expected rule name 'detect-boom', got %q", ruleErr.RuleName)
+	}
+
+	if !errors.Is(err, ErrRuleFailed) {
+		t.Errorf("expected errors.Is(err, ErrRuleFailed) to be true")
 	}
 }

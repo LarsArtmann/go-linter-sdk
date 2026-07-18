@@ -99,7 +99,6 @@
             };
 
             shellHook = ''
-              mkdir -p reports
               echo "go-linter-sdk dev shell — $(go version)"
               echo "GOEXPERIMENT=jsonv2 active (required: go-finding uses encoding/json/v2)"
             '';
@@ -114,10 +113,6 @@
             env = {
               GOEXPERIMENT = "jsonv2";
             };
-
-            shellHook = ''
-              mkdir -p reports
-            '';
           };
 
           apps = {
