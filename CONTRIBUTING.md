@@ -32,16 +32,16 @@ nix develop
 
 Then use the flake apps for every common task:
 
-| Command              | What it does                                  |
-| -------------------- | --------------------------------------------- |
-| `nix run .#test`     | Run all tests (`go test ./... -count=1`)      |
-| `nix run .#test-race`| Run all tests with the race detector          |
-| `nix run .#bench`    | Run benchmarks                                |
-| `nix run .#build`    | Build all packages                            |
-| `nix run .#vet`      | Run `go vet`                                  |
-| `nix run .#lint`     | Run `golangci-lint`                           |
-| `nix run .#coverage` | Run tests with coverage and print a summary   |
-| `nix flake check`    | Validate the flake and run treefmt checks     |
+| Command               | What it does                                |
+| --------------------- | ------------------------------------------- |
+| `nix run .#test`      | Run all tests (`go test ./... -count=1`)    |
+| `nix run .#test-race` | Run all tests with the race detector        |
+| `nix run .#bench`     | Run benchmarks                              |
+| `nix run .#build`     | Build all packages                          |
+| `nix run .#vet`       | Run `go vet`                                |
+| `nix run .#lint`      | Run `golangci-lint`                         |
+| `nix run .#coverage`  | Run tests with coverage and print a summary |
+| `nix flake check`     | Validate the flake and run treefmt checks   |
 
 To format code (gofumpt + goimports + golines@120 + nixfmt):
 
