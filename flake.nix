@@ -55,7 +55,7 @@
               }
             }/bin/${name}";
             meta = {
-              description = description;
+              inherit description;
               mainProgram = name;
               homepage = "https://github.com/larsartmann/go-linter-sdk";
               license = lib.licenses.mit;
