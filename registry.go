@@ -18,7 +18,10 @@ type Registry struct {
 
 // NewRegistry creates an empty registry.
 func NewRegistry() *Registry {
-	return &Registry{}
+	return &Registry{
+		mu:    sync.RWMutex{},
+		rules: []Rule{},
+	}
 }
 
 // Register adds a rule. Panics if a rule with the same Name is already
@@ -67,7 +70,10 @@ func wrapRuleError(name string, err error) error {
 // If a rule fails, the returned error is a *RuleError identifying the rule.
 func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error) {
 	toolName := finding.ToolName("linter")
-	report := finding.NewReport(finding.ToolInfo{Name: string(toolName)})
+	report := finding.NewReport(finding.ToolInfo{
+		Name:    string(toolName),
+		Version: "",
+	})
 
 	for _, rule := range r.All() {
 		findings, err := rule.Check(ctx, dir)

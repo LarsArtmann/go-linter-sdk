@@ -43,7 +43,7 @@ func (*RuleError) Is(target error) bool {
 
 // NewRuleError wraps cause as a RuleError for the named rule.
 func NewRuleError(ruleName string, cause error) *RuleError {
-	return &RuleError{ //nolint:exhaustruct
+	return &RuleError{
 		RuleName: ruleName,
 		Cause:    cause,
 	}

@@ -25,6 +25,9 @@ exclude:
   - "*.pb.go"
   - "*.gen.go"
 
+env:
+  GOEXPERIMENT: jsonv2
+
 # Auto-fix settings
 auto_fix: false
 
