@@ -55,8 +55,7 @@ func (r *Registry) All() []Rule {
 // already a *RuleError (e.g. produced by RuleFunc.Check), it passes through
 // unchanged to avoid double-wrapping.
 func wrapRuleError(name string, err error) error {
-	var ruleErr *RuleError
-	if errors.As(err, &ruleErr) {
+	if _, ok := errors.AsType[*RuleError](err); ok {
 		return err
 	}
 
