@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   consumers need `github.com/larsartmann/go-finding` available on the module
   path until a tagged release is published.
 - `registry.go` migrated to Go 1.26's generic `errors.AsType[*RuleError]`
-  for the no-double-wrap guard (`0be82c4`). `registry_test.go` and the
+  for the no-double-wrap guard (`88bf523`). `registry_test.go` and the
   `errors.go` doc example still use `errors.As`; completion is tracked in
   `TODO_LIST.md`.
 
