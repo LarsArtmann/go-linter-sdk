@@ -158,8 +158,8 @@ func TestRegistry_Run_WrapsRuleError(t *testing.T) {
 
 	_, err := r.Run(context.Background(), ".")
 
-	var ruleErr *RuleError
-	if !errors.As(err, &ruleErr) {
+	ruleErr, ok := errors.AsType[*RuleError](err)
+	if !ok {
 		t.Fatalf("expected *RuleError, got %T: %v", err, err)
 	}
 
@@ -184,18 +184,20 @@ func TestRegistry_Run_NoDoubleWrap(t *testing.T) {
 
 	_, err := r.Run(context.Background(), ".")
 
-	var ruleErr *RuleError
-	if !errors.As(err, &ruleErr) {
+	ruleErr, ok := errors.AsType[*RuleError](err)
+	if !ok {
 		t.Fatalf("expected *RuleError, got %T: %v", err, err)
 	}
 
-	// RuleFunc.Check wraps once; Registry.Run must not wrap again. A second
-	// wrapping would make ruleErr.Cause itself a *RuleError, which is the
-	// double-wrap bug this test guards against.
-	var inner *RuleError
-	if errors.As(ruleErr.Cause, &inner) {
-		t.Fatalf("error double-wrapped: outer RuleName=%s, inner RuleName=%s",
-			ruleErr.RuleName, inner.RuleName)
+	// The cause must be the raw sentinel — a positive signal that the error was
+	// wrapped exactly once. A double-wrap (Registry.Run re-wrapping an
+	// already-wrapped *RuleError) would make ruleErr.Cause a *RuleError rather
+	// than errSentinel. errors.Is is intentionally NOT used here: it matches any
+	// error wrapping errSentinel down the chain, so it cannot distinguish one
+	// wrap from two.
+	if ruleErr.Cause != errSentinel { //nolint:errorlint // exact identity proves single-wrap; errors.Is would also match a re-wrapped cause
+		t.Fatalf("expected cause to be raw errSentinel (wrapped exactly once), got %T: %v",
+			ruleErr.Cause, ruleErr.Cause)
 	}
 }
 
@@ -209,8 +211,8 @@ func TestDetectorFromRegistry_WrapsRuleError(t *testing.T) {
 
 	_, err := detector.Detect(context.Background())
 
-	var ruleErr *RuleError
-	if !errors.As(err, &ruleErr) {
+	ruleErr, ok := errors.AsType[*RuleError](err)
+	if !ok {
 		t.Fatalf("expected *RuleError from detector, got %T: %v", err, err)
 	}
 

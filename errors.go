@@ -15,11 +15,17 @@ var ErrRuleFailed = errors.New("linter: rule failed")
 // Registry.Run, RuleFunc.Check, and DetectorFromRegistry when a rule's
 // execution fails.
 //
-// Use errors.As to extract the rule name:
+// Use errors.AsType (Go 1.26+) to extract the rule name:
 //
-//	var ruleErr *linter.RuleError
-//	if errors.As(err, &ruleErr) {
+//	ruleErr, ok := errors.AsType[*linter.RuleError](err)
+//	if ok {
 //	    log.Printf("rule %s failed", ruleErr.RuleName)
+//	}
+//
+// To check whether any rule failed (regardless of which), match the sentinel:
+//
+//	if errors.Is(err, linter.ErrRuleFailed) {
+//	    // a rule returned an error
 //	}
 type RuleError struct {
 	RuleName string
