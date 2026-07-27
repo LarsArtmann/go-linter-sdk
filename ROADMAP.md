@@ -67,8 +67,6 @@ outputs; this repo should match where it earns its place.
 
 Raw ideas:
 
-- `.github/workflows/ci.yml` running `nix flake check`, `nix run .#test-race`,
-  and `buildflow`
 - Flake `checks` derivations for `go test`, `go vet`, and `golangci-lint` (only
   treefmt is a check derivation today)
 - Additional nix apps: `watch` (live test re-runs), `tidy` (`go mod tidy`),
@@ -77,6 +75,7 @@ Raw ideas:
 - Renovate / Dependabot for nix + go dependencies
 - Review `devShells.ci` — confirm it has everything CI needs and nothing extra
 - `meta.position` on apps and `flake-schemas` for richer `nix flake show`
+  (the CI workflow itself is tracked in `TODO_LIST.md`)
 
 ### 5. Documentation depth
 

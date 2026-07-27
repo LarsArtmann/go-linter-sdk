@@ -42,7 +42,6 @@
 | Task                                                                  | Status    | Impact | Effort | Evidence                                                                |
 | --------------------------------------------------------------------- | --------- | ------ | ------ | ----------------------------------------------------------------------- |
 | Replace wholesale `ireturn` test exclusion with targeted `//nolint`   | 🔴 `TODO` | Low    | 10m    | `.golangci.yml:302` excludes `ireturn` for all `_test.go`; `makeRule`/`failingRule` are the only offenders (session 2, §f.18) |
-| Enrich `AGENTS.md` with `.golangci.yml`, `reports/.gitkeep`, and the `self`/Nix-version requirement | 🔴 `TODO` | Low    | 15m    | AGENTS.md omits the lint config, the `.gitkeep` mechanism, and the Nix `@`-pattern strictness gotcha |
 
 ---
 

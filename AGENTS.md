@@ -46,6 +46,22 @@ Core types in package `linter`:
 - **`go-finding`** via replace directive: `replace github.com/larsartmann/go-finding => ../go-finding`. Both repos must be checked out as siblings under the same parent directory.
 - Go 1.26+ (uses `encoding/json/v2` experiment).
 
+## Gotchas & conventions
+
+- **Flake `outputs` must declare `self`.** The `outputs` lambda uses an
+  `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict argument checking on
+  `@`-patterns, so omitting `self` breaks BuildFlow with
+  `function 'outputs' called with unexpected argument 'self'`. Keep `self,`
+  first in the destructure (the sibling `go-finding` flake is the reference;
+  fixed here in `c13366c`).
+- **`reports/` must exist for BuildFlow's `test-coverage` step.** It is kept
+  durable via `reports/.gitkeep` plus a `.gitignore` exception
+  (`!reports/`, `reports/*`, `!reports/.gitkeep`) — don't remove the marker.
+  The `coverage` flake app writes `reports/coverage.out`.
+- **`.golangci.yml` carries the `goexperiment.jsonv2` build tag.** Without it
+  golangci-lint can't compile `go-finding`'s transitive `encoding/json/v2`
+  imports and silently falls back to defaults. The `lint` app auto-discovers it.
+
 ## Consumers (Planned)
 
 `go-structure-linter` (pilot), `branching-flow`, `hierarchical-errors`. No active consumers yet.
