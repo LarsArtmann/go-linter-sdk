@@ -45,6 +45,7 @@ package main
 
 import (
     "context"
+    "os"
 
     "github.com/larsartmann/go-finding"
     "github.com/larsartmann/go-linter-sdk"
