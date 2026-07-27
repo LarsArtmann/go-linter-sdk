@@ -10,18 +10,18 @@ BuildFlow 35/36 (unchanged — the 3 root-package findings are ROADMAP Q2).
 
 ## TL;DR
 
-| Dimension                                    | State                                                                              |
-| -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| ROADMAP Q5 (testpackage) doc drift           | **FIXED** — Q5 closed as resolved (black-box); Q4 closed as moot                   |
-| FEATURES↔ROADMAP PLANNED split-brain          | **FIXED** — "Planned capabilities" section removed from FEATURES; one-home rule established |
-| README broken `os.Exit` example              | **FIXED** — `"os"` import added; example verified to compile                        |
-| `docs/DOMAIN_LANGUAGE.md`                    | **WRITTEN** — 6 core concepts with relationships diagram                           |
-| `hierarchical-errors` → `erraudit` rename     | **DONE** — all living docs + source updated; status reports left as historical     |
-| CHANGELOG citations                          | **VERIFIED** — `0ca7a41`, `88bf523`, `c13366c` all exist and match descriptions    |
-| `//nolint` audit                             | **PASS** — only 1 directive in code (`registry_test.go:216`), with documented reason |
-| BuildFlow                                    | **35/36** — same baseline; only ROADMAP Q2 root-package findings remain            |
-| Tests                                        | **10/10** pass, race-clean                                                         |
-| Lint                                         | **0 issues**                                                                       |
+| Dimension                                 | State                                                                                       |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| ROADMAP Q5 (testpackage) doc drift        | **FIXED** — Q5 closed as resolved (black-box); Q4 closed as moot                            |
+| FEATURES↔ROADMAP PLANNED split-brain      | **FIXED** — "Planned capabilities" section removed from FEATURES; one-home rule established |
+| README broken `os.Exit` example           | **FIXED** — `"os"` import added; example verified to compile                                |
+| `docs/DOMAIN_LANGUAGE.md`                 | **WRITTEN** — 6 core concepts with relationships diagram                                    |
+| `hierarchical-errors` → `erraudit` rename | **DONE** — all living docs + source updated; status reports left as historical              |
+| CHANGELOG citations                       | **VERIFIED** — `0ca7a41`, `88bf523`, `c13366c` all exist and match descriptions             |
+| `//nolint` audit                          | **PASS** — only 1 directive in code (`registry_test.go:216`), with documented reason        |
+| BuildFlow                                 | **35/36** — same baseline; only ROADMAP Q2 root-package findings remain                     |
+| Tests                                     | **10/10** pass, race-clean                                                                  |
+| Lint                                      | **0 issues**                                                                                |
 
 ---
 
@@ -58,6 +58,7 @@ by building it as a standalone file.
 
 Deferred since session 1. Defines the 6 core concepts (`Rule`, `RuleFunc`,
 `RuleMeta`, `Category`, `Registry`, `RuleError`) with:
+
 - Precise definitions grounded in actual code locations
 - A relationships diagram (ASCII)
 - An explicit "What is NOT in this domain" section (no Violation type, no CLI,
@@ -69,6 +70,7 @@ through as done).
 ### 5. `hierarchical-errors` → `erraudit` rename
 
 User informed me the project was renamed. Updated all references in:
+
 - `rule.go` (package doc comments)
 - `README.md` (5 references: table, prose, migration path, consumers)
 - `AGENTS.md` (consumer list)
@@ -77,6 +79,7 @@ User informed me the project was renamed. Updated all references in:
 - `docs/DOMAIN_LANGUAGE.md` (converter-deletion claim)
 
 Left untouched:
+
 - `AGENTS.md:74` — references the Crush **skill** `hierarchical-errors` (still
   named that in the skill registry; distinct from the repo)
 - `docs/status/*.md` — 4 historical status reports (point-in-time records)

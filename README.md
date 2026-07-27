@@ -14,11 +14,11 @@ Shared scaffolding for LarsArtmann Go linters — `Rule` interface, registry, de
 
 Three LarsArtmann linters — `branching-flow`, `erraudit`, `go-structure-linter` — each independently reinvented the same three layers:
 
-| Layer                                       | branching-flow | erraudit             | go-structure-linter                    |
-| ------------------------------------------- | -------------- | ------------------- | -------------------------------------- |
-| Rule interface                              | custom         | custom              | custom                                 |
-| Registry                                    | custom         | custom              | custom                                 |
-| **Violation → `finding.Finding` converter** | **1,871 LOC**  | **1,214 LOC**       | **0** (`type Issue = finding.Finding`) |
+| Layer                                       | branching-flow | erraudit      | go-structure-linter                    |
+| ------------------------------------------- | -------------- | ------------- | -------------------------------------- |
+| Rule interface                              | custom         | custom        | custom                                 |
+| Registry                                    | custom         | custom        | custom                                 |
+| **Violation → `finding.Finding` converter** | **1,871 LOC**  | **1,214 LOC** | **0** (`type Issue = finding.Finding`) |
 
 The third row is the killer. branching-flow and erraudit each maintain a substantial bridge package purely because their native domain types (`Violation`, `ErrorViolation`) predate `finding.Finding`. Every new finding field requires touching the converter. Every refactor cascades.
 
