@@ -12,15 +12,15 @@ Shared scaffolding for LarsArtmann Go linters — `Rule` interface, registry, de
 
 ## Why?
 
-Three LarsArtmann linters — `branching-flow`, `hierarchical-errors`, `go-structure-linter` — each independently reinvented the same three layers:
+Three LarsArtmann linters — `branching-flow`, `erraudit`, `go-structure-linter` — each independently reinvented the same three layers:
 
-| Layer                                       | branching-flow | hierarchical-errors | go-structure-linter                    |
+| Layer                                       | branching-flow | erraudit             | go-structure-linter                    |
 | ------------------------------------------- | -------------- | ------------------- | -------------------------------------- |
 | Rule interface                              | custom         | custom              | custom                                 |
 | Registry                                    | custom         | custom              | custom                                 |
 | **Violation → `finding.Finding` converter** | **1,871 LOC**  | **1,214 LOC**       | **0** (`type Issue = finding.Finding`) |
 
-The third row is the killer. branching-flow and hierarchical-errors each maintain a substantial bridge package purely because their native domain types (`Violation`, `ErrorViolation`) predate `finding.Finding`. Every new finding field requires touching the converter. Every refactor cascades.
+The third row is the killer. branching-flow and erraudit each maintain a substantial bridge package purely because their native domain types (`Violation`, `ErrorViolation`) predate `finding.Finding`. Every new finding field requires touching the converter. Every refactor cascades.
 
 `go-structure-linter` got it rightest by aliasing `Issue = finding.Finding` — no converter at all. **`go-linter-sdk` codifies that pattern.** A rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, so there is no intermediate type to convert. A linter that adopts this SDK ships a `rules.go` file and a `main.go` one-liner — the registry, detection, and exit codes are shared.
 
@@ -129,7 +129,7 @@ Existing linters migrate **incrementally** — one rule at a time:
 2. Pick one rule; convert its native type to emit `finding.Finding` via `finding.NewBuilder(...)`
 3. Wrap it in `linter.RuleFunc{Meta: ..., Run: ...}` and `Register` it
 4. Repeat for each rule
-5. Once all rules are migrated, delete the converter package (`pkg/finding/` in branching-flow / hierarchical-errors)
+5. Once all rules are migrated, delete the converter package (`pkg/finding/` in branching-flow / erraudit)
 
 Each step compiles and runs independently. No big-bang migration.
 
@@ -141,7 +141,7 @@ Planned:
 
 - `go-structure-linter` — cleanest existing pattern; pilot target
 - `branching-flow` (1,871 LOC of converters to delete)
-- `hierarchical-errors` (1,214 LOC of converters to delete)
+- `erraudit` (1,214 LOC of converters to delete)
 - Future linters
 
 No active consumers yet.

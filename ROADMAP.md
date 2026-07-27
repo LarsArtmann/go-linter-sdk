@@ -28,7 +28,7 @@ Raw ideas:
 ### 2. Consumer adoption (the reason this SDK exists)
 
 The SDK exists to delete converter code: `branching-flow` (1,871 LOC) and
-`hierarchical-errors` (1,214 LOC) each maintain a bridge package purely because
+`erraudit` (1,214 LOC) each maintain a bridge package purely because
 their native domain types predate `finding.Finding`. The value proposition is
 unproven until a real linter migrates.
 

@@ -126,7 +126,7 @@ ErrRuleFailed ──sentinel matched by──→ errors.Is
 
 - **No Violation / Issue type.** Rules emit `finding.Finding` directly. This
   is the core design decision — it eliminates the converter layer that
-  `branching-flow` (1,871 LOC) and `hierarchical-errors` (1,214 LOC) each
+  `branching-flow` (1,871 LOC) and `erraudit` (1,214 LOC) each
   maintain.
 - **No CLI binary.** The SDK is library-only today. A `cmd/` wrapper is a
   ROADMAP item, not a domain concept.

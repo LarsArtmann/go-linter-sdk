@@ -1,5 +1,5 @@
 // Package linter provides the shared scaffolding for LarsArtmann Go linters
-// (branching-flow, hierarchical-errors, go-structure-linter, and future
+// (branching-flow, erraudit, go-structure-linter, and future
 // additions).
 //
 // Each of those linters independently reinvented the same three layers:
@@ -8,7 +8,7 @@
 //   - A converter from their native domain type to finding.Finding
 //
 // The last layer — the converter — is the most expensive duplication:
-// branching-flow ships 1,871 LOC of converters, hierarchical-errors 1,214 LOC,
+// branching-flow ships 1,871 LOC of converters, erraudit 1,214 LOC,
 // just to bridge their Violation/ErrorViolation types to finding.Finding.
 // go-structure-linter eliminated this entirely by aliasing
 // `type Issue = finding.Finding`.

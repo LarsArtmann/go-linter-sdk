@@ -89,4 +89,4 @@ Core types in package `linter`:
 
 ## Consumers (Planned)
 
-`go-structure-linter` (pilot), `branching-flow`, `hierarchical-errors`. No active consumers yet.
+`go-structure-linter` (pilot), `branching-flow`, `erraudit`. No active consumers yet.

@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `encoding/json/jsontext` (used transitively via `go-finding`) being excluded
   by build constraints without `GOEXPERIMENT=jsonv2`. The flake devShells and
   apps now export it durably.
-- `hierarchical-errors` findings: bare `return nil, err` paths in `registry.go`
+- `erraudit` findings: bare `return nil, err` paths in `registry.go`
   and `rule.go` replaced with typed, rule-attributed errors.
 - BuildFlow failure `function 'outputs' called with unexpected argument 'self'`:
   added `self` to the flake `outputs` destructure pattern (`c13366c`). Nix 2.34.8
