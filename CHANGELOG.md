@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   YAML/JSON/Nix/TOML (`0ca7a41`).
 - Living project docs: `FEATURES.md`, `TODO_LIST.md`, `ROADMAP.md` — honest
   feature inventory, short-term work backlog, and long-term vision.
+- `TestRegistry_ConcurrentReadWrite` stress test exercising the registry's
+  `RWMutex` under `-race` (writers + readers + runners). Previously `-race`
+  passed vacuously because no goroutines touched the registry.
+- `BenchmarkRegistry_Register`, `BenchmarkRegistry_All`, and
+  `BenchmarkRegistry_Run` — the first performance baseline for the registry
+  hot paths.
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`): test
+  (ubuntu-latest + macos-latest), lint, format check, govulncheck, and nix
+  flake check. Handles the `replace ../go-finding` directive by cloning
+  `go-finding` as a sibling; all actions pinned to commit SHAs.
 
 ### Changed
 
@@ -37,10 +47,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `go.mod` points `go-finding` at a local replace directive (sibling checkout);
   consumers need `github.com/larsartmann/go-finding` available on the module
   path until a tagged release is published.
-- `registry.go` migrated to Go 1.26's generic `errors.AsType[*RuleError]`
-  for the no-double-wrap guard (`88bf523`). `registry_test.go` and the
-  `errors.go` doc example still use `errors.As`; completion is tracked in
-  `TODO_LIST.md`.
+- `errors.AsType` migration completed: `registry.go`, `registry_test.go`, and
+  the `errors.go` doc example all use Go 1.26's generic
+  `errors.AsType[*RuleError]` (production code since `88bf523`; tests + docs
+  finished this session). The project is now gopls-clean (zero `errorsastype`
+  hints).
+- Tests moved to black-box `package linter_test`, satisfying `testpackage`
+  natively with no suppression. Test factories (`makeRule`, `failingRule`)
+  return the concrete `RuleFunc` rather than the `Rule` interface, so `ireturn`
+  has nothing to flag either.
+- `TestRegistry_Run_NoDoubleWrap` restored to a positive exact-identity
+  assertion (`cause == errSentinel` proves a single wrap), stronger than the
+  previous negative-only check. `errors.Is` is deliberately avoided because it
+  cannot distinguish one wrap from two.
+- `.golangci.yml` right-sized from first principles: removed the cargo-culted
+  `mnd` numbers/functions and `gosec` excludes (zero findings without them —
+  this is a pure library), and trimmed `varnamelen` ignore-names from 30+ to
+  the 6 conventional abbreviations that actually appear. The wholesale
+  `_test.go` exclusions for `testpackage` and `ireturn` were dropped (no longer
+  needed after the black-box migration).
+- `DetectorFromRegistry(r *Registry, ...)` parameter renamed to `registry` for
+  clearer public-API documentation and to clear a `varnamelen` finding without
+  suppression.
 
 ### Fixed
 

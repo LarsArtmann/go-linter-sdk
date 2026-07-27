@@ -26,14 +26,14 @@
 | `RuleFunc` adapter (meta header + closure) | 🟢 `FULLY_FUNCTIONAL`     | `rule.go:67`; the common case, satisfies `Rule` via `RuleMeta`                                                                                                 |
 | `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL`     | `rule.go:74` — `Name/Description/Cat/Sev` struct literal                                                                                                       |
 | `Category` taxonomy (8 values)             | 🟢 `FULLY_FUNCTIONAL`     | `rule.go:37` — design, structure, error-handling, correctness, style, performance, security, configuration                                                     |
-| `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:14` (`sync.RWMutex`); concurrent-safe by construction (a stress test is tracked in TODO_LIST)                                                     |
+| `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:14` (`sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`                              |
 | `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:20` / `:30` / `:44`; `Register` panics on duplicate name (programming error)                                                                      |
 | `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:70`; aggregates findings into a `*finding.Report`; fails fast on first rule error                                                                 |
 | `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:95`; reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                                    |
 | `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:120`; 0 clean / 1 any findings; nil/empty cases tested                                                                                            |
 | `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL`     | `errors.go:24`; single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through (`registry.go:57`); 2 tests                                          |
 | `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL`     | `errors.go:11`; `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule name                                                         |
-| `errors.AsType` migration                  | 🟡 `PARTIALLY_FUNCTIONAL` | `registry.go:58` uses `errors.AsType[*RuleError]`; `registry_test.go:196` and the `errors.go:18` doc example still use `errors.As` (gopls `errorsastype` hint) |
+| `errors.AsType` migration                  | 🟢 `FULLY_FUNCTIONAL`     | `registry.go:58`, `registry_test.go`, and the `errors.go` doc all use `errors.AsType[*RuleError]`; project is gopls-clean (no `errorsastype` hints)           |
 
 ## Tooling & infrastructure
 
@@ -43,10 +43,12 @@
 | `GOEXPERIMENT=jsonv2` made durable             | 🟢 `FULLY_FUNCTIONAL`     | Exported in every app + both devShells; required by transitive `encoding/json/v2`                                               |
 | treefmt (gofumpt/goimports/golines@120/nixfmt) | 🟢 `FULLY_FUNCTIONAL`     | `flake.nix:72`; enforced as a `nix flake check` derivation                                                                      |
 | `devShells.default` + `devShells.ci`           | 🟢 `FULLY_FUNCTIONAL`     | `flake.nix:85` / `:106`                                                                                                         |
-| golangci-lint v2 config                        | 🟢 `FULLY_FUNCTIONAL`     | `.golangci.yml`; carries `goexperiment.jsonv2` build tag; `0 issues`                                                            |
-| BuildFlow config                               | 🟢 `FULLY_FUNCTIONAL`     | `.buildflow.yml`; BuildFlow passes 35/36 (1 skipped by config = gitleaks)                                                       |
-| `reports/` durable on fresh clone              | 🟡 `PARTIALLY_FUNCTIONAL` | `.gitignore:64` keeps `reports/.gitkeep`; **fresh-clone BuildFlow run never verified** (tracked in TODO_LIST)                   |
-| Coverage output path                           | 🟡 `PARTIALLY_FUNCTIONAL` | `flake.nix` `coverage`/`clean` apps now write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` (fixed this session) |
+| golangci-lint v2 config                        | 🟢 `FULLY_FUNCTIONAL`     | `.golangci.yml`; carries `goexperiment.jsonv2` build tag; right-sized (cargo-culted `mnd`/`gosec`/`varnamelen` trimmed); `0 issues`                             |
+| BuildFlow config                               | 🟢 `FULLY_FUNCTIONAL`     | `.buildflow.yml`; BuildFlow passes 35/36 (1 skipped by config = gitleaks); fresh-clone verified                                |
+| `reports/` durable on fresh clone              | 🟢 `FULLY_FUNCTIONAL`     | `.gitignore:64` keeps `reports/.gitkeep`; **verified** via `git clone` + `nix develop --command buildflow` (35/36, test-coverage step passes)                  |
+| Coverage output path                           | 🟢 `FULLY_FUNCTIONAL`     | `flake.nix` `coverage`/`clean` apps write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` + BuildFlow `test-coverage`                              |
+| GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL`     | `.github/workflows/ci.yml` — test (ubuntu+macos), lint, fmt check, govulncheck, nix flake check; sibling-clones `go-finding` for the replace directive           |
+| Registry benchmarks + concurrent stress test   | 🟢 `FULLY_FUNCTIONAL`     | `registry_test.go` — `Benchmark*` for `Register`/`All`/`Run` + `TestRegistry_ConcurrentReadWrite` exercising the `RWMutex` under `-race`                        |
 
 ## Documentation
 
@@ -72,5 +74,4 @@
 | `RuleMeta.Validate` / `Category.All`     | ⚪ `PLANNED` | Validate non-empty name / valid category / valid severity at registration        |
 | `cmd/` CLI binary                        | ⚪ `PLANNED` | One-liner `main.go` wrapping the registry (README promises it; no `cmd/` exists) |
 | `examples/` directory                    | ⚪ `PLANNED` | Minimal consumer linter built on the SDK                                         |
-| GitHub Actions CI                        | ⚪ `PLANNED` | `.github/workflows/`; all verification is currently local-only                   |
 | `go.work` workspace                      | ⚪ `PLANNED` | Formalize the sibling-`go-finding` checkout; today only a `replace` directive    |
