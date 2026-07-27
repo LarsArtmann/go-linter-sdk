@@ -18,6 +18,10 @@
 > `nix run .#test` (10/10 pass), `nix run .#test-race` (clean), `nix run .#lint`
 > (0 issues), `nix run .#vet`, `nix flake check` (all checks passed), and
 > `nix develop --command buildflow` (35/36). Fresh-clone BuildFlow verified.
+>
+> **One-home rule:** this file tracks only what EXISTS in code today.
+> Not-yet-built capabilities live in `ROADMAP.md` until they graduate to
+> `TODO_LIST.md`.
 
 ## Core SDK
 
@@ -62,17 +66,3 @@
 | `FEATURES.md`             | 🟢 `FULLY_FUNCTIONAL` | This file                                                                                    |
 | `TODO_LIST.md`            | 🟢 `FULLY_FUNCTIONAL` | Bounded short-term work                                                                      |
 | `ROADMAP.md`              | 🟢 `FULLY_FUNCTIONAL` | Long-term vision + open questions                                                            |
-| `docs/DOMAIN_LANGUAGE.md` | ⚪ `PLANNED`          | Glossary for `Rule`/`RuleFunc`/`RuleMeta`/`Registry`/`Category`/`RuleError`; not yet written |
-
-## Planned capabilities (no code yet)
-
-| Feature                                  | Status       | Notes                                                                            |
-| ---------------------------------------- | ------------ | -------------------------------------------------------------------------------- |
-| Severity / category filtering (`Filter`) | ⚪ `PLANNED` | Filter findings by severity/category; referenced in prior session reports        |
-| Severity-tiered exit codes               | ⚪ `PLANNED` | `ExitCodeFromReport` is binary today; tools wanting tiers do their own mapping   |
-| `Registry.RunParallel`                   | ⚪ `PLANNED` | Rules are independent; the `Register` mutex does not block parallel `Check`      |
-| Registry helpers                         | ⚪ `PLANNED` | `NewRegistryFromRules`, `Deregister`, `Has`, `Get`                               |
-| `RuleMeta.Validate` / `Category.All`     | ⚪ `PLANNED` | Validate non-empty name / valid category / valid severity at registration        |
-| `cmd/` CLI binary                        | ⚪ `PLANNED` | One-liner `main.go` wrapping the registry (README promises it; no `cmd/` exists) |
-| `examples/` directory                    | ⚪ `PLANNED` | Minimal consumer linter built on the SDK                                         |
-| `go.work` workspace                      | ⚪ `PLANNED` | Formalize the sibling-`go-finding` checkout; today only a `replace` directive    |

@@ -120,13 +120,22 @@ decisions, not tasks — they need an answer before work can proceed.
 - **Q3 — Library-only, or eventual CLI?** If the SDK stays library-only, the
   flake's `self` arg is genuinely unused and `self`-based versioning is not
   needed. A future `cmd/` binary would flip both. (session 3, §g.3)
+
+## Resolved questions
+
+Decisions made in prior sessions, kept for context. These no longer block work.
+
 - **Q4 — Was the `flake.lock` bump (`21b7b36`) that exposed the missing-`self`
-  bug intentional?** Which nixpkgs revision / Nix version introduced the stricter
-  `@`-pattern evaluation, and does it affect sibling repos? (session 3, §g.1)
+  bug intentional?** Moot. The fix (declaring `self` in the `outputs`
+  destructure) is permanent and verified across all sibling repos. The root
+  cause was Nix 2.34.8+ enforcing strict `@`-pattern argument checking; which
+  exact nixpkgs revision introduced it no longer matters. (resolved session 3,
+  `c13366c`)
 - **Q5 — White-box (`package linter`) or black-box (`package linter_test`)
-  tests?** Drives the `testpackage` lint resolution in `TODO_LIST.md`. White-box
-  reaches unexported helpers; black-box would need an `export_test.go` shim.
-  (session 2, §g.2)
+  tests?** **Black-box.** Tests were moved to `package linter_test`, satisfying
+  `testpackage` natively with no suppression. An `export_test.go` shim is the
+  documented escape hatch if a future test needs an unexported symbol.
+  (resolved session 5, `b369bba`)
 
 ## Non-goals
 
