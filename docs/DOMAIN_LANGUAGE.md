@@ -63,7 +63,7 @@ every rule definition and the verbosity cost compounds.
 
 ### Category
 
-A taxonomy string classifying *what kind of issue* a rule detects. Used for
+A taxonomy string classifying _what kind of issue_ a rule detects. Used for
 filtering, grouping, and reporting. There are eight values: `design`,
 `structure`, `error-handling`, `correctness`, `style`, `performance`,
 `security`, `configuration`.
@@ -93,7 +93,7 @@ startup, not in production.
 An error wrapper that attributes a failure to a specific rule by name. When a
 rule's `Check` returns an error, it is wrapped exactly once into a
 `*RuleError`. Without this, a `Registry.Run` over many rules could only report
-"something failed" — the caller could not tell *which* rule.
+"something failed" — the caller could not tell _which_ rule.
 
 The companion `ErrRuleFailed` sentinel lets callers check "did any rule fail?"
 without caring which. Use `errors.Is(err, ErrRuleFailed)` for the boolean

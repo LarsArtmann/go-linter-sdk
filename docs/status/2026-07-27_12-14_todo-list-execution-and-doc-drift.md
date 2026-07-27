@@ -17,25 +17,25 @@ documentation discipline was not.
 
 ## TL;DR
 
-| Dimension                                      | State                                                                              |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
-| TODO_LIST items completed                      | **11/11** — every High, Med, and Low item done and verified                         |
-| `errors.AsType` migration                      | **DONE** — `registry.go`, `registry_test.go`, `errors.go` doc; gopls-clean         |
-| Concurrent registry test                       | **DONE** — `TestRegistry_ConcurrentReadWrite` under `-race`                        |
-| Benchmarks                                     | **DONE** — `Register`/`All`/`Run`; first perf baseline                             |
-| Positive double-wrap assertion                 | **DONE** — restored exact-identity check                                           |
-| `testpackage` resolution                       | **DONE** — moved to black-box `package linter_test`                                |
-| `ireturn` wholesale exclusion                  | **DONE** — factories return concrete `RuleFunc`                                    |
-| `.golangci.yml` right-sized                    | **DONE** — dropped cargo-culted `mnd`/`gosec`, trimmed `varnamelen` 30+→6         |
-| Formatter agreement (`nix fmt` vs golangci)    | **DONE** — zero diff                                                               |
-| Sibling-repo `self` cross-check                | **DONE** — all 4 sibling repos clean                                               |
-| GitHub Actions CI                              | **DONE** — `.github/workflows/ci.yml`, all SHAs pinned                              |
-| Fresh-clone BuildFlow verification             | **DONE** — `git clone` + `nix develop --command buildflow` → 35/36                 |
-| Coverage                                       | **90.0%** — held steady despite refactors                                           |
-| ROADMAP Q5 (testpackage) doc drift             | **FAILED** — resolved in code, never updated ROADMAP.md; still listed as open      |
-| FEATURES↔ROADMAP PLANNED split-brain           | **STILL OPEN** — flagged prior session, untouched this session                     |
-| Auto-commit message quality                    | **GARBAGE** — `"and update linter configuration"` shipped as a commit summary       |
-| Status report written proactively              | **NO** — waited until asked (4th consecutive session with this failure)            |
+| Dimension                                   | State                                                                         |
+| ------------------------------------------- | ----------------------------------------------------------------------------- |
+| TODO_LIST items completed                   | **11/11** — every High, Med, and Low item done and verified                   |
+| `errors.AsType` migration                   | **DONE** — `registry.go`, `registry_test.go`, `errors.go` doc; gopls-clean    |
+| Concurrent registry test                    | **DONE** — `TestRegistry_ConcurrentReadWrite` under `-race`                   |
+| Benchmarks                                  | **DONE** — `Register`/`All`/`Run`; first perf baseline                        |
+| Positive double-wrap assertion              | **DONE** — restored exact-identity check                                      |
+| `testpackage` resolution                    | **DONE** — moved to black-box `package linter_test`                           |
+| `ireturn` wholesale exclusion               | **DONE** — factories return concrete `RuleFunc`                               |
+| `.golangci.yml` right-sized                 | **DONE** — dropped cargo-culted `mnd`/`gosec`, trimmed `varnamelen` 30+→6     |
+| Formatter agreement (`nix fmt` vs golangci) | **DONE** — zero diff                                                          |
+| Sibling-repo `self` cross-check             | **DONE** — all 4 sibling repos clean                                          |
+| GitHub Actions CI                           | **DONE** — `.github/workflows/ci.yml`, all SHAs pinned                        |
+| Fresh-clone BuildFlow verification          | **DONE** — `git clone` + `nix develop --command buildflow` → 35/36            |
+| Coverage                                    | **90.0%** — held steady despite refactors                                     |
+| ROADMAP Q5 (testpackage) doc drift          | **FAILED** — resolved in code, never updated ROADMAP.md; still listed as open |
+| FEATURES↔ROADMAP PLANNED split-brain        | **STILL OPEN** — flagged prior session, untouched this session                |
+| Auto-commit message quality                 | **GARBAGE** — `"and update linter configuration"` shipped as a commit summary |
+| Status report written proactively           | **NO** — waited until asked (4th consecutive session with this failure)       |
 
 ---
 
@@ -92,7 +92,7 @@ documentation discipline was not.
     tag pins — I fixed them).
 13. **Proved the fresh-clone BuildFlow claim.** Actually `git clone`d to
     `/tmp`, cloned `go-finding` as a sibling, ran `nix develop --command
-    buildflow` → 35/36. `reports/.gitkeep` survived. This was the #1 item
+buildflow` → 35/36. `reports/.gitkeep` survived. This was the #1 item
     flagged as "theoretical" across sessions 2, 3, and 4.
 14. **Ran the full integration gate.** `nix develop --command buildflow` →
     35/36 in the real repo. Only 3 pre-existing ROADMAP Q2 root-package
@@ -279,7 +279,7 @@ would be new TODO_LIST entries.
 27. `[R]` **Add Renovate/Dependabot** for nix + go dependencies.
 28. `[R]` **Package-level `Example*` functions** visible on pkg.go.dev.
 29. `[R]` **Diagram the `DetectorFromRegistry → finding.Detector → BuildFlow
-    DAG`** adaptation.
+DAG`** adaptation.
 30. `[R]` **Audit README's claimed API surface** against actual exported symbols.
 31. `[T]` **Add a CODEOWNERS file.**
 32. `[T]` **Add issue/PR templates** under `.github/`.
@@ -315,7 +315,7 @@ would be new TODO_LIST entries.
    session commit, or is the noisy `git log` acceptable as long as CHANGELOG +
    status reports carry the narrative?** The daemon fragmented this session's
    work across 6 commits with degrading message quality (`"and update linter
-   configuration"` is not a real summary). I can rebase/squash, but the
+configuration"` is not a real summary). I can rebase/squash, but the
    project's safety rules forbid `git reset` and I won't rewrite history
    without your call. The alternative is to accept the noise and treat CHANGELOG
    as the source of truth — but then `git log` misleads anyone who reads it

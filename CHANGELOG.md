@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (ubuntu-latest + macos-latest), lint, format check, govulncheck, and nix
   flake check. Handles the `replace ../go-finding` directive by cloning
   `go-finding` as a sibling; all actions pinned to commit SHAs.
+- `docs/DOMAIN_LANGUAGE.md` — ubiquitous-language glossary defining the six
+  core concepts (`Rule`, `RuleFunc`, `RuleMeta`, `Category`, `Registry`,
+  `RuleError`), their relationships, and what is deliberately NOT in the
+  domain.
 
 ### Changed
 
@@ -69,6 +73,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DetectorFromRegistry(r *Registry, ...)` parameter renamed to `registry` for
   clearer public-API documentation and to clear a `varnamelen` finding without
   suppression.
+- Documentation one-home rule established: `FEATURES.md` tracks only
+  capabilities that have code today; all not-yet-built capabilities live
+  exclusively in `ROADMAP.md`. Removed the duplicated "Planned capabilities"
+  section from `FEATURES.md` (all items were already in `ROADMAP.md`).
+- ROADMAP open questions Q4 (flake.lock bump — moot) and Q5 (white-box vs
+  black-box tests — resolved: black-box) closed and moved to a "Resolved
+  questions" section.
 
 ### Fixed
 
@@ -86,3 +97,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   write/read `reports/coverage.out`, aligning with `AGENTS.md`, the `.gitignore`
   convention, and BuildFlow's `test-coverage` step. Previously both apps used the
   repo-root `./coverage.out`, contradicting every other reference in the repo.
+- README "5-line linter" example did not compile: the import block was missing
+  `"os"` (needed for `os.Exit`). Added the import; example verified to compile
+  against the actual exported API.

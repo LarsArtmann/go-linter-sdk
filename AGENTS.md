@@ -76,6 +76,16 @@ Core types in package `linter`:
   means `.github/workflows/ci.yml` must `git clone` go-finding into
   `../go-finding` before any Go step. When go-finding publishes a tag (ROADMAP
   Q1), the replace and the sibling clone both drop.
+- **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
+  `FEATURES.md` tracks only capabilities that have code today
+  (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built
+  capabilities live exclusively in `ROADMAP.md` until they graduate to
+  `TODO_LIST.md`. This kills the FEATURES↔ROADMAP PLANNED split-brain that
+  recurred across sessions 2-5.
+- **Auto-git daemon manages commits.** The daemon commits automatically with
+  generated messages (sometimes low-quality). Do not rewrite history to fix
+  them — `CHANGELOG.md` is the narrative of record. Focus on keeping the
+  CHANGELOG accurate rather than the `git log` pretty.
 
 ## Consumers (Planned)
 

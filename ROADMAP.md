@@ -84,8 +84,8 @@ before the surface grows.
 
 Raw ideas:
 
-- `docs/DOMAIN_LANGUAGE.md` for `Rule`, `RuleFunc`, `RuleMeta`, `Registry`,
-  `Category`, `RuleError`
+- ~~`docs/DOMAIN_LANGUAGE.md` for `Rule`, `RuleFunc`, `RuleMeta`, `Registry`,
+  `Category`, `RuleError`~~ — done (session 6)
 - Package-level examples (`ExampleRegistry_Run`, `ExampleRuleFunc`) visible on
   pkg.go.dev
 - A diagram of the `DetectorFromRegistry → finding.Detector → BuildFlow DAG`

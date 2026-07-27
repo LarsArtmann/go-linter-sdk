@@ -57,12 +57,13 @@
 
 ## Documentation
 
-| Feature                   | Status                | Notes                                                                                        |
-| ------------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
-| `README.md`               | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path                                   |
-| `AGENTS.md`               | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern               |
-| `CONTRIBUTING.md`         | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                        |
-| `CHANGELOG.md`            | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                      |
-| `FEATURES.md`             | 🟢 `FULLY_FUNCTIONAL` | This file                                                                                    |
-| `TODO_LIST.md`            | 🟢 `FULLY_FUNCTIONAL` | Bounded short-term work                                                                      |
-| `ROADMAP.md`              | 🟢 `FULLY_FUNCTIONAL` | Long-term vision + open questions                                                            |
+| Feature                   | Status                | Notes                                                                                             |
+| ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------- |
+| `README.md`               | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path                                        |
+| `AGENTS.md`               | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                    |
+| `CONTRIBUTING.md`         | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                             |
+| `CHANGELOG.md`            | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                           |
+| `FEATURES.md`             | 🟢 `FULLY_FUNCTIONAL` | This file                                                                                         |
+| `TODO_LIST.md`            | 🟢 `FULLY_FUNCTIONAL` | Bounded short-term work                                                                           |
+| `ROADMAP.md`              | 🟢 `FULLY_FUNCTIONAL` | Long-term vision + open questions                                                                 |
+| `docs/DOMAIN_LANGUAGE.md` | 🟢 `FULLY_FUNCTIONAL` | Ubiquitous-language glossary: `Rule`, `RuleFunc`, `RuleMeta`, `Category`, `Registry`, `RuleError` |
