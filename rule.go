@@ -58,6 +58,7 @@ type Rule interface {
 	Description() string
 	Category() Category
 	Severity() finding.Severity
+	IsEnabledByDefault() bool
 	Check(ctx context.Context, dir string) ([]finding.Finding, error)
 }
 
@@ -78,6 +79,22 @@ type RuleMeta struct {
 	Sev         finding.Severity
 }
 
+// optInRule is a RuleFunc with default-enabled=false. Created via OptIn().
+// Embeds RuleFunc so all methods (Name/Description/Category/Severity/Check)
+// are inherited; only IsEnabledByDefault is overridden.
+type optInRule struct {
+	RuleFunc
+}
+
+func (optInRule) IsEnabledByDefault() bool { return false }
+
+// OptIn returns a Rule that is disabled by default — it only runs when a
+// consumer explicitly enables it (e.g. via --enable <name>). Use for rules
+// that are noisy, experimental, or domain-specific:
+//
+//	r.Register(linter.OptIn(linter.RuleFunc{Meta: ..., Run: ...}))
+func OptIn(rf RuleFunc) Rule { return optInRule{rf} }
+
 // Name implements Rule.
 func (r RuleFunc) Name() string { return r.Meta.Name }
 
@@ -89,6 +106,11 @@ func (r RuleFunc) Category() Category { return r.Meta.Cat }
 
 // Severity implements Rule.
 func (r RuleFunc) Severity() finding.Severity { return r.Meta.Sev }
+
+// IsEnabledByDefault returns true for RuleFunc. Rules created via RuleFunc are
+// enabled by default — they run unless a consumer explicitly disables them.
+// For opt-in rules, use OptIn().
+func (RuleFunc) IsEnabledByDefault() bool { return true }
 
 // Check implements Rule. If Run returns an error, it is wrapped into a
 // *RuleError carrying the rule's identity, so callers of Registry.Run and

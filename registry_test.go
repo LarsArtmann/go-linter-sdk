@@ -313,6 +313,28 @@ func BenchmarkRegistry_All(b *testing.B) {
 	}
 }
 
+func TestRuleFunc_IsEnabledByDefault(t *testing.T) {
+	t.Parallel()
+
+	r := makeRule("default-on", nil)
+	if !r.IsEnabledByDefault() {
+		t.Errorf("RuleFunc should be enabled by default")
+	}
+}
+
+func TestOptIn_IsDisabledByDefault(t *testing.T) {
+	t.Parallel()
+
+	optIn := linter.OptIn(makeRule("opt-in", nil))
+	if optIn.IsEnabledByDefault() {
+		t.Errorf("OptIn rule should be disabled by default")
+	}
+
+	if optIn.Name() != "opt-in" {
+		t.Errorf("OptIn should preserve rule name, got %q", optIn.Name())
+	}
+}
+
 func BenchmarkRegistry_Run(b *testing.B) {
 	r := linter.NewRegistry()
 
