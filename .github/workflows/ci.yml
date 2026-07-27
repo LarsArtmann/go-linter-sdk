@@ -1,0 +1,100 @@
+name: CI
+
+# go-linter-sdk depends on a sibling checkout of go-finding via a local
+# `replace` directive (go.mod). The Go jobs clone go-finding into ../go-finding
+# so the replace resolves. The nix job only evaluates the flake (treefmt) and
+# does not compile Go, so it needs no sibling.
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "**/*.md"
+      - docs/**
+      - LICENSE
+      - .gitignore
+      - "**/*.svg"
+      - "**/*.png"
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - "**/*.md"
+      - docs/**
+      - LICENSE
+      - .gitignore
+      - "**/*.svg"
+      - "**/*.png"
+
+permissions:
+  contents: read
+
+env:
+  # Required: go-finding uses encoding/json/v2 (Go experiment).
+  GOEXPERIMENT: jsonv2
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Clone sibling go-finding (required by replace directive)
+        run: git clone --depth 1 https://github.com/LarsArtmann/go-finding.git ../go-finding
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.26"
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test -race -count=1 ./...
+    timeout-minutes: 15
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Clone sibling go-finding (required by replace directive)
+        run: git clone --depth 1 https://github.com/LarsArtmann/go-finding.git ../go-finding
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.26"
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.12.2
+          args: --timeout=5m
+      - name: Check formatting
+        run: golangci-lint fmt --diff ./...
+    timeout-minutes: 15
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Clone sibling go-finding (required by replace directive)
+        run: git clone --depth 1 https://github.com/LarsArtmann/go-finding.git ../go-finding
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.26"
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: Run govulncheck
+        run: govulncheck ./...
+    timeout-minutes: 15
+
+  nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@e50d5f73bfe71c2dd0aa4218de8f4afa59f8f81d # v16
+      - name: Cache Nix store
+        uses: DeterminateSystems/magic-nix-cache-action@6221693898146dc97e38ad0e013488a16477a4c4 # v9
+      - name: Check flake evaluates (treefmt derivation)
+        run: nix flake check --no-build
+    timeout-minutes: 15

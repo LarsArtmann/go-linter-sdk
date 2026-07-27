@@ -92,7 +92,7 @@ func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error)
 // interface, so a linter plugs into BuildFlow's DAG with zero glue (via the
 // tool-sdk Spec.Detect field). The working directory is read from ctx via
 // finding.WorkingDirFromContext.
-func DetectorFromRegistry(r *Registry, toolName string) finding.Detector {
+func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector {
 	return finding.NamedDetectorFunc(toolName, func(ctx context.Context) ([]finding.Finding, error) {
 		dir := finding.WorkingDirFromContext(ctx)
 		if dir == "" {
@@ -101,7 +101,7 @@ func DetectorFromRegistry(r *Registry, toolName string) finding.Detector {
 
 		var all []finding.Finding
 
-		for _, rule := range r.All() {
+		for _, rule := range registry.All() {
 			findings, err := rule.Check(ctx, dir)
 			if err != nil {
 				return nil, wrapRuleError(rule.Name(), err)

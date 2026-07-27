@@ -225,6 +225,19 @@ linters:
     wrapcheck:
       ignore-package-globs:
         - github.com/larsartmann/go-finding/*
+    varnamelen:
+      # Minimal, first-principles list: only universally-conventional Go
+      # abbreviations that the linter is wrong to flag. The inherited go-finding
+      # list (30+ entries) was trimmed to exactly what earns its place here.
+      ignore-map-index-ok: true
+      ignore-type-assert-ok: true
+      ignore-names:
+        - err # error value
+        - ok # comma-ok / map-index-ok result
+        - i # loop index
+        - t # *testing.T
+        - r # registry / receiver
+        - wg # sync.WaitGroup
   exclusions:
     generated: lax
     rules:
