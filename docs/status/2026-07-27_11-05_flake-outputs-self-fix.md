@@ -72,7 +72,7 @@ Nothing catastrophic. But two process failures worth calling out:
 
 ### Codebase Improvements (noticed this session, not acted on)
 
-4. **Coverage output path mismatch.** AGENTS.md says `reports/coverage.out`; flake.nix `coverage` app writes to `./coverage.out`; `clean` app trashes `./coverage.out`. Pick one location and align all three.
+4. **Coverage output path mismatch.** AGENTS.md says `reports/coverage.out`; flake.nix `coverage` app writes to `./coverage.out`; `clean` app trashes `./coverage.out`. Pick one location and align all three. **Resolved `bd47ffb` (2026-07-27): flake apps now use `reports/coverage.out`; see [Resolution](#resolution-2026-07-27) below.**
 5. **`registry.go` at project root.** BuildFlow's `go-structure-linter` flags this as 🟠 ERROR: "Package file found at project root. Should be in /internal/ or /pkg/." The SDK's entire package lives at root — this may be intentional for a library, but the linter disagrees.
 6. **`internal/` directory warning.** BuildFlow flags 🟡 WARNING suggesting private code move to `internal/`. Same consideration as above.
 7. **No `self` usage in the flake.** Now that `self` is in scope, it's available for `self.rev`, `self.dirtyRev`, version derivation, etc. — but the flake doesn't use it. The sibling `go-finding` uses `self.rev or self.dirtyRev or "dev"` for versioning. Consider whether this SDK should too.
@@ -84,7 +84,7 @@ Nothing catastrophic. But two process failures worth calling out:
 
 ### High Priority (P0 — correctness/consistency)
 
-1. **Align coverage output path** — pick `reports/coverage.out` or `coverage.out` and update AGENTS.md, the `coverage` app, and the `clean` app to match.
+1. ~~**Align coverage output path** — pick `reports/coverage.out` or `coverage.out` and update AGENTS.md, the `coverage` app, and the `clean` app to match.~~ DONE: bd47ffb;
 2. **Review the flake.lock bump** — examine what nixpkgs revision was pulled in and whether the stricter evaluator behavior affects other patterns.
 3. **Decide on `registry.go` root placement** — either move to `internal/linter/` (satisfying `go-structure-linter`) or suppress the rule with a documented exception.
 4. **Resolve the `internal/` directory warning** — either restructure or document why root-level is correct for this library.
@@ -95,7 +95,7 @@ Nothing catastrophic. But two process failures worth calling out:
 6. **Add a `checks` output** to the flake for CI — currently treefmt is the only check derivation; consider adding `go test`, `go vet`, and `golangci-lint` as check derivations.
 7. **Cross-check all sibling projects** for the same missing-`self` latent bug — `go-structure-linter`, `branching-flow`, `hierarchical-errors` may have copied the same broken pattern.
 8. **Add `nix fmt` to the post-edit mental checklist** — or better, add it as a buildflow step if not already present.
-9. **Document the Nix version sensitivity** in AGENTS.md — note that `@`-pattern strictness changed and `self` must always be declared.
+9. ~~**Document the Nix version sensitivity** in AGENTS.md — note that `@`-pattern strictness changed and `self` must always be declared.~~ DONE: AGENTS.md "Gotchas & conventions" (2026-07-27);
 
 ### Lower Priority (P2 — polish)
 
@@ -113,17 +113,17 @@ Nothing catastrophic. But two process failures worth calling out:
 
 ### Documentation
 
-21. **Update AGENTS.md** with the `self` requirement note and the Nix version sensitivity.
-22. **Update FEATURES.md** if one exists, to reflect current state.
-23. **Update TODO_LIST.md** with the items from this report.
-24. **Update CHANGELOG.md** with the flake fix entry.
-25. **Review CONTRIBUTING.md** for accuracy after the lock bump.
+21. ~~**Update AGENTS.md** with the `self` requirement note and the Nix version sensitivity.~~ DONE: AGENTS.md "Gotchas & conventions" (2026-07-27);
+22. ~~**Update FEATURES.md** if one exists, to reflect current state.~~ DONE: bd47ffb;
+23. ~~**Update TODO_LIST.md** with the items from this report.~~ DONE: 4691f35;
+24. ~~**Update CHANGELOG.md** with the flake fix entry.~~ DONE: bd47ffb (self-fix c13366c + coverage alignment logged);
+25. ~~**Review CONTRIBUTING.md** for accuracy after the lock bump.~~ DONE: reviewed 2026-07-27, accurate (no changes needed);
 
 ### Testing
 
 26. **Add a test that verifies `DetectorFromRegistry` works with a real filesystem** (integration test).
-27. **Add tests for `ExitCodeFromReport` edge cases** (nil report, empty findings).
-28. **Add tests for `Registry.Register` duplicate-name panic** if not already covered.
+27. ~~**Add tests for `ExitCodeFromReport` edge cases** (nil report, empty findings).~~ DONE: already covered by registry_test.go TestExitCodeFromReport;
+28. ~~**Add tests for `Registry.Register` duplicate-name panic** if not already covered.~~ DONE: already covered by registry_test.go TestRegistry_DuplicatePanics;
 29. **Add benchmarks for `Registry.Run` with many rules**.
 30. **Consider table-driven tests for `RuleMeta` fields**.
 
@@ -171,3 +171,33 @@ Nothing catastrophic. But two process failures worth calling out:
 ## Verdict
 
 The fix was correct, minimal, and verified end-to-end (BuildFlow passes 35/36). The process around it was sloppy: I didn't run the original failing command until asked, didn't format-check proactively, didn't trace the trigger, and let a noticed discrepancy go unreported. The codebase has several small gaps (coverage path mismatch, root-package linter disagreement, unused `self`) that are worth addressing but none are blocking.
+
+---
+
+## Resolution (2026-07-27)
+
+A subsequent docs-health + update-old-docs pass resolved the documentation and
+coverage-path items above and harvested the remaining open work into the living
+backlog. The coverage-path mismatch flagged in (d).2 and (e).4 is fixed at the
+source (`bd47ffb`): the flake `coverage` and `clean` apps now write
+`reports/coverage.out`, matching AGENTS.md, the `.gitignore` convention, and
+BuildFlow's `test-coverage` step.
+
+| Item | Resolution | Ref |
+| ---- | ---------- | --- |
+| (f).1 | Coverage path aligned in flake.nix `coverage`/`clean` apps | `bd47ffb` |
+| (f).9, (f).21 | AGENTS.md gained a "Gotchas & conventions" section (`self`/Nix, `reports/.gitkeep`, `.golangci.yml`) | AGENTS.md |
+| (f).22 | FEATURES.md created (honest inventory, verified against code) | `bd47ffb` |
+| (f).23 | TODO_LIST.md created (bounded, verified, deduplicated) | `4691f35` |
+| (f).24 | CHANGELOG `[Unreleased]` updated (self-fix `c13366c`, coverage fix, `errors.AsType`) | `bd47ffb` |
+| (f).25 | CONTRIBUTING.md reviewed, accurate, no changes needed | reviewed 2026-07-27 |
+| (f).27 | `ExitCodeFromReport` edge cases already covered by `TestExitCodeFromReport` (nil/empty/non-empty) | `registry_test.go` |
+| (f).28 | Duplicate-name panic already covered by `TestRegistry_DuplicatePanics` | `registry_test.go` |
+| (f).3, (f).4 | `registry.go` root placement / `internal/` warning, open decision | ROADMAP Q2 |
+| (f).7 | Cross-check sibling repos for the missing-`self` flake bug, open | TODO_LIST |
+| (f).26, (f).29 | Integration test for `DetectorFromRegistry` and benchmarks, open | TODO_LIST |
+| (f).2, (f).5 | flake.lock bump intent / `self`-based versioning, open | ROADMAP Q3, Q4 |
+
+Remaining open items from (f) were routed to **TODO_LIST.md** (bounded work) and
+**ROADMAP.md** (long-term vision + open questions) on 2026-07-27, so they are no
+longer entombed in this snapshot.
