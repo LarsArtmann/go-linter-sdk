@@ -9,17 +9,17 @@
 
 ## TL;DR
 
-| Dimension                          | State                                                                        |
-| ---------------------------------- | ---------------------------------------------------------------------------- |
-| Root cause identified              | **DONE** — missing `self` in `outputs` destructure pattern                   |
-| Fix applied                        | **DONE** — one-line edit, auto-committed as `c13366c`                        |
-| BuildFlow end-to-end               | **PASSED** — 35/36 (1 skipped via config = gitleaks)                         |
-| `nix flake check`                  | **PASSED** — all checks pass                                                 |
-| `go build` / `go test` / `golangci-lint` | **ALL GREEN**                                                          |
-| Sibling-project cross-check        | **DONE** — confirmed `go-finding` already had `self` correctly               |
-| Proactive `nix fmt` after edit     | **MISSED** — ran it later, turned out clean, but I should have done it first |
-| Root-trigger investigation         | **MISSED** — didn't trace WHY this broke now (flake.lock → newer Nix)        |
-| Coverage path discrepancy          | **NOTICED, NOT REPORTED** — AGENTS.md says `reports/`, flake says root       |
+| Dimension                                | State                                                                        |
+| ---------------------------------------- | ---------------------------------------------------------------------------- |
+| Root cause identified                    | **DONE** — missing `self` in `outputs` destructure pattern                   |
+| Fix applied                              | **DONE** — one-line edit, auto-committed as `c13366c`                        |
+| BuildFlow end-to-end                     | **PASSED** — 35/36 (1 skipped via config = gitleaks)                         |
+| `nix flake check`                        | **PASSED** — all checks pass                                                 |
+| `go build` / `go test` / `golangci-lint` | **ALL GREEN**                                                                |
+| Sibling-project cross-check              | **DONE** — confirmed `go-finding` already had `self` correctly               |
+| Proactive `nix fmt` after edit           | **MISSED** — ran it later, turned out clean, but I should have done it first |
+| Root-trigger investigation               | **MISSED** — didn't trace WHY this broke now (flake.lock → newer Nix)        |
+| Coverage path discrepancy                | **NOTICED, NOT REPORTED** — AGENTS.md says `reports/`, flake says root       |
 
 ---
 
@@ -183,20 +183,20 @@ source (`bd47ffb`): the flake `coverage` and `clean` apps now write
 `reports/coverage.out`, matching AGENTS.md, the `.gitignore` convention, and
 BuildFlow's `test-coverage` step.
 
-| Item | Resolution | Ref |
-| ---- | ---------- | --- |
-| (f).1 | Coverage path aligned in flake.nix `coverage`/`clean` apps | `bd47ffb` |
-| (f).9, (f).21 | AGENTS.md gained a "Gotchas & conventions" section (`self`/Nix, `reports/.gitkeep`, `.golangci.yml`) | AGENTS.md |
-| (f).22 | FEATURES.md created (honest inventory, verified against code) | `bd47ffb` |
-| (f).23 | TODO_LIST.md created (bounded, verified, deduplicated) | `4691f35` |
-| (f).24 | CHANGELOG `[Unreleased]` updated (self-fix `c13366c`, coverage fix, `errors.AsType`) | `bd47ffb` |
-| (f).25 | CONTRIBUTING.md reviewed, accurate, no changes needed | reviewed 2026-07-27 |
-| (f).27 | `ExitCodeFromReport` edge cases already covered by `TestExitCodeFromReport` (nil/empty/non-empty) | `registry_test.go` |
-| (f).28 | Duplicate-name panic already covered by `TestRegistry_DuplicatePanics` | `registry_test.go` |
-| (f).3, (f).4 | `registry.go` root placement / `internal/` warning, open decision | ROADMAP Q2 |
-| (f).7 | Cross-check sibling repos for the missing-`self` flake bug, open | TODO_LIST |
-| (f).26, (f).29 | Integration test for `DetectorFromRegistry` and benchmarks, open | TODO_LIST |
-| (f).2, (f).5 | flake.lock bump intent / `self`-based versioning, open | ROADMAP Q3, Q4 |
+| Item           | Resolution                                                                                           | Ref                 |
+| -------------- | ---------------------------------------------------------------------------------------------------- | ------------------- |
+| (f).1          | Coverage path aligned in flake.nix `coverage`/`clean` apps                                           | `bd47ffb`           |
+| (f).9, (f).21  | AGENTS.md gained a "Gotchas & conventions" section (`self`/Nix, `reports/.gitkeep`, `.golangci.yml`) | AGENTS.md           |
+| (f).22         | FEATURES.md created (honest inventory, verified against code)                                        | `bd47ffb`           |
+| (f).23         | TODO_LIST.md created (bounded, verified, deduplicated)                                               | `4691f35`           |
+| (f).24         | CHANGELOG `[Unreleased]` updated (self-fix `c13366c`, coverage fix, `errors.AsType`)                 | `bd47ffb`           |
+| (f).25         | CONTRIBUTING.md reviewed, accurate, no changes needed                                                | reviewed 2026-07-27 |
+| (f).27         | `ExitCodeFromReport` edge cases already covered by `TestExitCodeFromReport` (nil/empty/non-empty)    | `registry_test.go`  |
+| (f).28         | Duplicate-name panic already covered by `TestRegistry_DuplicatePanics`                               | `registry_test.go`  |
+| (f).3, (f).4   | `registry.go` root placement / `internal/` warning, open decision                                    | ROADMAP Q2          |
+| (f).7          | Cross-check sibling repos for the missing-`self` flake bug, open                                     | TODO_LIST           |
+| (f).26, (f).29 | Integration test for `DetectorFromRegistry` and benchmarks, open                                     | TODO_LIST           |
+| (f).2, (f).5   | flake.lock bump intent / `self`-based versioning, open                                               | ROADMAP Q3, Q4      |
 
 Remaining open items from (f) were routed to **TODO_LIST.md** (bounded work) and
 **ROADMAP.md** (long-term vision + open questions) on 2026-07-27, so they are no
