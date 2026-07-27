@@ -15,8 +15,9 @@
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
 > delivers it AND confirm it works. Verified 2026-07-27: `nix run .#build`,
-> `nix run .#test` (9/9 pass), `nix run .#lint` (0 issues), `nix flake check`
-> (all checks passed).
+> `nix run .#test` (10/10 pass), `nix run .#test-race` (clean), `nix run .#lint`
+> (0 issues), `nix run .#vet`, `nix flake check` (all checks passed), and
+> `nix develop --command buildflow` (35/36). Fresh-clone BuildFlow verified.
 
 ## Core SDK
 

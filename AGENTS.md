@@ -61,6 +61,21 @@ Core types in package `linter`:
 - **`.golangci.yml` carries the `goexperiment.jsonv2` build tag.** Without it
   golangci-lint can't compile `go-finding`'s transitive `encoding/json/v2`
   imports and silently falls back to defaults. The `lint` app auto-discovers it.
+- **Tests are black-box (`package linter_test`), not white-box.** This was a
+  deliberate decision to satisfy `testpackage` natively (no suppression) and
+  test the real consumer contract. Test factories (`makeRule`, `failingRule`)
+  return the concrete `RuleFunc`, not the `Rule` interface, so `ireturn` has
+  nothing to flag either. There are no unexported symbols that tests need to
+  reach — if one is added, use an `export_test.go` shim rather than reverting
+  to white-box.
+- **Error matching: `errors.AsType` for types, `errors.Is` for sentinels.**
+  `registry.go` uses `errors.AsType[*RuleError]` (Go 1.26 generic); `errors.Is`
+  is correct for the `ErrRuleFailed` sentinel. Do not "migrate" `errors.Is`
+  calls — see the `hierarchical-errors` skill for the decision tree.
+- **CI clones `go-finding` as a sibling.** The `replace ../go-finding` directive
+  means `.github/workflows/ci.yml` must `git clone` go-finding into
+  `../go-finding` before any Go step. When go-finding publishes a tag (ROADMAP
+  Q1), the replace and the sibling clone both drop.
 
 ## Consumers (Planned)
 

@@ -3,10 +3,6 @@
 > Short-term, actionable, bounded work items, verified against the actual code.
 > For long-term vision and unrefined ideas, see `ROADMAP.md`.
 > Items are ranked by impact. Status is verified, not assumed.
->
-> Harvested from the status reports in `docs/status/` (2026-07-19 sessions 1 & 2,
-> 2026-07-27 session 3), deduplicated, and verified against the code on
-> 2026-07-27. Already-done items were dropped (they live in `CHANGELOG.md`).
 
 ## Status legend
 
@@ -17,31 +13,30 @@
 | 🔵 `BLOCKED`     | Cannot proceed, external dependency or decision needed.     |
 | 🟢 `DONE`        | Completed. Remove from this list and log in `CHANGELOG.md`. |
 
-## High Impact
+## Open work
 
-| Task                                                                 | Status    | Impact | Effort | Evidence                                                                                                                                                          |
-| -------------------------------------------------------------------- | --------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Complete the `errors.AsType` migration                               | 🔴 `TODO` | High   | 15m    | `registry.go` uses `errors.AsType[*RuleError]`; `registry_test.go:196` + `errors.go:18` doc still use `errors.As` (gopls `errorsastype` hint)                     |
-| Add a concurrent registry test (exercising the `RWMutex` under race) | 🔴 `TODO` | High   | 30m    | `registry.go:14` is thread-safe by construction but `-race` passes vacuously; no concurrent `Register`/`All`/`Run` test exists                                    |
-| Add `Benchmark*` for the registry hot paths                          | 🔴 `TODO` | High   | 30m    | No `Benchmark*` in `registry_test.go`; an SDK called on every lint run has no perf baseline                                                                       |
-| Restore the positive double-wrap assertion                           | 🔴 `TODO` | High   | 15m    | `TestRegistry_Run_NoDoubleWrap` only catches double-wrap, not zero-wrap (session 2, §d.4/§e.7)                                                                    |
-| Resolve the `testpackage` lint decision                              | 🔴 `TODO` | High   | 30m    | `.golangci.yml:301` silences `testpackage` via path exclusion; tests are white-box (`package linter`). Decide white-box+document or move to `package linter_test` |
-| Verify a fresh-clone BuildFlow run                                   | 🔴 `TODO` | High   | 20m    | `reports/.gitkeep` durability (`.gitignore:64`) is theoretical — never proven by `git clone` + `nix develop --command buildflow`                                  |
+The backlog is clear. All previously-tracked items were completed on
+2026-07-27 (see `CHANGELOG.md` for details):
 
-## Medium Impact
+- ~~Complete the `errors.AsType` migration~~ — done
+- ~~Add a concurrent registry test~~ — done (`TestRegistry_ConcurrentReadWrite`)
+- ~~Add `Benchmark*` for registry hot paths~~ — done (`Register`/`All`/`Run`)
+- ~~Restore the positive double-wrap assertion~~ — done
+- ~~Resolve the `testpackage` lint decision~~ — done (moved to black-box
+  `package linter_test`)
+- ~~Verify a fresh-clone BuildFlow run~~ — done (35/36 on a clean clone)
+- ~~Add a GitHub Actions CI workflow~~ — done (`.github/workflows/ci.yml`)
+- ~~Right-size `.golangci.yml` from first principles~~ — done (dropped
+  cargo-culted `mnd`/`gosec`, trimmed `varnamelen`)
+- ~~Verify formatter agreement (`nix fmt` vs `golangci-lint --fix`)~~ — done
+  (zero diff)
+- ~~Cross-check sibling repos for the missing-`self` flake bug~~ — done (all
+  clean)
+- ~~Replace wholesale `ireturn` test exclusion~~ — done (factories return
+  concrete `RuleFunc`)
 
-| Task                                                            | Status    | Impact | Effort | Evidence                                                                                                                                             |
-| --------------------------------------------------------------- | --------- | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Add a GitHub Actions CI workflow                                | 🔴 `TODO` | Med    | 1h     | No `.github/`; all verification (build/test/lint/flake/buildflow) is local-only                                                                      |
-| Right-size `.golangci.yml` from first principles                | 🔴 `TODO` | Med    | 1h     | Cargo-culted `mnd` numbers, `varnamelen` names, `gosec` exclusions inherited from `go-finding` (session 2, §b.1/§e.5)                                |
-| Verify formatter agreement (`nix fmt` vs `golangci-lint --fix`) | 🔴 `TODO` | Med    | 20m    | `.golangci.yml` formatters (`gci`/`goimports`/`gofumpt`/`golines`) overlap treefmt; split-brain risk unverified (session 2, §d.3)                    |
-| Cross-check sibling repos for the missing-`self` flake bug      | 🔴 `TODO` | Med    | 20m    | `go-structure-linter`, `branching-flow`, `hierarchical-errors` may share the latent `outputs @{ ... }` bug fixed here in `c13366c` (session 3, §f.7) |
-
-## Low Impact
-
-| Task                                                                | Status    | Impact | Effort | Evidence                                                                                                                      |
-| ------------------------------------------------------------------- | --------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Replace wholesale `ireturn` test exclusion with targeted `//nolint` | 🔴 `TODO` | Low    | 10m    | `.golangci.yml:302` excludes `ireturn` for all `_test.go`; `makeRule`/`failingRule` are the only offenders (session 2, §f.18) |
+Longer-horizon work lives in `ROADMAP.md`. When a ROADMAP idea is refined into
+a bounded task, it moves here.
 
 ---
 
