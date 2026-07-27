@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `goexperiment.jsonv2` build tag, matching the ecosystem linter set.
 - Project metadata: `LICENSE` (MIT), `CONTRIBUTING.md`, `AGENTS.md`,
   `.gitattributes`, durable `reports/.gitkeep`.
+- `.editorconfig` enforcing UTF-8/LF, tabs for Go/Makefile, 2-space for
+  YAML/JSON/Nix/TOML (`0ca7a41`).
+- Living project docs: `FEATURES.md`, `TODO_LIST.md`, `ROADMAP.md` — honest
+  feature inventory, short-term work backlog, and long-term vision.
 
 ### Changed
 
@@ -33,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `go.mod` points `go-finding` at a local replace directive (sibling checkout);
   consumers need `github.com/larsartmann/go-finding` available on the module
   path until a tagged release is published.
+- `registry.go` migrated to Go 1.26's generic `errors.AsType[*RuleError]`
+  for the no-double-wrap guard (`0be82c4`). `registry_test.go` and the
+  `errors.go` doc example still use `errors.As`; completion is tracked in
+  `TODO_LIST.md`.
 
 ### Fixed
 
@@ -42,3 +50,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   apps now export it durably.
 - `hierarchical-errors` findings: bare `return nil, err` paths in `registry.go`
   and `rule.go` replaced with typed, rule-attributed errors.
+- BuildFlow failure `function 'outputs' called with unexpected argument 'self'`:
+  added `self` to the flake `outputs` destructure pattern (`c13366c`). Nix 2.34.8
+  enforces strict argument checking on `@`-patterns; the sibling `go-finding`
+  flake already declared it.
+- Coverage output path mismatch: the `coverage` and `clean` flake apps now
+  write/read `reports/coverage.out`, aligning with `AGENTS.md`, the `.gitignore`
+  convention, and BuildFlow's `test-coverage` step. Previously both apps used the
+  repo-root `./coverage.out`, contradicting every other reference in the repo.

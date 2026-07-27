@@ -147,13 +147,16 @@
 
             coverage = mkApp "coverage" "Run tests with coverage report" ''
               export GOEXPERIMENT=jsonv2
-              go test ./... -coverprofile=coverage.out -covermode=atomic "$@"
-              go tool cover -func=coverage.out
+              mkdir -p reports
+              go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
+              go tool cover -func=reports/coverage.out
             '';
 
             clean = mkApp "clean" "Clean build and test artifacts" ''
               export GOEXPERIMENT=jsonv2
-              trash-put coverage.out 2>/dev/null || true
+              # reports/coverage.out is the canonical path; the bare coverage.out
+              # sweep removes artifacts from before the path was aligned.
+              trash-put reports/coverage.out coverage.out 2>/dev/null || true
               go clean -testcache
             '';
           };
