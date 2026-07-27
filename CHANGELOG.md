@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `IsEnabledByDefault() bool` added to the `Rule` interface. `RuleFunc` returns
+  `true` by default; use `OptIn(rf)` to create a disabled-by-default rule that
+  only runs when a consumer explicitly enables it. This closes the interface gap
+  with `go-structure-linter`'s existing `IsEnabledByDefault()` method, removing
+  a blocker for pilot adoption.
+- `OptIn(rf RuleFunc) Rule` constructor for opt-in rules.
+
+### Changed
+
+- **Breaking:** `Rule` interface now requires `IsEnabledByDefault() bool`.
+  Custom `Rule` implementations must add the method. `RuleFunc` users are
+  unaffected (the method is pre-implemented).
+- Pinned `go-finding` dependency from pseudo-version to `v1.4.0`. Consumers can
+  now `go get github.com/larsartmann/go-linter-sdk` without a local `replace`
+  directive (the `replace ../go-finding` is retained for development only).
+
+### Added
+
 - Shared linter scaffolding: `Rule`, `Registry`, `Detector` types that eliminate
   converter duplication across LarsArtmann Go linters.
 - `RuleError` type (`errors.go`) wrapping rule failures with the offending rule

@@ -31,8 +31,9 @@ No Makefile. No justfile. Everything via `flake.nix`.
 
 Core types in package `linter`:
 
-- **`Rule` interface** — `Name()` / `Description()` / `Category()` / `Severity()` / `Check(ctx, dir) ([]Finding, error)`. Rules emit `finding.Finding` directly (no intermediate Violation/Issue type).
-- **`RuleFunc` struct** — adapter combining `RuleMeta` header + `Run` closure to satisfy `Rule`. Most rules use this.
+- **`Rule` interface** — `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`. Rules emit `finding.Finding` directly (no intermediate Violation/Issue type).
+- **`RuleFunc` struct** — adapter combining `RuleMeta` header + `Run` closure to satisfy `Rule`. Most rules use this. Enabled by default.
+- **`OptIn(rf)`** — wraps a `RuleFunc` as disabled-by-default. Use for noisy, experimental, or domain-specific rules.
 - **`Registry`** — thread-safe (`sync.RWMutex`) collection of rules. `Register` panics on duplicate names (programming error).
 - **`DetectorFromRegistry`** — adapts a registry to `finding.Detector` for BuildFlow integration. Reads working dir from context.
 - **`ExitCodeFromReport`** — binary: 0 if clean, 1 if any findings.
@@ -43,7 +44,7 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding`** via replace directive: `replace github.com/larsartmann/go-finding => ../go-finding`. Both repos must be checked out as siblings under the same parent directory.
+- **`go-finding` v1.4.0** — pinned to a real published version (no longer pseudo-version). Local `replace ../go-finding` for development only; external consumers resolve v1.4.0 from the proxy.
 - Go 1.26+ (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions
