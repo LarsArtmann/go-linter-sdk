@@ -100,3 +100,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README "5-line linter" example did not compile: the import block was missing
   `"os"` (needed for `os.Exit`). Added the import; example verified to compile
   against the actual exported API.
+- Updated all living docs and source comments to reflect the
+  `hierarchical-errors` → `erraudit` project rename. Historical status reports
+  were left as-is (point-in-time records).
