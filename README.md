@@ -90,24 +90,24 @@ The working directory is read via `finding.WorkingDirFromContext(ctx)`, so modul
 
 ### Types
 
-| Type              | Purpose                                                                                                                                                                                                                           |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface  | `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`                                                                                                          |
-| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                                                                                                                 |
-| `RuleMeta` struct | Declarative identity: `Name`, `Description`, `Cat`, `Sev`                                                                                                                                                                         |
-| `Category`        | `CategoryDesign` / `CategoryStructure` / `CategoryErrorHandling` / `CategoryCorrectness` / `CategoryStyle` / `CategoryPerformance` / `CategorySecurity` / `CategoryConfiguration`                                                 |
-| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                                                                      |
+| Type              | Purpose                                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface  | `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`                                                          |
+| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                                                                 |
+| `RuleMeta` struct | Declarative identity: `Name`, `Description`, `Cat`, `Sev`                                                                                                                         |
+| `Category`        | `CategoryDesign` / `CategoryStructure` / `CategoryErrorHandling` / `CategoryCorrectness` / `CategoryStyle` / `CategoryPerformance` / `CategorySecurity` / `CategoryConfiguration` |
+| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                      |
 
 ### Functions
 
-| Function                            | Returns                  | Purpose                                                                                          |
-| ----------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
-| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                   |
-| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate name)                                                            |
-| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                     |
-| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                                                                |
-| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to the canonical ecosystem Detector interface                                     |
-| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                   |
+| Function                            | Returns                  | Purpose                                                                                           |
+| ----------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------- |
+| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                    |
+| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate name)                                                             |
+| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                      |
+| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                                                                 |
+| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to the canonical ecosystem Detector interface                                      |
+| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                    |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <name>`) |
 
 ---
