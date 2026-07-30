@@ -38,7 +38,7 @@ Rules are the **only** place domain knowledge about "what is wrong with this
 code" lives. Everything else in the SDK is plumbing. A linter is a set of
 rules; the SDK runs them.
 
-- **Lives at:** `rule.go:56` (interface)
+- **Lives at:** `rule.go` — `type Rule interface`
 - **Key contract:** `ID()` returns the stable identifier; `Check(ctx, dir)`
   emits findings directly, no intermediate type.
 
@@ -52,7 +52,7 @@ A `RuleFunc` is **data-shaped**: the metadata reads like a struct, and the
 `Check` logic is a function. This makes rules easy to scan in a `rules.go`
 file.
 
-- **Lives at:** `rule.go:68`
+- **Lives at:** `rule.go` — `type RuleFunc`
 - **Error wrapping:** if `Run` returns an error, `Check` wraps it into a
   `RuleError` carrying the rule's ID — the single chokepoint.
 
@@ -68,7 +68,7 @@ published. The registry panics on empty IDs at registration.
 Fields use abbreviated names (`Cat`, `Sev`) intentionally — they appear in
 every rule definition and the verbosity cost compounds.
 
-- **Lives at:** `rule.go:75`
+- **Lives at:** `rule.go` — `type RuleMeta`
 - **Validation:** empty ID panics at registration. Other metadata (invalid
   category, empty description) is not yet validated. Tracked in `ROADMAP.md`
   Theme 1.
@@ -85,7 +85,7 @@ domain-specific taxonomies (e.g., `Category("api")`, `Category("boilerplate")`).
 A category is orthogonal to severity: `CategorySecurity` + `SeverityWarning`
 and `CategoryStyle` + `SeverityError` are both valid combinations.
 
-- **Lives at:** `rule.go:33` (type), `rule.go:37` (recommended values)
+- **Lives at:** `rule.go` — `type Category` (const block for recommended values)
 - **Maps to** `finding.Category` at the finding boundary.
 
 ### Registry
@@ -99,7 +99,7 @@ integration (`DetectorsFromRegistry`). A linter registers all its rules
 shadow each other at runtime, which is a programming error that should surface
 at startup, not in production.
 
-- **Lives at:** `registry.go:14`
+- **Lives at:** `registry.go` — `type Registry`
 - **Thread safety:** `sync.RWMutex`; `Register` writes, `All`/`Run` read.
 
 ### RuleError
@@ -113,8 +113,8 @@ The companion `ErrRuleFailed` sentinel lets callers check "did any rule fail?"
 without caring which. Use `errors.Is(err, ErrRuleFailed)` for the boolean
 check; use `errors.AsType[*RuleError](err)` (Go 1.26+) to recover the rule ID.
 
-- **Lives at:** `errors.go:30` (type), `errors.go:11` (sentinel)
-- **No double-wrapping:** `wrapRuleError` (`registry.go:57`) passes through if
+- **Lives at:** `errors.go` — `type RuleError` (var `ErrRuleFailed`)
+- **No double-wrapping:** `wrapRuleError` (`registry.go`) passes through if
   the error is already a `*RuleError`, so `RuleFunc.Check`'s wrap is never
   re-wrapped by `Registry.Run`, `DetectorFromRegistry`, or
   `DetectorsFromRegistry`.
