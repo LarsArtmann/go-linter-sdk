@@ -31,14 +31,14 @@ func (r *Registry) Register(rule Rule) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	id := rule.ID()
-	if id == "" {
+	ruleID := rule.ID()
+	if ruleID == "" {
 		panic("linter: rule with empty ID cannot be registered")
 	}
 
 	for _, existing := range r.rules {
-		if existing.ID() == id {
-			panic("linter: duplicate rule ID " + id)
+		if existing.ID() == ruleID {
+			panic("linter: duplicate rule ID " + ruleID)
 		}
 	}
 
@@ -130,26 +130,29 @@ func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector 
 //
 // pipeline.Detector is a type alias for finding.Detector, so the returned slice
 // plugs directly into pipeline.New(config, rootDir, detectors...).
-func DetectorsFromRegistry(registry *Registry, toolName string) []finding.Detector {
+func DetectorsFromRegistry(registry *Registry) []finding.Detector {
 	all := registry.All()
 	detectors := make([]finding.Detector, 0, len(all))
 
 	for _, rule := range all {
-		rule := rule // capture for closure
+		detectorName := rule.ID()
 
-		detectors = append(detectors, finding.NamedDetectorFunc(rule.ID(), func(ctx context.Context) ([]finding.Finding, error) {
-			dir := finding.WorkingDirFromContext(ctx)
-			if dir == "" {
-				dir = "."
-			}
+		detectors = append(detectors, finding.NamedDetectorFunc(
+			detectorName,
+			func(ctx context.Context) ([]finding.Finding, error) {
+				dir := finding.WorkingDirFromContext(ctx)
+				if dir == "" {
+					dir = "."
+				}
 
-			findings, err := rule.Check(ctx, dir)
-			if err != nil {
-				return nil, wrapRuleError(rule.ID(), err)
-			}
+				findings, err := rule.Check(ctx, dir)
+				if err != nil {
+					return nil, wrapRuleError(rule.ID(), err)
+				}
 
-			return findings, nil
-		}))
+				return findings, nil
+			},
+		))
 	}
 
 	return detectors

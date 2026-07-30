@@ -44,7 +44,7 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.4.0** — pinned to a real published version (no longer pseudo-version). Local `replace ../go-finding` for development only; external consumers resolve v1.4.0 from the proxy.
+- **`go-finding` v1.4.1** — resolved from VCS as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch `v1.4.1` directly. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
 - Go 1.26+ (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions
@@ -73,10 +73,13 @@ Core types in package `linter`:
   `registry.go` uses `errors.AsType[*RuleError]` (Go 1.26 generic); `errors.Is`
   is correct for the `ErrRuleFailed` sentinel. Do not "migrate" `errors.Is`
   calls — see the `hierarchical-errors` skill for the decision tree.
-- **CI clones `go-finding` as a sibling.** The `replace ../go-finding` directive
-  means `.github/workflows/ci.yml` must `git clone` go-finding into
-  `../go-finding` before any Go step. When go-finding publishes a tag (ROADMAP
-  Q1), the replace and the sibling clone both drop.
+- **CI fetches `go-finding` via VCS auth, not a sibling clone.** There is no
+  `replace` directive. `.github/workflows/ci.yml` sets `GOPRIVATE` and configures
+  git to use the default `GITHUB_TOKEN` so the private `v1.4.1` tag resolves
+  from GitHub directly. Local dev uses `GOPRIVATE` (global) plus an SSH
+  `insteadOf` rewrite; a one-off tidy needs `GIT_CONFIG_COUNT=1
+  GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
+  GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only.
 - **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
   `FEATURES.md` tracks only capabilities that have code today
   (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built
