@@ -31,16 +31,19 @@ No Makefile. No justfile. Everything via `flake.nix`.
 
 Core types in package `linter`:
 
-- **`Rule` interface** — `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`. Rules emit `finding.Finding` directly (no intermediate Violation/Issue type).
+- **`Rule` interface** — `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`. Rules emit `finding.Finding` directly (no intermediate Violation/Issue type). Dual identity: `ID()` is the stable key (registry dedup, suppression, filtering, finding emission); `Name()` is the mutable display name.
 - **`RuleFunc` struct** — adapter combining `RuleMeta` header + `Run` closure to satisfy `Rule`. Most rules use this. Enabled by default.
 - **`OptIn(rf)`** — wraps a `RuleFunc` as disabled-by-default. Use for noisy, experimental, or domain-specific rules.
-- **`Registry`** — thread-safe (`sync.RWMutex`) collection of rules. `Register` panics on duplicate names (programming error).
-- **`DetectorFromRegistry`** — adapts a registry to `finding.Detector` for BuildFlow integration. Reads working dir from context.
+- **`Registry`** — thread-safe (`sync.RWMutex`) collection of rules. `Register` panics on duplicate or empty IDs (programming error).
+- **`DetectorFromRegistry`** — adapts a registry to a single `finding.Detector` for BuildFlow integration. Reads working dir from context.
+- **`DetectorsFromRegistry`** — returns `[]finding.Detector` (one per rule) for `go-finding/pipeline` integration with per-rule parallelism, timeouts, and error isolation. Each detector is named after the rule's ID.
 - **`ExitCodeFromReport`** — binary: 0 if clean, 1 if any findings.
+- **`Category`** is an open `string` type. The 8 built-in constants are recommendations; consumers can define custom categories (`Category("api")`).
+- **`finding.Confidence` and `finding.FixStrategy`** are per-finding, set via `finding.NewBuilder(...).WithConfidence(...).WithFixStrategy(...)`. More expressive than rule-level defaults.
 
 ### Error Wrapping Pattern
 
-`Registry.Run`, `RuleFunc.Check`, and `DetectorFromRegistry` wrap rule execution errors into `*RuleError` (carrying the rule name). Use `errors.As(err, &ruleErr)` to extract which rule failed, or `errors.Is(err, ErrRuleFailed)` for a boolean check. `Registry.Run` avoids double-wrapping: if the error is already a `*RuleError` (from `RuleFunc.Check`), it passes through.
+`Registry.Run`, `RuleFunc.Check`, and `DetectorFromRegistry`/`DetectorsFromRegistry` wrap rule execution errors into `*RuleError` (carrying the rule ID). Use `errors.AsType[*RuleError](err)` to extract which rule failed, or `errors.Is(err, ErrRuleFailed)` for a boolean check. `Registry.Run` avoids double-wrapping: if the error is already a `*RuleError` (from `RuleFunc.Check`), it passes through.
 
 ## Dependencies
 

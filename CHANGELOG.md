@@ -9,18 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `ID() string` added to the `Rule` interface. Every rule must declare a stable
+  ID that never changes once published — used for registry deduplication,
+  suppression matching, filter config, and the `finding.RuleName` field on
+  emitted findings. `Name()` remains as the mutable display name.
+- `DetectorsFromRegistry(registry) []finding.Detector` — returns one
+  `finding.Detector` per registered rule for `go-finding/pipeline` integration
+  with per-rule parallelism, timeouts, error isolation, and metrics. Each
+  detector is named after the rule's ID. Unlike `DetectorFromRegistry` (which
+  collapses all rules into a single opaque detector), this preserves per-rule
+  granularity at the pipeline layer.
+- `RuleMeta.ID` field (required). `Register` panics on empty IDs.
+- `RuleError.RuleID` field (renamed from `RuleName`) — carries the stable rule
+  ID instead of the display name.
+- `Category` documented as an open `string` type. The 8 built-in constants are
+  recommendations; consumers can define custom categories
+  (e.g., `Category("api")`).
+- `ireturn` allow-list now includes `github.com/larsartmann/go-linter-sdk.Rule`
+  for `OptIn`, which intentionally returns the `Rule` interface.
+
+### Changed
+
+- **Breaking:** `Rule` interface now requires `ID() string`. Custom `Rule`
+  implementations must add the method. `RuleFunc` users must set `RuleMeta.ID`.
+- **Breaking:** `RuleMeta` now has a required `ID` field (first field).
+- **Breaking:** `RuleError.RuleName` renamed to `RuleError.RuleID`. Callers
+  accessing the field directly must update; `errors.AsType` / `errors.Is` users
+  are unaffected.
+- **Breaking:** `Registry.Register` now deduplicates on `ID()` instead of
+  `Name()`, and panics on empty IDs. Two rules may share a display `Name()`
+  as long as their `ID()` values differ.
+- **Breaking:** `NewRuleError` parameter renamed from `ruleName` to `ruleID`.
 - `IsEnabledByDefault() bool` added to the `Rule` interface. `RuleFunc` returns
   `true` by default; use `OptIn(rf)` to create a disabled-by-default rule that
   only runs when a consumer explicitly enables it. This closes the interface gap
   with `go-structure-linter`'s existing `IsEnabledByDefault()` method, removing
   a blocker for pilot adoption.
 - `OptIn(rf RuleFunc) Rule` constructor for opt-in rules.
-
-### Changed
-
-- **Breaking:** `Rule` interface now requires `IsEnabledByDefault() bool`.
-  Custom `Rule` implementations must add the method. `RuleFunc` users are
-  unaffected (the method is pre-implemented).
 - Pinned `go-finding` dependency from pseudo-version to `v1.4.0`. Consumers can
   now `go get github.com/larsartmann/go-linter-sdk` without a local `replace`
   directive (the `replace ../go-finding` is retained for development only).

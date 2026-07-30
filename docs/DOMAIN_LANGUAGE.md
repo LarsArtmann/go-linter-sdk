@@ -22,16 +22,25 @@ coupling to a specific runner or framework.
 ### Rule
 
 A single lint check. The atomic unit of a linter. A rule declares its identity
-(name, description, category, severity) and a `Check` function that examines a
-directory and returns zero or more findings.
+(ID, name, description, category, severity) and a `Check` function that examines
+a directory and returns zero or more findings.
+
+Every rule has **dual identity** with distinct stability contracts:
+
+- **ID** — the stable identifier. Never changes once published. Used for
+  registry deduplication, suppression matching, filter config, and the
+  `finding.RuleName` field. Think `"G001"`, `"C001"`.
+- **Name** — the display name. Human-readable, can change across versions
+  without breaking suppression or filtering. Think `"missing transaction
+  commit"`.
 
 Rules are the **only** place domain knowledge about "what is wrong with this
 code" lives. Everything else in the SDK is plumbing. A linter is a set of
 rules; the SDK runs them.
 
 - **Lives at:** `rule.go:56` (interface)
-- **Key contract:** `Check(ctx, dir) ([]finding.Finding, error)` — emits
-  findings directly, no intermediate type.
+- **Key contract:** `ID()` returns the stable identifier; `Check(ctx, dir)`
+  emits findings directly, no intermediate type.
 
 ### RuleFunc
 
@@ -43,82 +52,91 @@ A `RuleFunc` is **data-shaped**: the metadata reads like a struct, and the
 `Check` logic is a function. This makes rules easy to scan in a `rules.go`
 file.
 
-- **Lives at:** `rule.go:67`
+- **Lives at:** `rule.go:68`
 - **Error wrapping:** if `Run` returns an error, `Check` wraps it into a
-  `RuleError` carrying the rule's name — the single chokepoint.
+  `RuleError` carrying the rule's ID — the single chokepoint.
 
 ### RuleMeta
 
-The declarative identity of a rule: its name, description, category, and
+The declarative identity of a rule: its ID, name, description, category, and
 severity. Supplied as a struct literal so a rule reads like a data record, not
 a method set.
+
+`ID` is **required** — it is the stable identifier that never changes once
+published. The registry panics on empty IDs at registration.
 
 Fields use abbreviated names (`Cat`, `Sev`) intentionally — they appear in
 every rule definition and the verbosity cost compounds.
 
-- **Lives at:** `rule.go:74`
-- **Not validated yet:** there is no `Validate` method; invalid metadata
-  (empty name, unknown category) surfaces at runtime, not registration.
-  Tracked in `ROADMAP.md` Theme 1.
+- **Lives at:** `rule.go:75`
+- **Validation:** empty ID panics at registration. Other metadata (invalid
+  category, empty description) is not yet validated. Tracked in `ROADMAP.md`
+  Theme 1.
 
 ### Category
 
 A taxonomy string classifying _what kind of issue_ a rule detects. Used for
-filtering, grouping, and reporting. There are eight values: `design`,
+filtering, grouping, and reporting. The type is `type Category string` — an
+**open** type. Eight values are provided as recommendations (`design`,
 `structure`, `error-handling`, `correctness`, `style`, `performance`,
-`security`, `configuration`.
+`security`, `configuration`), but consumers can define their own for
+domain-specific taxonomies (e.g., `Category("api")`, `Category("boilerplate")`).
 
 A category is orthogonal to severity: `CategorySecurity` + `SeverityWarning`
 and `CategoryStyle` + `SeverityError` are both valid combinations.
 
-- **Lives at:** `rule.go:33` (type), `rule.go:37` (values)
+- **Lives at:** `rule.go:33` (type), `rule.go:37` (recommended values)
 - **Maps to** `finding.Category` at the finding boundary.
 
 ### Registry
 
-A thread-safe collection of rules that drives both standalone execution
-(`Run`) and BuildFlow integration (`DetectorFromRegistry`). A linter
-registers all its rules (typically in `init()` or a constructor) and the
-registry handles the rest.
+A thread-safe collection of rules that drives standalone execution
+(`Run`), BuildFlow integration (`DetectorFromRegistry`), and pipeline
+integration (`DetectorsFromRegistry`). A linter registers all its rules
+(typically in `init()` or a constructor) and the registry handles the rest.
 
-`Register` panics on duplicate rule names — duplicate names silently shadow
-each other at runtime, which is a programming error that should surface at
-startup, not in production.
+`Register` panics on duplicate rule IDs or empty IDs — duplicate IDs silently
+shadow each other at runtime, which is a programming error that should surface
+at startup, not in production.
 
 - **Lives at:** `registry.go:14`
 - **Thread safety:** `sync.RWMutex`; `Register` writes, `All`/`Run` read.
 
 ### RuleError
 
-An error wrapper that attributes a failure to a specific rule by name. When a
+An error wrapper that attributes a failure to a specific rule by ID. When a
 rule's `Check` returns an error, it is wrapped exactly once into a
 `*RuleError`. Without this, a `Registry.Run` over many rules could only report
 "something failed" — the caller could not tell _which_ rule.
 
 The companion `ErrRuleFailed` sentinel lets callers check "did any rule fail?"
 without caring which. Use `errors.Is(err, ErrRuleFailed)` for the boolean
-check; use `errors.AsType[*RuleError](err)` (Go 1.26+) to recover the rule
-name.
+check; use `errors.AsType[*RuleError](err)` (Go 1.26+) to recover the rule ID.
 
 - **Lives at:** `errors.go:30` (type), `errors.go:11` (sentinel)
 - **No double-wrapping:** `wrapRuleError` (`registry.go:57`) passes through if
   the error is already a `*RuleError`, so `RuleFunc.Check`'s wrap is never
-  re-wrapped by `Registry.Run` or `DetectorFromRegistry`.
+  re-wrapped by `Registry.Run`, `DetectorFromRegistry`, or
+  `DetectorsFromRegistry`.
 
 ## Relationships
 
 ```
 Rule (interface)
+ ├── ID() → stable identifier (never changes)
+ ├── Name() → display name (mutable)
  ├── RuleFunc (adapter) ── RuleMeta (identity) + Run (closure)
- │                        ├── Category (taxonomy)
+ │                        ├── ID (required)
+ │                        ├── Category (open string type)
  │                        └── finding.Severity (from go-finding)
  └── Check() → []finding.Finding (output, from go-finding)
 
 Registry ──holds──→ []Rule
- ├── Run() → *finding.Report        (standalone CLI path)
- └── DetectorFromRegistry() → finding.Detector  (BuildFlow DAG path)
+ ├── Run() → *finding.Report              (standalone CLI path)
+ ├── DetectorFromRegistry() → finding.Detector     (BuildFlow DAG path)
+ └── DetectorsFromRegistry() → []finding.Detector  (pipeline path, per-rule)
 
-RuleError ──wraps──→ rule failure (carries RuleName)
+RuleError ──wraps──→ rule failure (carries RuleID)
 ErrRuleFailed ──sentinel matched by──→ errors.Is
 ```
 

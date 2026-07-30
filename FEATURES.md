@@ -27,17 +27,18 @@
 
 | Feature                                    | Status                | Notes                                                                                                                                               |
 | ------------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface                           | 🟢 `FULLY_FUNCTIONAL` | `rule.go:56` — `Name/Description/Category/Severity/Check`; rules emit `finding.Finding` direct                                                      |
-| `RuleFunc` adapter (meta header + closure) | 🟢 `FULLY_FUNCTIONAL` | `rule.go:67`; the common case, satisfies `Rule` via `RuleMeta`                                                                                      |
-| `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL` | `rule.go:74` — `Name/Description/Cat/Sev` struct literal                                                                                            |
-| `Category` taxonomy (8 values)             | 🟢 `FULLY_FUNCTIONAL` | `rule.go:37` — design, structure, error-handling, correctness, style, performance, security, configuration                                          |
+| `Rule` interface                           | 🟢 `FULLY_FUNCTIONAL` | `rule.go:56` — `ID/Name/Description/Category/Severity/Check`; rules emit `finding.Finding` direct; dual identity (stable ID + mutable display name) |
+| `RuleFunc` adapter (meta header + closure) | 🟢 `FULLY_FUNCTIONAL` | `rule.go:68`; the common case, satisfies `Rule` via `RuleMeta`                                                                                      |
+| `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL` | `rule.go:75` — `ID`(required)/`Name`/`Description`/`Cat`/`Sev` struct literal                                                                       |
+| `Category` taxonomy (open string type)     | 🟢 `FULLY_FUNCTIONAL` | `rule.go:33` — 8 recommended values; consumers can define custom categories (`Category("api")`)                                                    |
 | `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL` | `registry.go:14` (`sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`                   |
-| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go:20` / `:30` / `:44`; `Register` panics on duplicate name (programming error)                                                           |
+| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go:20` / `:30` / `:44`; `Register` panics on duplicate/empty ID (programming error)                                                       |
 | `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL` | `registry.go:70`; aggregates findings into a `*finding.Report`; fails fast on first rule error                                                      |
-| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go:95`; reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                         |
-| `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go:120`; 0 clean / 1 any findings; nil/empty cases tested                                                                                 |
-| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go:24`; single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through (`registry.go:57`); 2 tests                               |
-| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go:11`; `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule name                                              |
+| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go:92`; reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                         |
+| `DetectorsFromRegistry` (pipeline adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go:114`; returns `[]finding.Detector` (one per rule) for go-finding/pipeline; per-rule parallelism, timeouts, error isolation; 4 tests    |
+| `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go:153`; 0 clean / 1 any findings; nil/empty cases tested                                                                                 |
+| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go:30`; single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through; carries rule ID; 2 tests                                 |
+| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go:11`; `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule ID                                                |
 | `errors.AsType` migration                  | 🟢 `FULLY_FUNCTIONAL` | `registry.go:58`, `registry_test.go`, and the `errors.go` doc all use `errors.AsType[*RuleError]`; project is gopls-clean (no `errorsastype` hints) |
 
 ## Tooling & infrastructure

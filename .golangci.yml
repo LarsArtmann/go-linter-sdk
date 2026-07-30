@@ -175,6 +175,7 @@ linters:
         - stdlib
         - generic
         - github.com/larsartmann/go-finding.Detector
+        - github.com/larsartmann/go-linter-sdk.Rule
     makezero:
       always: false
     nestif:

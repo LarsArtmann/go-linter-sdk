@@ -385,7 +385,7 @@ func TestDetectorsFromRegistry_OneDetectorPerRule(t *testing.T) {
 	r.Register(makeRule("id-a", []finding.Finding{f1}))
 	r.Register(makeRule("id-b", []finding.Finding{f2}))
 
-	detectors := linter.DetectorsFromRegistry(r, "test-linter")
+	detectors := linter.DetectorsFromRegistry(r)
 	if len(detectors) != 2 {
 		t.Fatalf("expected 2 detectors, got %d", len(detectors))
 	}
@@ -415,7 +415,7 @@ func TestDetectorsFromRegistry_ReadsWorkDirFromContext(t *testing.T) {
 		},
 	})
 
-	detectors := linter.DetectorsFromRegistry(r, "test-linter")
+	detectors := linter.DetectorsFromRegistry(r)
 
 	ctx := finding.WithWorkingDir(context.Background(), "/custom/dir")
 	if _, err := detectors[0].Detect(ctx); err != nil {
@@ -433,7 +433,7 @@ func TestDetectorsFromRegistry_WrapsRuleError(t *testing.T) {
 	r := linter.NewRegistry()
 	r.Register(failingRule("detect-multi-boom"))
 
-	detectors := linter.DetectorsFromRegistry(r, "test-linter")
+	detectors := linter.DetectorsFromRegistry(r)
 
 	_, err := detectors[0].Detect(context.Background())
 
@@ -456,7 +456,7 @@ func TestDetectorsFromRegistry_EmptyRegistry(t *testing.T) {
 
 	r := linter.NewRegistry()
 
-	detectors := linter.DetectorsFromRegistry(r, "test-linter")
+	detectors := linter.DetectorsFromRegistry(r)
 	if len(detectors) != 0 {
 		t.Fatalf("expected 0 detectors for empty registry, got %d", len(detectors))
 	}

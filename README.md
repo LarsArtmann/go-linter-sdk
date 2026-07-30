@@ -56,6 +56,7 @@ var registry = linter.NewRegistry()
 func init() {
     registry.Register(linter.RuleFunc{
         Meta: linter.RuleMeta{
+            ID:          "no-fmt-println",
             Name:        "no-fmt-println",
             Description: "fmt.Println is banned in libraries; use a logger",
             Cat:         linter.CategoryStyle,
@@ -84,31 +85,44 @@ detector := linter.DetectorFromRegistry(registry, "my-linter")
 
 The working directory is read via `finding.WorkingDirFromContext(ctx)`, so module fan-out and per-directory runs work transparently.
 
+### Plug into go-finding/pipeline (per-rule parallelism)
+
+```go
+detectors := linter.DetectorsFromRegistry(registry)
+// Pass `detectors` to pipeline.New(config, rootDir, detectors...) for
+// per-detector parallelism, timeouts, error isolation, and metrics.
+//
+// Unlike DetectorFromRegistry (which collapses all rules into one opaque
+// detector), each detector is named after the rule's ID — the pipeline
+// attributes timing and errors to individual rules.
+```
+
 ---
 
 ## API
 
 ### Types
 
-| Type              | Purpose                                                                                                                                                                           |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface  | `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`                                                          |
-| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                                                                 |
-| `RuleMeta` struct | Declarative identity: `Name`, `Description`, `Cat`, `Sev`                                                                                                                         |
-| `Category`        | `CategoryDesign` / `CategoryStructure` / `CategoryErrorHandling` / `CategoryCorrectness` / `CategoryStyle` / `CategoryPerformance` / `CategorySecurity` / `CategoryConfiguration` |
-| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                      |
+| Type              | Purpose                                                                                                                                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface  | `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`                                                                          |
+| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                                                                                            |
+| `RuleMeta` struct | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                                                                                           |
+| `Category`        | Open `string` type. 8 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                                                                                             |
+| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                                                 |
 
 ### Functions
 
-| Function                            | Returns                  | Purpose                                                                                           |
-| ----------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------- |
-| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                    |
-| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate name)                                                             |
-| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                      |
-| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                                                                 |
-| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to the canonical ecosystem Detector interface                                      |
-| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                    |
-| `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <name>`) |
+| Function                              | Returns                 | Purpose                                                                                           |
+| ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `NewRegistry()`                       | `*Registry`             | Empty registry                                                                                    |
+| `(*Registry).Register(rule)`          | —                       | Add a rule (panics on duplicate/empty ID)                                                         |
+| `(*Registry).All()`                   | `[]Rule`                | Snapshot of registered rules                                                                      |
+| `(*Registry).Run(ctx, dir)`           | `*finding.Report, error` | Run all rules; aggregate findings                                                                 |
+| `DetectorFromRegistry(r, toolName)`   | `finding.Detector`      | Adapt registry to a single Detector (BuildFlow DAG)                                               |
+| `DetectorsFromRegistry(r)`            | `[]finding.Detector`    | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)     |
+| `ExitCodeFromReport(report)`          | `int`                   | 0 if clean, 1 if findings — the ecosystem exit-code convention                                    |
+| `OptIn(rf)`                           | `Rule`                  | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)  |
 
 ---
 
@@ -116,9 +130,12 @@ The working directory is read via `finding.WorkingDirFromContext(ctx)`, so modul
 
 - **Depends only on `go-finding`** (the ecosystem hub) so any consumer — CLI, library, LSP server, golangci-lint plugin — can adopt it without coupling.
 - **Rules emit `finding.Finding` directly.** No intermediate Violation/Issue type. No converter layer. This is the core design decision.
-- **`Registry.Register` panics on duplicate names** — duplicate rule names silently shadow each other at runtime, which is a programming error. Surface it at startup.
+- **Dual identity: `ID()` + `Name()`.** `ID()` is the stable identifier (never changes, used for dedup/suppression/filtering); `Name()` is the display name (mutable). Every rule must declare an explicit ID.
+- **`Category` is an open type.** The 8 built-in constants are recommendations. Define your own for domain-specific taxonomies: `linter.Category("api")`.
+- **`Registry.Register` panics on duplicate/empty IDs** — duplicate or missing rule IDs are programming errors that should surface at startup.
+- **Two execution paths.** `DetectorFromRegistry` for a single opaque detector (simple CLI/BuildFlow); `DetectorsFromRegistry` for per-rule detectors (go-finding/pipeline with parallelism, timeouts, error isolation).
+- **Per-finding Confidence and FixStrategy.** Use `finding.NewBuilder(...).WithConfidence(...).WithFixStrategy(...)` to set these per finding — more expressive than rule-level defaults.
 - **`ExitCodeFromReport` is binary** (0 clean / 1 any findings). The ecosystem convention; tools that want severity-tiered exit codes do their own mapping.
-- **Working directory via context.** `DetectorFromRegistry` reads `finding.WorkingDirFromContext(ctx)`. This lets BuildFlow's module fan-out target individual modules without per-rule plumbing.
 
 ---
 

@@ -15,11 +15,14 @@ Raw ideas:
 
 - A `Filter` type for severity/category-based finding filtering
 - Severity-tiered exit codes (`ExitCodeFromReport` is binary today)
-- `Registry.RunParallel` — rules are independent; the `Register` mutex does not
-  block parallel `Check`
+- ~~`Registry.RunParallel` — rules are independent; the `Register` mutex does not
+  block parallel `Check`~~ — superseded by `DetectorsFromRegistry` (pipeline
+  handles per-detector parallelism, done session 7)
 - Registry helpers: `NewRegistryFromRules`, `Deregister`, `Has`, `Get`
-- `RuleMeta.Validate` and `Category.All` — fail fast on invalid identity at
-  registration rather than at first run
+- ~~`RuleMeta.Validate` and `Category.All` — fail fast on invalid identity at
+  registration rather than at first run~~ — partially done: empty-ID panics at
+  registration (session 7). Full `Validate` (category non-empty, description
+  non-empty) is still a raw idea.
 - A typed `RuleSet` wrapper around `[]Rule` for consumers that don't want a
   mutex'd registry
 - `ExitCodeFromFindings([]Finding)` convenience that skips building a `Report`
