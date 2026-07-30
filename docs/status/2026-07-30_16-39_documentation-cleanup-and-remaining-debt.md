@@ -29,26 +29,26 @@ GOEXPERIMENT=jsonv2 golangci-lint fmt --diff    → no diff
 
 ### Code changes
 
-| File | Change | Status |
-|------|--------|--------|
+| File          | Change                                                                                                                                                 | Status                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
 | `registry.go` | `DetectorFromRegistry` doc comment now cross-references `DetectorsFromRegistry` (when to use which path). The reverse cross-reference already existed. | ✅ Done, builds clean |
 
 ### Documentation changes
 
-| File | What was done | Status |
-|------|---------------|--------|
-| `docs/DOMAIN_LANGUAGE.md` | All 7 source line-number references converted to durable symbol-name format (`rule.go — type Rule` instead of `rule.go:89`). Decision: line numbers rot on every edit; symbol names don't. | ✅ Done |
-| `FEATURES.md` | All 17 source/config line-number references converted to symbol-name format (including `.go`, `.nix`, `.gitignore` refs) | ✅ Done |
-| `README.md` | Three fixes: (1) example shows distinct `ID: "no-fmt-println"` / `Name: "no fmt.Println in libraries"` to teach dual identity; (2) "5-line linter" headline → "A minimal linter" (required `ID` field made old count misleading); (3) version requirement `v1.2+` → `v1.4+` | ✅ Done |
-| `CONTRIBUTING.md` | Removed stale "local `replace` directive until tagged release" and sibling-checkout diagram. Replaced with accurate VCS-auth description. | ✅ Done |
-| `docs/feedback/processed/2026-07-30_cqrs-lint-adoption-analysis.md` | Moved from `docs/feedback/new/`. Added processing note at top pointing to Appendix A for disputed claims. Removed empty `new/` directory. | ✅ Done |
-| `TODO_LIST.md` | Rebuilt with 10 actionable items from feedback analysis (registry helpers, `RuleMeta.Validate`, testable examples, consumer pilot, docs). Old completed items removed. | ✅ Done |
-| `CHANGELOG.md` | Fixed 3 stale entries (CI sibling clone → VCS auth, go.mod replace → v1.4.1 published, v1.4.0 → v1.4.1). Added Documentation section for this session's work. | ✅ Done |
+| File                                                                | What was done                                                                                                                                                                                                                                                               | Status  |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `docs/DOMAIN_LANGUAGE.md`                                           | All 7 source line-number references converted to durable symbol-name format (`rule.go — type Rule` instead of `rule.go:89`). Decision: line numbers rot on every edit; symbol names don't.                                                                                  | ✅ Done |
+| `FEATURES.md`                                                       | All 17 source/config line-number references converted to symbol-name format (including `.go`, `.nix`, `.gitignore` refs)                                                                                                                                                    | ✅ Done |
+| `README.md`                                                         | Three fixes: (1) example shows distinct `ID: "no-fmt-println"` / `Name: "no fmt.Println in libraries"` to teach dual identity; (2) "5-line linter" headline → "A minimal linter" (required `ID` field made old count misleading); (3) version requirement `v1.2+` → `v1.4+` | ✅ Done |
+| `CONTRIBUTING.md`                                                   | Removed stale "local `replace` directive until tagged release" and sibling-checkout diagram. Replaced with accurate VCS-auth description.                                                                                                                                   | ✅ Done |
+| `docs/feedback/processed/2026-07-30_cqrs-lint-adoption-analysis.md` | Moved from `docs/feedback/new/`. Added processing note at top pointing to Appendix A for disputed claims. Removed empty `new/` directory.                                                                                                                                   | ✅ Done |
+| `TODO_LIST.md`                                                      | Rebuilt with 10 actionable items from feedback analysis (registry helpers, `RuleMeta.Validate`, testable examples, consumer pilot, docs). Old completed items removed.                                                                                                      | ✅ Done |
+| `CHANGELOG.md`                                                      | Fixed 3 stale entries (CI sibling clone → VCS auth, go.mod replace → v1.4.1 published, v1.4.0 → v1.4.1). Added Documentation section for this session's work.                                                                                                               | ✅ Done |
 
 ### Feedback doc appendix
 
-| File | What was done | Status |
-|------|---------------|--------|
+| File                            | What was done                                                                    | Status  |
+| ------------------------------- | -------------------------------------------------------------------------------- | ------- |
 | `docs/feedback/processed/...md` | 2 remaining line-number references in Appendix A converted to symbol-name format | ✅ Done |
 
 ---
@@ -80,20 +80,20 @@ These are things I identified as needing to be done but did NOT do this session.
 
 ROADMAP.md currently contains **at least 6 stale claims**:
 
-| Line area | Stale claim | Reality |
-|-----------|-------------|---------|
-| Theme 3 intro (line 50-52) | "The package is not yet consumable externally: `go.mod` uses a pseudo-version + local `replace` directive" | go.mod resolves `v1.4.1` via VCS auth. No replace directive. Package IS consumable (given GOPRIVATE access). |
-| Theme 3, raw idea (line 56-57) | "Tag `go-finding` so the `replace` directive can drop" | DONE. go-finding is tagged at v1.4.1. The directive is gone. |
-| Theme 3, raw idea (line 60) | "A `go.work` workspace to formalize the sibling-checkout requirement" | Sibling checkout is no longer required. |
-| Theme 2, raw idea (line 45) | "the README promises a 5-line linter" | I changed this to "A minimal linter" this session. |
-| Open Question Q1 (line 114-117) | "Is `go-finding v1.2.0` a real published tag, or is the pseudo-version + `replace` directive the intended long-term state?" | ANSWERED. v1.4.1 is published. Should be in Resolved Questions. |
-| Non-goals (line 149-150) | "the replace directive is the current source of truth" | The replace directive doesn't exist anymore. |
+| Line area                       | Stale claim                                                                                                                 | Reality                                                                                                      |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Theme 3 intro (line 50-52)      | "The package is not yet consumable externally: `go.mod` uses a pseudo-version + local `replace` directive"                  | go.mod resolves `v1.4.1` via VCS auth. No replace directive. Package IS consumable (given GOPRIVATE access). |
+| Theme 3, raw idea (line 56-57)  | "Tag `go-finding` so the `replace` directive can drop"                                                                      | DONE. go-finding is tagged at v1.4.1. The directive is gone.                                                 |
+| Theme 3, raw idea (line 60)     | "A `go.work` workspace to formalize the sibling-checkout requirement"                                                       | Sibling checkout is no longer required.                                                                      |
+| Theme 2, raw idea (line 45)     | "the README promises a 5-line linter"                                                                                       | I changed this to "A minimal linter" this session.                                                           |
+| Open Question Q1 (line 114-117) | "Is `go-finding v1.2.0` a real published tag, or is the pseudo-version + `replace` directive the intended long-term state?" | ANSWERED. v1.4.1 is published. Should be in Resolved Questions.                                              |
+| Non-goals (line 149-150)        | "the replace directive is the current source of truth"                                                                      | The replace directive doesn't exist anymore.                                                                 |
 
 **Root cause:** I fixed CONTRIBUTING.md drift as a targeted fix (the prior status report called it out specifically) but didn't broaden the search to ALL docs that might reference the same stale facts. I should have grep'd for "replace" across all `.md` files after confirming the `replace` directive was gone from `go.mod`.
 
 **Impact:** Medium. ROADMAP is the long-term vision document. Stale publication/distribution claims mislead anyone reading it about the project's current state. The Open Question Q1 being unresolved when it's actually resolved is particularly bad — it makes the project look more blocked than it is.
 
-**Why this is embarrassing:** The prior session's status report (section E, item 9) literally says "Consider dropping exact line numbers from docs entirely — use symbol names only." I spent this session converting line numbers but didn't notice that entire *paragraphs* in ROADMAP were wrong.
+**Why this is embarrassing:** The prior session's status report (section E, item 9) literally says "Consider dropping exact line numbers from docs entirely — use symbol names only." I spent this session converting line numbers but didn't notice that entire _paragraphs_ in ROADMAP were wrong.
 
 ### FEATURES.md verification block stale — AND I EDITED THE FILE WITHOUT NOTICING
 
@@ -121,7 +121,7 @@ The status report at `docs/status/2026-07-30_16-19_feedback-driven-api-evolution
 
 3. **Run `nix fmt`, not just `golangci-lint fmt --diff`.** They're different tools. `nix fmt` runs treefmt which covers `.nix` files too. I got lucky this session (no `.nix` changes) but the habit is wrong.
 
-4. **The line-number → symbol-name conversion was the right call.** It eliminates an entire class of drift. But the fact that I converted 24 references and STILL missed paragraph-level drift in ROADMAP shows that line numbers were never the biggest drift problem — stale *narrative* is worse than stale *navigation hints*.
+4. **The line-number → symbol-name conversion was the right call.** It eliminates an entire class of drift. But the fact that I converted 24 references and STILL missed paragraph-level drift in ROADMAP shows that line numbers were never the biggest drift problem — stale _narrative_ is worse than stale _navigation hints_.
 
 ### Design observations
 

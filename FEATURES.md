@@ -25,21 +25,21 @@
 
 ## Core SDK
 
-| Feature                                    | Status                | Notes                                                                                                                                               |
-| ------------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface                           | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Rule`) — `ID/Name/Description/Category/Severity/Check`; rules emit `finding.Finding` direct; dual identity (stable ID + mutable display name) |
-| `RuleFunc` adapter (meta header + closure) | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type RuleFunc`); the common case, satisfies `Rule` via `RuleMeta`                                                                         |
-| `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type RuleMeta`) — `ID`(required)/`Name`/`Description`/`Cat`/`Sev` struct literal                                                          |
-| `Category` taxonomy (open string type)     | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Category`) — 8 recommended values; consumers can define custom categories (`Category("api")`)                                      |
-| `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`type Registry`, `sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`      |
-| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`NewRegistry`/`Register`/`All`); `Register` panics on duplicate/empty ID (programming error)                                         |
-| `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func Run`); aggregates findings into a `*finding.Report`; fails fast on first rule error                                            |
-| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorFromRegistry`); reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                               |
+| Feature                                    | Status                | Notes                                                                                                                                                                       |
+| ------------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface                           | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Rule`) — `ID/Name/Description/Category/Severity/Check`; rules emit `finding.Finding` direct; dual identity (stable ID + mutable display name)              |
+| `RuleFunc` adapter (meta header + closure) | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type RuleFunc`); the common case, satisfies `Rule` via `RuleMeta`                                                                                               |
+| `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type RuleMeta`) — `ID`(required)/`Name`/`Description`/`Cat`/`Sev` struct literal                                                                                |
+| `Category` taxonomy (open string type)     | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Category`) — 8 recommended values; consumers can define custom categories (`Category("api")`)                                                              |
+| `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`type Registry`, `sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`                             |
+| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`NewRegistry`/`Register`/`All`); `Register` panics on duplicate/empty ID (programming error)                                                                 |
+| `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func Run`); aggregates findings into a `*finding.Report`; fails fast on first rule error                                                                    |
+| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorFromRegistry`); reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                      |
 | `DetectorsFromRegistry` (pipeline adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorsFromRegistry`); returns `[]finding.Detector` (one per rule) for go-finding/pipeline; per-rule parallelism, timeouts, error isolation; 4 tests |
-| `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func ExitCodeFromReport`); 0 clean / 1 any findings; nil/empty cases tested                                                          |
-| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`type RuleError`); single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through; carries rule ID; 2 tests                  |
-| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`var ErrRuleFailed`); `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule ID                              |
-| `errors.AsType` migration                  | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`wrapRuleError`), `registry_test.go`, and the `errors.go` doc all use `errors.AsType[*RuleError]`; project is gopls-clean (no `errorsastype` hints) |
+| `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func ExitCodeFromReport`); 0 clean / 1 any findings; nil/empty cases tested                                                                                 |
+| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`type RuleError`); single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through; carries rule ID; 2 tests                                         |
+| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`var ErrRuleFailed`); `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule ID                                                     |
+| `errors.AsType` migration                  | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`wrapRuleError`), `registry_test.go`, and the `errors.go` doc all use `errors.AsType[*RuleError]`; project is gopls-clean (no `errorsastype` hints)          |
 
 ## Tooling & infrastructure
 
@@ -47,11 +47,11 @@
 | ---------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Nix flake (8 apps)                             | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` (`apps`) — `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage`, `clean`                                                       |
 | `GOEXPERIMENT=jsonv2` made durable             | 🟢 `FULLY_FUNCTIONAL` | Exported in every app + both devShells; required by transitive `encoding/json/v2`                                                                      |
-| treefmt (gofumpt/goimports/golines@120/nixfmt) | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` (`formatter`); enforced as a `nix flake check` derivation                                                                                 |
+| treefmt (gofumpt/goimports/golines@120/nixfmt) | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` (`formatter`); enforced as a `nix flake check` derivation                                                                                  |
 | `devShells.default` + `devShells.ci`           | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` (`devShells`)                                                                                                                              |
 | golangci-lint v2 config                        | 🟢 `FULLY_FUNCTIONAL` | `.golangci.yml`; carries `goexperiment.jsonv2` build tag; right-sized (cargo-culted `mnd`/`gosec`/`varnamelen` trimmed); `0 issues`                    |
 | BuildFlow config                               | 🟢 `FULLY_FUNCTIONAL` | `.buildflow.yml`; BuildFlow passes 35/36 (1 skipped by config = gitleaks); fresh-clone verified                                                        |
-| `reports/` durable on fresh clone              | 🟢 `FULLY_FUNCTIONAL` | `.gitignore` (`reports/.gitkeep` exception); **verified** via `git clone` + `nix develop --command buildflow` (35/36, test-coverage step passes)      |
+| `reports/` durable on fresh clone              | 🟢 `FULLY_FUNCTIONAL` | `.gitignore` (`reports/.gitkeep` exception); **verified** via `git clone` + `nix develop --command buildflow` (35/36, test-coverage step passes)       |
 | Coverage output path                           | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` `coverage`/`clean` apps write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` + BuildFlow `test-coverage`                     |
 | GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos), lint, fmt check, govulncheck, nix flake check; sibling-clones `go-finding` for the replace directive |
 | Registry benchmarks + concurrent stress test   | 🟢 `FULLY_FUNCTIONAL` | `registry_test.go` — `Benchmark*` for `Register`/`All`/`Run` + `TestRegistry_ConcurrentReadWrite` exercising the `RWMutex` under `-race`               |

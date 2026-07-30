@@ -103,26 +103,26 @@ detectors := linter.DetectorsFromRegistry(registry)
 
 ### Types
 
-| Type              | Purpose                                                                                                                                                                                                      |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface  | `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`                                                                          |
-| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                                                                                            |
-| `RuleMeta` struct | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                                                                                           |
-| `Category`        | Open `string` type. 8 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                                                                                             |
-| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                                                                                                 |
+| Type              | Purpose                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface  | `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)` |
+| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                 |
+| `RuleMeta` struct | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                |
+| `Category`        | Open `string` type. 8 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                  |
+| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                      |
 
 ### Functions
 
-| Function                              | Returns                 | Purpose                                                                                           |
-| ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `NewRegistry()`                       | `*Registry`             | Empty registry                                                                                    |
-| `(*Registry).Register(rule)`          | —                       | Add a rule (panics on duplicate/empty ID)                                                         |
-| `(*Registry).All()`                   | `[]Rule`                | Snapshot of registered rules                                                                      |
-| `(*Registry).Run(ctx, dir)`           | `*finding.Report, error` | Run all rules; aggregate findings                                                                 |
-| `DetectorFromRegistry(r, toolName)`   | `finding.Detector`      | Adapt registry to a single Detector (BuildFlow DAG)                                               |
-| `DetectorsFromRegistry(r)`            | `[]finding.Detector`    | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)     |
-| `ExitCodeFromReport(report)`          | `int`                   | 0 if clean, 1 if findings — the ecosystem exit-code convention                                    |
-| `OptIn(rf)`                           | `Rule`                  | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)  |
+| Function                            | Returns                  | Purpose                                                                                         |
+| ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                  |
+| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate/empty ID)                                                       |
+| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                    |
+| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                                                               |
+| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                             |
+| `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)    |
+| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                  |
+| `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`) |
 
 ---
 

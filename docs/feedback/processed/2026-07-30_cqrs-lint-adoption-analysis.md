@@ -139,6 +139,7 @@ result, _ := pipe.Run(ctx)
 ```
 
 cqrs-lint uses `go-finding/pipeline` — a different layer of the go-finding ecosystem. The pipeline provides:
+
 - **Multi-pass fix iteration** (detect → fix → re-detect, up to 5 times)
 - **Parallel detector execution** (100 detectors concurrently, thread-safe)
 - **Graceful degradation** (one detector crash doesn't kill the run)
@@ -158,6 +159,7 @@ The SDK's `Registry.Run` is a flat sequential loop. It doesn't integrate with th
 ### SDK approach
 
 Each `Rule` carries its own metadata via interface methods:
+
 ```go
 Name() string
 Description() string
@@ -183,6 +185,7 @@ type RuleInfo struct {
 ```
 
 And the detector is a separate constructor:
+
 ```go
 func NewC001Detector(ctx *analyzer.AnalysisContext) finding.Detector
 ```
@@ -217,6 +220,7 @@ type FeatureProfile struct {
 ```
 
 Rules consult this profile to suppress themselves:
+
 - S002 (encryption) only fires when `HasServer == true`
 - A016 (idempotency) only fires when `CommandFlow == commands`
 - B014 (OTel) only fires when `Tracing != off`
@@ -350,23 +354,24 @@ cqrs-lint has `//cqrs-lint:ignore(RULE)` inline suppression. The SDK has no conc
 
 ## 7. Summary: Adoption Decision Matrix
 
-| SDK Feature | cqrs-lint Need | Gap |
-|---|---|---|
-| `Rule` interface | 100 detectors | No `Confidence()`, no `AutoFixable()`, no `ID()` |
-| `RuleFunc` + `RuleMeta` | Rule declarations | Missing `Conf` and `AutoFix` fields |
-| `Registry.Run` | Execution | No shared-context support; sequential, no pipeline |
-| `DetectorFromRegistry` | Pipeline integration | Collapses 100 rules to 1 detector (loses per-rule granularity) |
-| `ExitCodeFromReport` | Exit code | Works, but cqrs-lint has more nuanced exit logic |
-| `RuleError` wrapping | Error attribution | Good — cqrs-lint should adopt this |
-| `Category` constants | Rule taxonomy | Only 3 of 8 overlap; no custom category support |
-| `OptIn` | Experimental rules | Good — cqrs-lint could use this |
-| `Check(ctx, dir)` | Rule execution | No way to pass `*AnalysisContext` |
+| SDK Feature             | cqrs-lint Need       | Gap                                                            |
+| ----------------------- | -------------------- | -------------------------------------------------------------- |
+| `Rule` interface        | 100 detectors        | No `Confidence()`, no `AutoFixable()`, no `ID()`               |
+| `RuleFunc` + `RuleMeta` | Rule declarations    | Missing `Conf` and `AutoFix` fields                            |
+| `Registry.Run`          | Execution            | No shared-context support; sequential, no pipeline             |
+| `DetectorFromRegistry`  | Pipeline integration | Collapses 100 rules to 1 detector (loses per-rule granularity) |
+| `ExitCodeFromReport`    | Exit code            | Works, but cqrs-lint has more nuanced exit logic               |
+| `RuleError` wrapping    | Error attribution    | Good — cqrs-lint should adopt this                             |
+| `Category` constants    | Rule taxonomy        | Only 3 of 8 overlap; no custom category support                |
+| `OptIn`                 | Experimental rules   | Good — cqrs-lint could use this                                |
+| `Check(ctx, dir)`       | Rule execution       | No way to pass `*AnalysisContext`                              |
 
 ### Verdict
 
 **Cannot adopt today.** The SDK is designed for stateless linters where each rule independently scans a directory. cqrs-lint is a stateful linter where 100 rules share a pre-built analysis context. The three critical changes (context-aware rules, pipeline integration, confidence/autofix metadata) would close the gap. Without them, adoption would require hacks (context keys) or performance regressions (100× redundant package loading).
 
 With the three critical changes, cqrs-lint could:
+
 - Drop `pkg/rules/register.go` (130 lines of manual registration)
 - Drop `pkg/rules/catalog.go` + `catalog_extra.go` (400 lines of duplicate metadata)
 - Drop the custom `toolName` constant (already partially done via `lintutil`)
@@ -390,18 +395,18 @@ Three facts reshape the entire response:
 
 2. **The SDK's scope is stateless linters** (Q1). cqrs-lint is a stateful, context-driven linter with a fundamentally different architecture (shared `AnalysisContext`, pipeline-driven, 100 rules with cross-rule state). The SDK should **not** bend its core abstractions to accommodate stateful linters. cqrs-lint is a `go-finding/pipeline` consumer, not a `go-linter-sdk` consumer. This is by design, not a gap.
 
-3. **The goal is ecosystem-wide improvement** (Q7), not cqrs-lint appeasement. Changes are evaluated by whether they benefit *all* future consumers, not by whether they unblock one specific linter.
+3. **The goal is ecosystem-wide improvement** (Q7), not cqrs-lint appeasement. Changes are evaluated by whether they benefit _all_ future consumers, not by whether they unblock one specific linter.
 
 ### Decision Summary
 
-| # | Proposed Change | Verdict | Rationale |
-|---|----------------|---------|-----------|
-| 1 | `CheckContext(ctx, analysis any)` | **REJECT** | `any` is a type-safety regression; SDK stays stateless; stateful linters use the pipeline directly |
-| 2 | `DetectorsFromRegistry` (one detector per rule) | **ACCEPT** | Benefits all pipeline consumers; low-risk; backward compatible; the real high-value change |
-| 3 | Rule-level `Confidence()` / `AutoFixable()` | **DOCUMENT, DON'T ADD** | `finding.Finding` already has both at the per-finding level; gap is documentation, not API |
-| 4 | Custom category taxonomy | **ALREADY SOLVED** | `Category` is already `type Category string`; the constants are recommendations, not enforcement |
-| 5 | Dual `ID()` + `Name()` | **ACCEPT** | Stable ID + mutable display name is a clean contract; do it now while breaking changes are free |
-| 6 | Suppression in `Registry.Run` | **REJECT** | Wrong layer; the pipeline already handles suppression via `FindingTransformer` processors |
+| #   | Proposed Change                                 | Verdict                 | Rationale                                                                                          |
+| --- | ----------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| 1   | `CheckContext(ctx, analysis any)`               | **REJECT**              | `any` is a type-safety regression; SDK stays stateless; stateful linters use the pipeline directly |
+| 2   | `DetectorsFromRegistry` (one detector per rule) | **ACCEPT**              | Benefits all pipeline consumers; low-risk; backward compatible; the real high-value change         |
+| 3   | Rule-level `Confidence()` / `AutoFixable()`     | **DOCUMENT, DON'T ADD** | `finding.Finding` already has both at the per-finding level; gap is documentation, not API         |
+| 4   | Custom category taxonomy                        | **ALREADY SOLVED**      | `Category` is already `type Category string`; the constants are recommendations, not enforcement   |
+| 5   | Dual `ID()` + `Name()`                          | **ACCEPT**              | Stable ID + mutable display name is a clean contract; do it now while breaking changes are free    |
+| 6   | Suppression in `Registry.Run`                   | **REJECT**              | Wrong layer; the pipeline already handles suppression via `FindingTransformer` processors          |
 
 ---
 
@@ -447,7 +452,7 @@ Three facts reshape the entire response:
 
 **Why not added — the API already exists at the right level:**
 
-The feedback claims "the SDK's Rule interface has no `Confidence()` method" and "the SDK has no concept of fixability at the Rule level." Both statements are technically true but **architecturally misleading**: `go-finding` already provides both concepts at the *finding* level, which is strictly more expressive:
+The feedback claims "the SDK's Rule interface has no `Confidence()` method" and "the SDK has no concept of fixability at the Rule level." Both statements are technically true but **architecturally misleading**: `go-finding` already provides both concepts at the _finding_ level, which is strictly more expressive:
 
 - **`finding.Confidence`** (`go-finding/confidence.go`): a `float64` type with `ConfidenceLow` (0.25), `ConfidenceMedium` (0.5), `ConfidenceHigh` (0.75) constants. The `finding.Builder` has `.WithConfidence(c Confidence)`.
 
@@ -456,8 +461,9 @@ The feedback claims "the SDK's Rule interface has no `Confidence()` method" and 
 A rule-level `Confidence()` default is strictly **less** expressive than per-finding confidence: a heuristic rule that fires with high confidence on pattern A and low confidence on pattern B cannot be represented by a single rule-level value. The same applies to `AutoFix`: a rule may emit some findings that are auto-fixable and others that are only suggestions.
 
 **The real problem is documentation** (Q4). The SDK's package docs (`rule.go`, package doc comment) and `docs/DOMAIN_LANGUAGE.md` do not explain that:
+
 1. Rules should set `Confidence` and `FixStrategy` on individual findings via `finding.NewBuilder(...)`.
-2. `RuleMeta.Sev` is the *default* severity — individual findings can override it.
+2. `RuleMeta.Sev` is the _default_ severity — individual findings can override it.
 3. The same override pattern applies to confidence and fix strategy.
 
 **Action:** Improve documentation with a "Building Findings" section showing the `NewBuilder` chain: `.WithConfidence(...)`, `.WithFixStrategy(...)`. This closes the perceived gap without API surface bloat.
@@ -496,23 +502,23 @@ Despite `Category` already being open, the question of whether to keep the recom
 
 **Option A: Status quo — open string type + recommended constants** (current)
 
-| Aspect | Assessment |
-|--------|-----------|
-| Type safety | `Category("typo")` compiles — no typo detection |
-| Flexibility | Full — any string works, domain-specific categories supported |
-| Discoverability | Good — constants appear in IDE autocomplete as hints |
-| Enforcement | None — convention only |
-| Verdict | **Keep.** This is the Go-idiomatic pattern (`http.StatusText`, `mime.TypeByExtension`). The constants document intent without restricting expression. Add a doc comment: *"These are recommended values. Define your own for domain-specific categories."* |
+| Aspect          | Assessment                                                                                                                                                                                                                                                 |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type safety     | `Category("typo")` compiles — no typo detection                                                                                                                                                                                                            |
+| Flexibility     | Full — any string works, domain-specific categories supported                                                                                                                                                                                              |
+| Discoverability | Good — constants appear in IDE autocomplete as hints                                                                                                                                                                                                       |
+| Enforcement     | None — convention only                                                                                                                                                                                                                                     |
+| Verdict         | **Keep.** This is the Go-idiomatic pattern (`http.StatusText`, `mime.TypeByExtension`). The constants document intent without restricting expression. Add a doc comment: _"These are recommended values. Define your own for domain-specific categories."_ |
 
 **Option B: Open string type, no constants**
 
-| Aspect | Assessment |
-|--------|-----------|
-| Type safety | Same as A (none) |
-| Flexibility | Full |
-| Discoverability | Worse — no autocomplete hints, consumers must read docs |
-| Enforcement | None |
-| Verdict | **Reject.** Removes useful guidance without gaining anything. The constants don't constrain; they communicate. |
+| Aspect          | Assessment                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| Type safety     | Same as A (none)                                                                                               |
+| Flexibility     | Full                                                                                                           |
+| Discoverability | Worse — no autocomplete hints, consumers must read docs                                                        |
+| Enforcement     | None                                                                                                           |
+| Verdict         | **Reject.** Removes useful guidance without gaining anything. The constants don't constrain; they communicate. |
 
 **Option C: Registry-level category validation**
 
@@ -521,14 +527,14 @@ registry.RegisterCategory("api")  // whitelist
 registry.Register(rule)           // panics if rule.Category() not whitelisted
 ```
 
-| Aspect | Assessment |
-|--------|-----------|
-| Type safety | Runtime validation — typos caught at registration |
-| Flexibility | Moderate — requires upfront declaration |
-| Discoverability | Moderate — registry knows its categories |
-| Enforcement | Opt-in — only registries that call `RegisterCategory` validate |
-| Complexity | Adds API surface (`RegisterCategory`, `KnownCategories`, validation logic) |
-| Verdict | **Reject for now.** Premature for a ~300 LOC SDK with zero consumers. This is a ROADMAP idea if a real consumer needs it. YAGNI. |
+| Aspect          | Assessment                                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Type safety     | Runtime validation — typos caught at registration                                                                                |
+| Flexibility     | Moderate — requires upfront declaration                                                                                          |
+| Discoverability | Moderate — registry knows its categories                                                                                         |
+| Enforcement     | Opt-in — only registries that call `RegisterCategory` validate                                                                   |
+| Complexity      | Adds API surface (`RegisterCategory`, `KnownCategories`, validation logic)                                                       |
+| Verdict         | **Reject for now.** Premature for a ~300 LOC SDK with zero consumers. This is a ROADMAP idea if a real consumer needs it. YAGNI. |
 
 **Option D: Typed category set per-linter (generics)**
 
@@ -539,14 +545,14 @@ type RuleWithCategory[C ~string] interface {
 }
 ```
 
-| Aspect | Assessment |
-|--------|-----------|
-| Type safety | Compile-time — each linter defines its own category enum |
-| Flexibility | Moderate — categories are per-linter, not cross-linter |
-| Discoverability | Excellent — linter's categories are a closed enum |
-| Enforcement | Full — invalid categories don't compile |
-| Complexity | High — generics on the Rule interface, breaks the simple struct-literal pattern |
-| Verdict | **Reject.** Over-engineered. The whole value of `RuleFunc{Meta: RuleMeta{Cat: ...}}` is that it's a plain struct literal. Generics make rule declaration ugly and linter-specific. |
+| Aspect          | Assessment                                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type safety     | Compile-time — each linter defines its own category enum                                                                                                                           |
+| Flexibility     | Moderate — categories are per-linter, not cross-linter                                                                                                                             |
+| Discoverability | Excellent — linter's categories are a closed enum                                                                                                                                  |
+| Enforcement     | Full — invalid categories don't compile                                                                                                                                            |
+| Complexity      | High — generics on the Rule interface, breaks the simple struct-literal pattern                                                                                                    |
+| Verdict         | **Reject.** Over-engineered. The whole value of `RuleFunc{Meta: RuleMeta{Cat: ...}}` is that it's a plain struct literal. Generics make rule declaration ugly and linter-specific. |
 
 **Recommendation: Option A (status quo) + documentation.** The type is already correct. Add a doc comment on the `const` block clarifying these are recommendations, not a closed set. This is a 2-line documentation fix, not an API change.
 

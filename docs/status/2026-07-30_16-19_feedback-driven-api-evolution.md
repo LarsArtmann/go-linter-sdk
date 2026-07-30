@@ -21,25 +21,25 @@
 
 ### Code changes
 
-| File | Change | Status |
-|------|--------|--------|
-| `rule.go` | Added `ID() string` to `Rule` interface (required, first method). Added `ID` field to `RuleMeta` (required, first field). Added doc comments for dual identity, Category-is-open, finding-level Confidence/FixStrategy. `RuleFunc.Check` now wraps errors with `r.Meta.ID`. | ✅ Done, tested, lint clean |
-| `registry.go` | `Register` deduplicates on `ID()` and panics on empty IDs. Added `DetectorsFromRegistry(registry) []finding.Detector`. `wrapRuleError` parameter renamed to `ruleID`. All error attribution uses `rule.ID()`. | ✅ Done, tested, lint clean |
-| `errors.go` | `RuleError.RuleName` → `RuleError.RuleID`. `NewRuleError` parameter renamed. Doc comments updated. | ✅ Done, tested, lint clean |
-| `registry_test.go` | All factories (`makeRule`, `failingRule`) and inline literals updated with `ID`. `RuleName` → `RuleID` in assertions. Added 5 new tests: duplicate-ID-panics, empty-ID-panics, `DetectorsFromRegistry` (count/naming, working-dir-from-context, error wrapping, empty registry). | ✅ Done, all pass |
-| `.golangci.yml` | Added `github.com/larsartmann/go-linter-sdk.Rule` to `ireturn` allow-list for `OptIn`. | ✅ Done, lint clean |
+| File               | Change                                                                                                                                                                                                                                                                           | Status                      |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `rule.go`          | Added `ID() string` to `Rule` interface (required, first method). Added `ID` field to `RuleMeta` (required, first field). Added doc comments for dual identity, Category-is-open, finding-level Confidence/FixStrategy. `RuleFunc.Check` now wraps errors with `r.Meta.ID`.      | ✅ Done, tested, lint clean |
+| `registry.go`      | `Register` deduplicates on `ID()` and panics on empty IDs. Added `DetectorsFromRegistry(registry) []finding.Detector`. `wrapRuleError` parameter renamed to `ruleID`. All error attribution uses `rule.ID()`.                                                                    | ✅ Done, tested, lint clean |
+| `errors.go`        | `RuleError.RuleName` → `RuleError.RuleID`. `NewRuleError` parameter renamed. Doc comments updated.                                                                                                                                                                               | ✅ Done, tested, lint clean |
+| `registry_test.go` | All factories (`makeRule`, `failingRule`) and inline literals updated with `ID`. `RuleName` → `RuleID` in assertions. Added 5 new tests: duplicate-ID-panics, empty-ID-panics, `DetectorsFromRegistry` (count/naming, working-dir-from-context, error wrapping, empty registry). | ✅ Done, all pass           |
+| `.golangci.yml`    | Added `github.com/larsartmann/go-linter-sdk.Rule` to `ireturn` allow-list for `OptIn`.                                                                                                                                                                                           | ✅ Done, lint clean         |
 
 ### Documentation changes
 
-| File | What was updated | Status |
-|------|-----------------|--------|
-| `docs/feedback/new/2026-07-30_cqrs-lint-adoption-analysis.md` | Added Appendix A: Maintainer Response & Decisions with full PRO/CONTRA for each of 6 proposed changes | ✅ Done |
-| `CHANGELOG.md` | Added `[Unreleased]` entries for all breaking and non-breaking changes | ✅ Done |
-| `DOMAIN_LANGUAGE.md` | Updated terms: Rule (dual identity), RuleFunc, RuleMeta (ID required), Category (open type), Registry (dedup on ID), RuleError (RuleID), relationships diagram | ✅ Done (but line refs stale — see section D) |
-| `README.md` | Updated example with `ID` field, added pipeline section, updated API tables, updated design notes | ✅ Done |
-| `FEATURES.md` | Updated all rows for ID(), DetectorsFromRegistry, Category open type, dedup-on-ID | ✅ Done (but line refs stale — see section D) |
-| `ROADMAP.md` | Marked `Registry.RunParallel` as superseded by `DetectorsFromRegistry`, updated `RuleMeta.Validate` as partially done | ✅ Done |
-| `AGENTS.md` | Updated architecture section with ID(), DetectorsFromRegistry, Category open type, Confidence/FixStrategy per-finding, error wrapping uses RuleID | ✅ Done |
+| File                                                          | What was updated                                                                                                                                               | Status                                        |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `docs/feedback/new/2026-07-30_cqrs-lint-adoption-analysis.md` | Added Appendix A: Maintainer Response & Decisions with full PRO/CONTRA for each of 6 proposed changes                                                          | ✅ Done                                       |
+| `CHANGELOG.md`                                                | Added `[Unreleased]` entries for all breaking and non-breaking changes                                                                                         | ✅ Done                                       |
+| `DOMAIN_LANGUAGE.md`                                          | Updated terms: Rule (dual identity), RuleFunc, RuleMeta (ID required), Category (open type), Registry (dedup on ID), RuleError (RuleID), relationships diagram | ✅ Done (but line refs stale — see section D) |
+| `README.md`                                                   | Updated example with `ID` field, added pipeline section, updated API tables, updated design notes                                                              | ✅ Done                                       |
+| `FEATURES.md`                                                 | Updated all rows for ID(), DetectorsFromRegistry, Category open type, dedup-on-ID                                                                              | ✅ Done (but line refs stale — see section D) |
+| `ROADMAP.md`                                                  | Marked `Registry.RunParallel` as superseded by `DetectorsFromRegistry`, updated `RuleMeta.Validate` as partially done                                          | ✅ Done                                       |
+| `AGENTS.md`                                                   | Updated architecture section with ID(), DetectorsFromRegistry, Category open type, Confidence/FixStrategy per-finding, error wrapping uses RuleID              | ✅ Done                                       |
 
 ### Verification
 
@@ -57,33 +57,33 @@ nix run .#vet        → ok
 
 ### DOMAIN_LANGUAGE.md line references — STALE
 
-I updated the *content* of every term entry but did NOT update the `Lives at:` line references. The doc comments I added to `rule.go` (the dual-identity section, the building-findings section) shifted every line number downstream. The following references are wrong:
+I updated the _content_ of every term entry but did NOT update the `Lives at:` line references. The doc comments I added to `rule.go` (the dual-identity section, the building-findings section) shifted every line number downstream. The following references are wrong:
 
-| Documented | Actual | Symbol |
-|------------|--------|--------|
-| `rule.go:56` | `rule.go:89` | `Rule` interface |
-| `rule.go:68` | `rule.go:102` | `RuleFunc` struct |
-| `rule.go:75` | `rule.go:113` | `RuleMeta` struct |
-| `rule.go:37` | `rule.go:43` | Category const block |
-| `registry.go:57` | `registry.go:62` | `wrapRuleError` |
+| Documented       | Actual           | Symbol               |
+| ---------------- | ---------------- | -------------------- |
+| `rule.go:56`     | `rule.go:89`     | `Rule` interface     |
+| `rule.go:68`     | `rule.go:102`    | `RuleFunc` struct    |
+| `rule.go:75`     | `rule.go:113`    | `RuleMeta` struct    |
+| `rule.go:37`     | `rule.go:43`     | Category const block |
+| `registry.go:57` | `registry.go:62` | `wrapRuleError`      |
 
 ### FEATURES.md line references — STALE
 
 Same problem. All `Lives at:` references that I updated with new content still carry old line numbers:
 
-| Documented | Actual | Symbol |
-|------------|--------|--------|
-| `rule.go:56` | `rule.go:89` | `Rule` interface |
-| `rule.go:68` | `rule.go:102` | `RuleFunc` struct |
-| `rule.go:75` | `rule.go:113` | `RuleMeta` struct |
-| `registry.go:92` | `registry.go:100` | `DetectorFromRegistry` |
-| `registry.go:114` | `registry.go:133` | `DetectorsFromRegistry` |
-| `registry.go:153` | `registry.go:164` | `ExitCodeFromReport` |
-| `registry.go:58` | `registry.go:63` | `errors.AsType` call |
-| `registry.go:70` | `registry.go:75` | `Registry.Run` |
-| `registry.go:20` | `registry.go:20` | `NewRegistry` (still correct) |
-| `registry.go:30` | `registry.go:30` | `Register` (still correct) |
-| `registry.go:44` | `registry.go:49` | `All` |
+| Documented        | Actual            | Symbol                        |
+| ----------------- | ----------------- | ----------------------------- |
+| `rule.go:56`      | `rule.go:89`      | `Rule` interface              |
+| `rule.go:68`      | `rule.go:102`     | `RuleFunc` struct             |
+| `rule.go:75`      | `rule.go:113`     | `RuleMeta` struct             |
+| `registry.go:92`  | `registry.go:100` | `DetectorFromRegistry`        |
+| `registry.go:114` | `registry.go:133` | `DetectorsFromRegistry`       |
+| `registry.go:153` | `registry.go:164` | `ExitCodeFromReport`          |
+| `registry.go:58`  | `registry.go:63`  | `errors.AsType` call          |
+| `registry.go:70`  | `registry.go:75`  | `Registry.Run`                |
+| `registry.go:20`  | `registry.go:20`  | `NewRegistry` (still correct) |
+| `registry.go:30`  | `registry.go:30`  | `Register` (still correct)    |
+| `registry.go:44`  | `registry.go:49`  | `All`                         |
 
 ---
 
@@ -100,7 +100,7 @@ Same problem. All `Lives at:` references that I updated with new content still c
 
 ### Stale line references — MY BUG
 
-**This is the main thing I got wrong.** I added significant doc comment blocks to `rule.go` (the dual-identity section is ~20 lines, the building-findings section is ~10 lines). This shifted every subsequent line number. I then updated the *prose* in `DOMAIN_LANGUAGE.md` and `FEATURES.md` but copied the OLD line references without verifying them against the new file.
+**This is the main thing I got wrong.** I added significant doc comment blocks to `rule.go` (the dual-identity section is ~20 lines, the building-findings section is ~10 lines). This shifted every subsequent line number. I then updated the _prose_ in `DOMAIN_LANGUAGE.md` and `FEATURES.md` but copied the OLD line references without verifying them against the new file.
 
 This is exactly the kind of docs-drift bug that the project's own AGENTS.md warns about: "When code and this file disagree, the code is the source of truth — fix this file." I introduced disagreement.
 
@@ -229,6 +229,7 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs introd
 ### Q1: Should docs use exact line numbers at all?
 
 Line references (`rule.go:89`) rot on every edit — I just proved this by introducing ~16 stale references in one session. Two alternatives:
+
 - **(a)** Drop line numbers, use symbol names only: "Lives at: `rule.go`, `type Rule interface`"
 - **(b)** Keep line numbers but add a CI check / pre-commit hook that verifies them
 

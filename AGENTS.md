@@ -81,8 +81,8 @@ Core types in package `linter`:
   git to use the default `GITHUB_TOKEN` so the private `v1.4.1` tag resolves
   from GitHub directly. Local dev uses `GOPRIVATE` (global) plus an SSH
   `insteadOf` rewrite; a one-off tidy needs `GIT_CONFIG_COUNT=1
-  GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
-  GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only.
+GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
+GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only.
 - **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
   `FEATURES.md` tracks only capabilities that have code today
   (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built

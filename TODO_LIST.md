@@ -17,28 +17,28 @@
 
 ### API maturation
 
-| # | Status | Task | Notes |
-|---|--------|------|-------|
-| 1 | 🔴 `TODO` | Add `Registry.Get(id string) (Rule, bool)` | With `ID()` now the canonical key, consumers need lookup by ID |
-| 2 | 🔴 `TODO` | Add `Registry.Has(id string) bool` | Companion to `Get` |
-| 3 | 🔴 `TODO` | Add `Registry.Deregister(id string)` | Enable runtime rule removal (plugin scenarios) |
-| 4 | 🔴 `TODO` | Implement `RuleMeta.Validate()` | Empty-ID panics at `Register` (done); add validation for empty Name, Description, Category |
-| 5 | 🔴 `TODO` | Make `Registry.Run` failure policy configurable | Currently fail-fast; `DetectorsFromRegistry` → pipeline degrades gracefully. Add continue-and-report option |
-| 6 | 🔴 `TODO` | Add testable examples | `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` |
+| #   | Status    | Task                                            | Notes                                                                                                       |
+| --- | --------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 1   | 🔴 `TODO` | Add `Registry.Get(id string) (Rule, bool)`      | With `ID()` now the canonical key, consumers need lookup by ID                                              |
+| 2   | 🔴 `TODO` | Add `Registry.Has(id string) bool`              | Companion to `Get`                                                                                          |
+| 3   | 🔴 `TODO` | Add `Registry.Deregister(id string)`            | Enable runtime rule removal (plugin scenarios)                                                              |
+| 4   | 🔴 `TODO` | Implement `RuleMeta.Validate()`                 | Empty-ID panics at `Register` (done); add validation for empty Name, Description, Category                  |
+| 5   | 🔴 `TODO` | Make `Registry.Run` failure policy configurable | Currently fail-fast; `DetectorsFromRegistry` → pipeline degrades gracefully. Add continue-and-report option |
+| 6   | 🔴 `TODO` | Add testable examples                           | `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`                                       |
 
 ### Documentation
 
-| # | Status | Task | Notes |
-|---|--------|------|-------|
-| 7 | 🔴 `TODO` | Add "Building Findings" section to README | Show `.WithConfidence()` and `.WithFixStrategy()` via `finding.NewBuilder(...)` |
-| 8 | 🔴 `TODO` | Add two-execution-paths diagram to README | `Registry.Run` (sequential, fail-fast) vs `DetectorsFromRegistry` → pipeline (parallel, graceful) |
+| #   | Status    | Task                                      | Notes                                                                                             |
+| --- | --------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 7   | 🔴 `TODO` | Add "Building Findings" section to README | Show `.WithConfidence()` and `.WithFixStrategy()` via `finding.NewBuilder(...)`                   |
+| 8   | 🔴 `TODO` | Add two-execution-paths diagram to README | `Registry.Run` (sequential, fail-fast) vs `DetectorsFromRegistry` → pipeline (parallel, graceful) |
 
 ### Consumer adoption
 
-| # | Status | Task | Notes |
-|---|--------|------|-------|
-| 9 | 🔴 `TODO` | Create `examples/` directory | Minimal consumer linter proving the Rule → `finding.Finding` path |
-| 10 | 🔴 `TODO` | Pilot-port one rule from `go-structure-linter` | Validate the converter-deletion claim with real code |
+| #   | Status    | Task                                           | Notes                                                             |
+| --- | --------- | ---------------------------------------------- | ----------------------------------------------------------------- |
+| 9   | 🔴 `TODO` | Create `examples/` directory                   | Minimal consumer linter proving the Rule → `finding.Finding` path |
+| 10  | 🔴 `TODO` | Pilot-port one rule from `go-structure-linter` | Validate the converter-deletion claim with real code              |
 
 ---
 

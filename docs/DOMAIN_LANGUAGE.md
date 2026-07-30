@@ -32,7 +32,7 @@ Every rule has **dual identity** with distinct stability contracts:
   `finding.RuleName` field. Think `"G001"`, `"C001"`.
 - **Name** — the display name. Human-readable, can change across versions
   without breaking suppression or filtering. Think `"missing transaction
-  commit"`.
+commit"`.
 
 Rules are the **only** place domain knowledge about "what is wrong with this
 code" lives. Everything else in the SDK is plumbing. A linter is a set of
