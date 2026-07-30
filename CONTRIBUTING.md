@@ -12,14 +12,10 @@ and lint commands run inside the Nix dev shell so that the experimental
 `GOEXPERIMENT=jsonv2` flag is set consistently — `go-finding` (a transitive
 dependency) uses `encoding/json/v2`, which fails to compile without it.
 
-You also need the sibling repo checked out next to this one, because `go.mod`
-uses a local `replace` directive until `go-finding` has a tagged release:
-
-```
-~/projects/
-├── go-finding/      # github.com/larsartmann/go-finding
-└── go-linter-sdk/   # this repo
-```
+`go-finding` is resolved from VCS as a published tag (`v1.4.1` in `go.mod`).
+No local `replace` directive and no sibling checkout are needed. For local
+cross-repo development against an uncommitted `go-finding`, add a temporary
+`go.work` or `replace` line — neither is committed.
 
 ## Development Setup
 

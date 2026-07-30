@@ -15,25 +15,32 @@
 
 ## Open work
 
-The backlog is clear. All previously-tracked items were completed on
-2026-07-27 (see `CHANGELOG.md` for details):
+### API maturation
 
-- ~~Complete the `errors.AsType` migration~~ — done
-- ~~Add a concurrent registry test~~ — done (`TestRegistry_ConcurrentReadWrite`)
-- ~~Add `Benchmark*` for registry hot paths~~ — done (`Register`/`All`/`Run`)
-- ~~Restore the positive double-wrap assertion~~ — done
-- ~~Resolve the `testpackage` lint decision~~ — done (moved to black-box
-  `package linter_test`)
-- ~~Verify a fresh-clone BuildFlow run~~ — done (35/36 on a clean clone)
-- ~~Add a GitHub Actions CI workflow~~ — done (`.github/workflows/ci.yml`)
-- ~~Right-size `.golangci.yml` from first principles~~ — done (dropped
-  cargo-culted `mnd`/`gosec`, trimmed `varnamelen`)
-- ~~Verify formatter agreement (`nix fmt` vs `golangci-lint --fix`)~~ — done
-  (zero diff)
-- ~~Cross-check sibling repos for the missing-`self` flake bug~~ — done (all
-  clean)
-- ~~Replace wholesale `ireturn` test exclusion~~ — done (factories return
-  concrete `RuleFunc`)
+| # | Status | Task | Notes |
+|---|--------|------|-------|
+| 1 | 🔴 `TODO` | Add `Registry.Get(id string) (Rule, bool)` | With `ID()` now the canonical key, consumers need lookup by ID |
+| 2 | 🔴 `TODO` | Add `Registry.Has(id string) bool` | Companion to `Get` |
+| 3 | 🔴 `TODO` | Add `Registry.Deregister(id string)` | Enable runtime rule removal (plugin scenarios) |
+| 4 | 🔴 `TODO` | Implement `RuleMeta.Validate()` | Empty-ID panics at `Register` (done); add validation for empty Name, Description, Category |
+| 5 | 🔴 `TODO` | Make `Registry.Run` failure policy configurable | Currently fail-fast; `DetectorsFromRegistry` → pipeline degrades gracefully. Add continue-and-report option |
+| 6 | 🔴 `TODO` | Add testable examples | `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` |
+
+### Documentation
+
+| # | Status | Task | Notes |
+|---|--------|------|-------|
+| 7 | 🔴 `TODO` | Add "Building Findings" section to README | Show `.WithConfidence()` and `.WithFixStrategy()` via `finding.NewBuilder(...)` |
+| 8 | 🔴 `TODO` | Add two-execution-paths diagram to README | `Registry.Run` (sequential, fail-fast) vs `DetectorsFromRegistry` → pipeline (parallel, graceful) |
+
+### Consumer adoption
+
+| # | Status | Task | Notes |
+|---|--------|------|-------|
+| 9 | 🔴 `TODO` | Create `examples/` directory | Minimal consumer linter proving the Rule → `finding.Finding` path |
+| 10 | 🔴 `TODO` | Pilot-port one rule from `go-structure-linter` | Validate the converter-deletion claim with real code |
+
+---
 
 Longer-horizon work lives in `ROADMAP.md`. When a ROADMAP idea is refined into
 a bounded task, it moves here.

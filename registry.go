@@ -97,6 +97,10 @@ func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error)
 // interface, so a linter plugs into BuildFlow's DAG with zero glue (via the
 // tool-sdk Spec.Detect field). The working directory is read from ctx via
 // finding.WorkingDirFromContext.
+//
+// For go-finding/pipeline integration with per-rule parallelism, use
+// DetectorsFromRegistry instead — it returns one detector per rule rather
+// than collapsing all rules into a single opaque detector.
 func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector {
 	return finding.NamedDetectorFunc(toolName, func(ctx context.Context) ([]finding.Finding, error) {
 		dir := finding.WorkingDirFromContext(ctx)

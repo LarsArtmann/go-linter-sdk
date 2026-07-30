@@ -6,6 +6,16 @@
 
 ---
 
+> **Processing note (2026-07-30):** This feedback has been reviewed by the
+> go-linter-sdk maintainer. Sections 1-7 are the original cqrs-lint perspective.
+> Some claims (e.g., "Category constants are too restrictive", "no concept of
+> fixability") are factually incorrect — `Category` is already an open type and
+> per-finding `Confidence`/`FixStrategy` already exist. See **Appendix A** at
+> the end of this document for the full maintainer response and accept/reject
+> decisions on all 6 proposed changes.
+
+---
+
 ## Executive Summary
 
 go-linter-sdk is the right abstraction for **stateless linters** — linters where each rule independently scans a directory and emits findings. branching-flow, erraudit, and go-structure-linter fit this model: each rule is self-contained, reads files itself, and doesn't share state with other rules.
@@ -445,7 +455,7 @@ The feedback claims "the SDK's Rule interface has no `Confidence()` method" and 
 
 A rule-level `Confidence()` default is strictly **less** expressive than per-finding confidence: a heuristic rule that fires with high confidence on pattern A and low confidence on pattern B cannot be represented by a single rule-level value. The same applies to `AutoFix`: a rule may emit some findings that are auto-fixable and others that are only suggestions.
 
-**The real problem is documentation** (Q4). The SDK's package docs (`rule.go:1-23`) and `docs/DOMAIN_LANGUAGE.md` do not explain that:
+**The real problem is documentation** (Q4). The SDK's package docs (`rule.go`, package doc comment) and `docs/DOMAIN_LANGUAGE.md` do not explain that:
 1. Rules should set `Confidence` and `FixStrategy` on individual findings via `finding.NewBuilder(...)`.
 2. `RuleMeta.Sev` is the *default* severity — individual findings can override it.
 3. The same override pattern applies to confidence and fix strategy.
@@ -458,7 +468,7 @@ A rule-level `Confidence()` default is strictly **less** expressive than per-fin
 
 **The proposal:** Allow custom categories or change `Category` to an open `string`.
 
-**The type is already open.** Verified from source (`rule.go:33`):
+**The type is already open.** Verified from source (`rule.go`, `type Category`):
 
 ```go
 type Category string

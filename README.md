@@ -32,13 +32,13 @@ The third row is the killer. branching-flow and erraudit each maintain a substan
 go get github.com/larsartmann/go-linter-sdk
 ```
 
-Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.2+.
+Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.4+.
 
 ---
 
 ## Usage
 
-### A 5-line linter
+### A minimal linter
 
 ```go
 package main
@@ -57,7 +57,7 @@ func init() {
     registry.Register(linter.RuleFunc{
         Meta: linter.RuleMeta{
             ID:          "no-fmt-println",
-            Name:        "no-fmt-println",
+            Name:        "no fmt.Println in libraries",
             Description: "fmt.Println is banned in libraries; use a logger",
             Cat:         linter.CategoryStyle,
             Sev:         finding.SeverityWarning,
