@@ -46,9 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `go-structure-linter`'s existing `IsEnabledByDefault()` method, removing
   a blocker for pilot adoption.
 - `OptIn(rf RuleFunc) Rule` constructor for opt-in rules.
-- Pinned `go-finding` dependency from pseudo-version to `v1.4.0`. Consumers can
-  now `go get github.com/larsartmann/go-linter-sdk` without a local `replace`
-  directive (the `replace ../go-finding` is retained for development only).
+- Pinned `go-finding` dependency to `v1.4.1` (published tag). The local
+  `replace ../go-finding` directive has been removed — consumers and CI both
+  fetch `v1.4.1` directly via VCS auth.
 
 ### Added
 
@@ -79,8 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hot paths.
 - GitHub Actions CI workflow (`.github/workflows/ci.yml`): test
   (ubuntu-latest + macos-latest), lint, format check, govulncheck, and nix
-  flake check. Handles the `replace ../go-finding` directive by cloning
-  `go-finding` as a sibling; all actions pinned to commit SHAs.
+  flake check. Configures VCS auth for private modules (`GOPRIVATE`);
+  all actions pinned to commit SHAs.
 - `docs/DOMAIN_LANGUAGE.md` — ubiquitous-language glossary defining the six
   core concepts (`Rule`, `RuleFunc`, `RuleMeta`, `Category`, `Registry`,
   `RuleError`), their relationships, and what is deliberately NOT in the
@@ -91,9 +91,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RuleFunc.Check` and `Registry.Run` / `DetectorFromRegistry` now wrap errors
   with `RuleError` at a single chokepoint each, with a guard against
   double-wrapping custom `Rule` implementations.
-- `go.mod` points `go-finding` at a local replace directive (sibling checkout);
-  consumers need `github.com/larsartmann/go-finding` available on the module
-  path until a tagged release is published.
+- `go.mod` resolves `go-finding` v1.4.1 via VCS auth (`GOPRIVATE`); no local
+  replace directive or sibling checkout needed.
 - `errors.AsType` migration completed: `registry.go`, `registry_test.go`, and
   the `errors.go` doc example all use Go 1.26's generic
   `errors.AsType[*RuleError]` (production code since `88bf523`; tests + docs
@@ -146,3 +145,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all living docs and source comments to reflect the
   `hierarchical-errors` → `erraudit` project rename. Historical status reports
   were left as-is (point-in-time records).
+
+### Documentation
+
+- Converted all source line-number references in `DOMAIN_LANGUAGE.md` and
+  `FEATURES.md` to durable symbol-name references (`rule.go — type Rule`
+  instead of `rule.go:89`). Line numbers rot on every edit; symbol names don't.
+- `README.md` example updated to show distinct `ID` and `Name` values,
+  demonstrating the dual-identity contract. "5-line linter" headline replaced
+  with "A minimal linter" (the required `ID` field made the old count
+  misleading). Version requirement updated from `v1.2+` to `v1.4+`.
+- `CONTRIBUTING.md` updated: removed stale references to the local `replace`
+  directive and sibling-checkout requirement (`go-finding` v1.4.1 is published
+  and resolved via VCS auth).
+- `DetectorFromRegistry` doc comment now cross-references
+  `DetectorsFromRegistry` (when to use which execution path).
+- cqrs-lint feedback document moved to `docs/feedback/processed/` and annotated
+  with a processing note pointing to Appendix A (maintainer response).
+- `TODO_LIST.md` rebuilt with 10 actionable items from the feedback analysis
+  (registry helpers, `RuleMeta.Validate`, testable examples, consumer pilot).
