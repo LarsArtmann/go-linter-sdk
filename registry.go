@@ -24,16 +24,21 @@ func NewRegistry() *Registry {
 	}
 }
 
-// Register adds a rule. Panics if a rule with the same Name is already
-// registered — duplicate names are a programming error that should surface at
-// startup, not silently shadow at runtime.
+// Register adds a rule. Panics if a rule with the same ID is already
+// registered — duplicate IDs are a programming error that should surface at
+// startup, not silently shadow at runtime. Panics if the rule's ID is empty.
 func (r *Registry) Register(rule Rule) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	id := rule.ID()
+	if id == "" {
+		panic("linter: rule with empty ID cannot be registered")
+	}
+
 	for _, existing := range r.rules {
-		if existing.Name() == rule.Name() {
-			panic("linter: duplicate rule name " + rule.Name())
+		if existing.ID() == id {
+			panic("linter: duplicate rule ID " + id)
 		}
 	}
 
@@ -51,15 +56,15 @@ func (r *Registry) All() []Rule {
 	return out
 }
 
-// wrapRuleError ensures err is a *RuleError tagged with name. If err is
-// already a *RuleError (e.g. produced by RuleFunc.Check), it passes through
+// wrapRuleError ensures err is a *RuleError tagged with the rule ID. If err
+// is already a *RuleError (e.g. produced by RuleFunc.Check), it passes through
 // unchanged to avoid double-wrapping.
-func wrapRuleError(name string, err error) error {
+func wrapRuleError(ruleID string, err error) error {
 	if _, ok := errors.AsType[*RuleError](err); ok {
 		return err
 	}
 
-	return NewRuleError(name, err)
+	return NewRuleError(ruleID, err)
 }
 
 // Run executes every rule against dir, aggregating findings. This is the
@@ -77,7 +82,7 @@ func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error)
 	for _, rule := range r.All() {
 		findings, err := rule.Check(ctx, dir)
 		if err != nil {
-			return nil, wrapRuleError(rule.Name(), err)
+			return nil, wrapRuleError(rule.ID(), err)
 		}
 
 		report.AddFindings(findings)
@@ -104,7 +109,7 @@ func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector 
 		for _, rule := range registry.All() {
 			findings, err := rule.Check(ctx, dir)
 			if err != nil {
-				return nil, wrapRuleError(rule.Name(), err)
+				return nil, wrapRuleError(rule.ID(), err)
 			}
 
 			all = append(all, findings...)
@@ -112,6 +117,42 @@ func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector 
 
 		return all, nil
 	})
+}
+
+// DetectorsFromRegistry returns one finding.Detector per registered rule,
+// so a pipeline (go-finding/pipeline) can run them with per-detector
+// parallelism, timeouts, and error isolation. Each detector is named after the
+// rule's ID for pipeline metric attribution.
+//
+// Unlike DetectorFromRegistry, which collapses all rules into a single opaque
+// detector, this function preserves per-rule granularity. The working directory
+// is read from ctx via finding.WorkingDirFromContext.
+//
+// pipeline.Detector is a type alias for finding.Detector, so the returned slice
+// plugs directly into pipeline.New(config, rootDir, detectors...).
+func DetectorsFromRegistry(registry *Registry, toolName string) []finding.Detector {
+	all := registry.All()
+	detectors := make([]finding.Detector, 0, len(all))
+
+	for _, rule := range all {
+		rule := rule // capture for closure
+
+		detectors = append(detectors, finding.NamedDetectorFunc(rule.ID(), func(ctx context.Context) ([]finding.Finding, error) {
+			dir := finding.WorkingDirFromContext(ctx)
+			if dir == "" {
+				dir = "."
+			}
+
+			findings, err := rule.Check(ctx, dir)
+			if err != nil {
+				return nil, wrapRuleError(rule.ID(), err)
+			}
+
+			return findings, nil
+		}))
+	}
+
+	return detectors
 }
 
 // ExitCodeFromReport returns the process exit code for a lint run: 0 when

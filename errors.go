@@ -10,16 +10,16 @@ import (
 // or DetectorFromRegistry call failed because a rule returned an error.
 var ErrRuleFailed = errors.New("linter: rule failed")
 
-// RuleError wraps an error from a specific rule, preserving the rule name so
-// callers can identify which rule in a registry failed. Returned by
-// Registry.Run, RuleFunc.Check, and DetectorFromRegistry when a rule's
-// execution fails.
+// RuleError wraps an error from a specific rule, preserving the rule's stable
+// ID so callers can identify which rule in a registry failed. Returned by
+// Registry.Run, RuleFunc.Check, DetectorFromRegistry, and DetectorsFromRegistry
+// when a rule's execution fails.
 //
-// Use errors.AsType (Go 1.26+) to extract the rule name:
+// Use errors.AsType (Go 1.26+) to extract the rule ID:
 //
 //	ruleErr, ok := errors.AsType[*linter.RuleError](err)
 //	if ok {
-//	    log.Printf("rule %s failed", ruleErr.RuleName)
+//	    log.Printf("rule %s failed", ruleErr.RuleID)
 //	}
 //
 // To check whether any rule failed (regardless of which), match the sentinel:
@@ -28,13 +28,13 @@ var ErrRuleFailed = errors.New("linter: rule failed")
 //	    // a rule returned an error
 //	}
 type RuleError struct {
-	RuleName string
-	Cause    error
+	RuleID string
+	Cause  error
 }
 
 // Error implements error.
 func (e *RuleError) Error() string {
-	return fmt.Sprintf("rule %q failed: %v", e.RuleName, e.Cause)
+	return fmt.Sprintf("rule %q failed: %v", e.RuleID, e.Cause)
 }
 
 // Unwrap returns the underlying cause for errors.Unwrap / errors.Is.
@@ -47,10 +47,10 @@ func (*RuleError) Is(target error) bool {
 	return target == ErrRuleFailed
 }
 
-// NewRuleError wraps cause as a RuleError for the named rule.
-func NewRuleError(ruleName string, cause error) *RuleError {
+// NewRuleError wraps cause as a RuleError for the rule identified by ruleID.
+func NewRuleError(ruleID string, cause error) *RuleError {
 	return &RuleError{
-		RuleName: ruleName,
-		Cause:    cause,
+		RuleID: ruleID,
+		Cause:  cause,
 	}
 }
