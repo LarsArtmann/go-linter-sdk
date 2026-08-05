@@ -16,11 +16,11 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 Every Go linter built on a shared findings format reinvents the same three layers:
 
-| Layer                                       | What it does                                                |
-| ------------------------------------------- | ----------------------------------------------------------- |
-| Rule interface                              | Declares a check's identity + `Check` function              |
-| Registry                                    | Holds rules, drives execution                               |
-| **Issue → `finding.Finding` converter**     | **Bridges the linter's native type to the ecosystem type**  |
+| Layer                                   | What it does                                               |
+| --------------------------------------- | ---------------------------------------------------------- |
+| Rule interface                          | Declares a check's identity + `Check` function             |
+| Registry                                | Holds rules, drives execution                              |
+| **Issue → `finding.Finding` converter** | **Bridges the linter's native type to the ecosystem type** |
 
 The third row is the killer. When a linter's own issue type predates the ecosystem's `finding.Finding`, every new finding field means touching the converter. Every refactor cascades. In the LarsArtmann ecosystem this duplication is concrete:
 
@@ -131,18 +131,18 @@ return []finding.Finding{
 }, nil
 ```
 
-| `Confidence`     | When to use                         |
-| ---------------- | ----------------------------------- |
-| `ConfidenceLow`  | Heuristic match; may be false positive |
-| `ConfidenceMedium` | Likely a real issue                |
-| `ConfidenceHigh` | Definitely a real issue             |
+| `Confidence`       | When to use                            |
+| ------------------ | -------------------------------------- |
+| `ConfidenceLow`    | Heuristic match; may be false positive |
+| `ConfidenceMedium` | Likely a real issue                    |
+| `ConfidenceHigh`   | Definitely a real issue                |
 
-| `FixStrategy`         | Meaning                          |
-| --------------------- | -------------------------------- |
-| `FixStrategyNone`     | No fix available                 |
-| `FixStrategySuggest`  | Suggest a fix in output          |
-| `FixStrategyDirect`   | Can auto-fix programmatically    |
-| `FixStrategyAI`       | Requires AI to generate a fix    |
+| `FixStrategy`        | Meaning                       |
+| -------------------- | ----------------------------- |
+| `FixStrategyNone`    | No fix available              |
+| `FixStrategySuggest` | Suggest a fix in output       |
+| `FixStrategyDirect`  | Can auto-fix programmatically |
+| `FixStrategyAI`      | Requires AI to generate a fix |
 
 ### Two execution paths
 
@@ -162,12 +162,12 @@ graph LR
     end
 ```
 
-| | `Registry.Run` | `DetectorsFromRegistry` |
-| --- | --- | --- |
-| **Execution** | Sequential | Parallel (one goroutine per rule) |
+|                    | `Registry.Run`                             | `DetectorsFromRegistry`                   |
+| ------------------ | ------------------------------------------ | ----------------------------------------- |
+| **Execution**      | Sequential                                 | Parallel (one goroutine per rule)         |
 | **Failure policy** | Fail-fast (default) or `ContinueOnError()` | Per-detector isolation (pipeline handles) |
-| **Granularity** | Single opaque run | Per-rule detectors with named metrics |
-| **Best for** | Simple CLI linters | go-finding/pipeline, BuildFlow DAG |
+| **Granularity**    | Single opaque run                          | Per-rule detectors with named metrics     |
+| **Best for**       | Simple CLI linters                         | go-finding/pipeline, BuildFlow DAG        |
 
 ---
 
@@ -185,21 +185,21 @@ graph LR
 
 ### Functions
 
-| Function                            | Returns                  | Purpose                                                                                         |
-| ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------- |
-| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                  |
-| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                    |
-| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                    |
-| `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                             |
-| `(*Registry).Has(id)`               | `bool`                   | Check if a rule ID is registered                                                                |
-| `(*Registry).Deregister(id)`        | `bool`                   | Remove a rule by ID (returns true if found)                                                     |
+| Function                            | Returns                  | Purpose                                                                                               |
+| ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                        |
+| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                          |
+| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                          |
+| `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                                   |
+| `(*Registry).Has(id)`               | `bool`                   | Check if a rule ID is registered                                                                      |
+| `(*Registry).Deregister(id)`        | `bool`                   | Remove a rule by ID (returns true if found)                                                           |
 | `(*Registry).Run(ctx, dir, opts…)`  | `*finding.Report, error` | Run all rules; aggregate findings. Fail-fast by default; pass `ContinueOnError()` for partial results |
-| `ContinueOnError()`                 | `RunOption`              | Run option: continue past rule failures, collect partial findings, join errors                  |
-| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                             |
-| `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)    |
-| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                  |
-| `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`) |
-| `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                          |
+| `ContinueOnError()`                 | `RunOption`              | Run option: continue past rule failures, collect partial findings, join errors                        |
+| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                                   |
+| `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)          |
+| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                        |
+| `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
+| `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                                |
 
 ---
 

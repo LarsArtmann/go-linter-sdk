@@ -32,10 +32,10 @@
 | `RuleMeta` declarative identity            | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type RuleMeta`) — `ID`(required)/`Name`/`Description`/`Cat`/`Sev` struct literal                                                                                |
 | `Category` taxonomy (open string type)     | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Category`) — 8 recommended values; consumers can define custom categories (`Category("api")`)                                                              |
 | `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`type Registry`, `sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`                             |
-| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`NewRegistry`/`Register`/`All`); `Register` panics on duplicate ID or empty identity field (programming error)                                                |
+| `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`NewRegistry`/`Register`/`All`); `Register` panics on duplicate ID or empty identity field (programming error)                                               |
 | `Registry.Get` / `Has` / `Deregister`      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` — lookup by ID (`Get`), existence check (`Has`), runtime removal (`Deregister`); all thread-safe; 3 tests                                                     |
 | `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func Run`); aggregates findings into a `*finding.Report`; fail-fast by default; `ContinueOnError()` option for partial results                              |
-| `RuleMeta.Validate`                        | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`func Validate`); checks ID/Name/Description/Cat non-empty; `Register` calls it through the interface and panics on empty fields; table-driven test               |
+| `RuleMeta.Validate`                        | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`func Validate`); checks ID/Name/Description/Cat non-empty; `Register` calls it through the interface and panics on empty fields; table-driven test              |
 | `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorFromRegistry`); reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                      |
 | `DetectorsFromRegistry` (pipeline adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorsFromRegistry`); returns `[]finding.Detector` (one per rule) for go-finding/pipeline; per-rule parallelism, timeouts, error isolation; 4 tests |
 | `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func ExitCodeFromReport`); 0 clean / 1 any findings; nil/empty cases tested                                                                                 |
@@ -60,21 +60,21 @@
 
 ## Documentation
 
-| Feature                   | Status                | Notes                                                                                             |
-| ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------- |
-| `README.md`               | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path                                        |
-| `AGENTS.md`               | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                    |
-| `CONTRIBUTING.md`         | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                             |
-| `CHANGELOG.md`            | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                           |
-| `FEATURES.md`             | 🟢 `FULLY_FUNCTIONAL` | This file                                                                                         |
-| `TODO_LIST.md`            | 🟢 `FULLY_FUNCTIONAL` | Bounded short-term work                                                                           |
-| `ROADMAP.md`              | 🟢 `FULLY_FUNCTIONAL` | Long-term vision + open questions                                                                 |
-| `docs/DOMAIN_LANGUAGE.md` | 🟢 `FULLY_FUNCTIONAL` | Ubiquitous-language glossary: `Rule`, `RuleFunc`, `RuleMeta`, `Category`, `Registry`, `RuleError` |
-| Testable examples (`example_test.go`)      | 🟢 `FULLY_FUNCTIONAL` | `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`; visible on pkg.go.dev; verified by `go test` |
+| Feature                               | Status                | Notes                                                                                                                                                      |
+| ------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path                                                                                                 |
+| `AGENTS.md`                           | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                                                                             |
+| `CONTRIBUTING.md`                     | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                                                                                      |
+| `CHANGELOG.md`                        | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                                                                                    |
+| `FEATURES.md`                         | 🟢 `FULLY_FUNCTIONAL` | This file                                                                                                                                                  |
+| `TODO_LIST.md`                        | 🟢 `FULLY_FUNCTIONAL` | Bounded short-term work                                                                                                                                    |
+| `ROADMAP.md`                          | 🟢 `FULLY_FUNCTIONAL` | Long-term vision + open questions                                                                                                                          |
+| `docs/DOMAIN_LANGUAGE.md`             | 🟢 `FULLY_FUNCTIONAL` | Ubiquitous-language glossary: `Rule`, `RuleFunc`, `RuleMeta`, `Category`, `Registry`, `RuleError`                                                          |
+| Testable examples (`example_test.go`) | 🟢 `FULLY_FUNCTIONAL` | `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`; visible on pkg.go.dev; verified by `go test` |
 
 ## Consumer examples
 
-| Feature                        | Status                | Notes                                                                                                                              |
-| ------------------------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `examples/minimal-linter/`     | 🟢 `FULLY_FUNCTIONAL` | Minimal consumer linter proving the full Rule → `finding.Finding` → `Registry.Run` → `ExitCodeFromReport` path                     |
-| `examples/no-go-mod/`          | 🟢 `FULLY_FUNCTIONAL` | Pilot port of `go-structure-linter`'s `NoGoModRule`; validates the converter-deletion claim (rule emits `finding.Finding` directly) |
+| Feature                    | Status                | Notes                                                                                                                               |
+| -------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `examples/minimal-linter/` | 🟢 `FULLY_FUNCTIONAL` | Minimal consumer linter proving the full Rule → `finding.Finding` → `Registry.Run` → `ExitCodeFromReport` path                      |
+| `examples/no-go-mod/`      | 🟢 `FULLY_FUNCTIONAL` | Pilot port of `go-structure-linter`'s `NoGoModRule`; validates the converter-deletion claim (rule emits `finding.Finding` directly) |
