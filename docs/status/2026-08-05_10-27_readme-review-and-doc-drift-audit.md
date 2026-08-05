@@ -23,8 +23,8 @@ standardizes the rule/execution contract and **makes the converter unnecessary**
 
 1. **README opening rewritten.** Replaced the insider run-on ("Shared
    scaffolding for LarsArtmann Go linters…") with a plain-language tagline:
-   *"A small Go library for building linters that plug into a finding-based
-   ecosystem."* Followed by a 3-sentence paragraph that names the universal
+   _"A small Go library for building linters that plug into a finding-based
+   ecosystem."_ Followed by a 3-sentence paragraph that names the universal
    problem and the core design decision.
 
 2. **"Why?" section reframed.** Now leads with the **universal** problem (a
@@ -316,12 +316,14 @@ now, or wait?
 ## Session self-assessment
 
 **What went well:**
+
 - Identified the core problem correctly (converter elimination)
 - Prioritized the 4 highest-leverage README improvements
 - Verified all changes with build + test + example run
 - Honest about the "zero consumers" caveat
 
 **What went wrong:**
+
 - Didn't run `nix run .#lint` (canonical check per AGENTS.md)
 - Didn't catch doc drift until forced to self-review
 - Didn't update CHANGELOG for README changes
