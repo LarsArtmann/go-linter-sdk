@@ -24,6 +24,7 @@ package linter
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -120,6 +121,8 @@ type RuleMeta struct {
 	Sev         finding.Severity
 }
 
+var errMissingFields = errors.New("linter: rule has missing required field(s)")
+
 // Validate returns nil if all required fields are non-empty, or an error
 // listing every missing field. ID, Name, Description, and Cat are required;
 // Sev defaults to the zero value (empty string) which is a valid — if
@@ -133,21 +136,27 @@ type RuleMeta struct {
 //	if err := meta.Validate(); err != nil { log.Fatal(err) }
 func (m RuleMeta) Validate() error {
 	var missing []string
+
 	if m.ID == "" {
 		missing = append(missing, "ID")
 	}
+
 	if m.Name == "" {
 		missing = append(missing, "Name")
 	}
+
 	if m.Description == "" {
 		missing = append(missing, "Description")
 	}
+
 	if m.Cat == "" {
 		missing = append(missing, "Cat")
 	}
+
 	if len(missing) > 0 {
-		return fmt.Errorf("linter: rule meta missing required field(s): %s", strings.Join(missing, ", "))
+		return fmt.Errorf("%w: %s", errMissingFields, strings.Join(missing, ", "))
 	}
+
 	return nil
 }
 
@@ -157,21 +166,27 @@ func (m RuleMeta) Validate() error {
 // not just RuleFunc.
 func validateRuleIdentity(r Rule) error {
 	var missing []string
+
 	if r.ID() == "" {
 		missing = append(missing, "ID")
 	}
+
 	if r.Name() == "" {
 		missing = append(missing, "Name")
 	}
+
 	if r.Description() == "" {
 		missing = append(missing, "Description")
 	}
+
 	if r.Category() == "" {
 		missing = append(missing, "Category")
 	}
+
 	if len(missing) > 0 {
-		return fmt.Errorf("linter: rule missing required field(s): %s", strings.Join(missing, ", "))
+		return fmt.Errorf("%w: %s", errMissingFields, strings.Join(missing, ", "))
 	}
+
 	return nil
 }
 

@@ -2,6 +2,7 @@ package linter_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/larsartmann/go-finding"
@@ -31,11 +32,7 @@ func ExampleRegistry_Run() {
 		},
 	})
 
-	report, err := registry.Run(context.Background(), ".")
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
+	report, _ := registry.Run(context.Background(), ".")
 
 	fmt.Println("findings:", report.Len())
 	// Output: findings: 1
@@ -70,11 +67,7 @@ func ExampleDetectorsFromRegistry() {
 	fmt.Println("detectors:", len(detectors))
 	fmt.Println("name:", detectors[0].Name())
 
-	findings, err := detectors[0].Detect(context.Background())
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
+	findings, _ := detectors[0].Detect(context.Background())
 
 	fmt.Println("findings:", len(findings))
 	// Output:
@@ -137,7 +130,7 @@ func ExampleRegistry_Run_continueOnError() {
 			Sev:         finding.SeverityWarning,
 		},
 		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
-			return nil, fmt.Errorf("simulated failure")
+			return nil, errors.New("simulated failure")
 		},
 	})
 

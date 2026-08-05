@@ -253,6 +253,11 @@ linters:
         text: unused
         linters:
           - unused
+      - path: examples/
+        linters:
+          - depguard
+          - forbidigo
+          - mnd
     paths:
       - \.gen\.go$
       - _templ\.go$

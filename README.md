@@ -1,6 +1,8 @@
 # go-linter-sdk
 
-Shared scaffolding for LarsArtmann Go linters — `Rule` interface, registry, detector adapter, exit codes. Eliminates the per-linter converter layer by codifying the `go-structure-linter` pattern: rules emit `finding.Finding` directly.
+**A small Go library for building linters that plug into a [`finding`](https://github.com/larsartmann/go-finding)-based ecosystem.**
+
+Every Go linter reinvents the same scaffolding — a rule interface, a registry, and a converter that bridges the linter's own issue type to the ecosystem's finding type. `go-linter-sdk` standardizes the first two and **eliminates the third**: rules emit `finding.Finding` directly, so there is no converter layer to maintain. A linter that adopts it ships a `rules.go` and a `main.go` one-liner; the registry, detector adapters, error attribution, and exit codes are shared.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/larsartmann/go-linter-sdk.svg)](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)
 [![Go Report Card](https://goreportcard.com/badge/github.com/larsartmann/go-linter-sdk)](https://goreportcard.com/report/github.com/larsartmann/go-linter-sdk)
@@ -12,17 +14,23 @@ Shared scaffolding for LarsArtmann Go linters — `Rule` interface, registry, de
 
 ## Why?
 
-Three LarsArtmann linters — `branching-flow`, `erraudit`, `go-structure-linter` — each independently reinvented the same three layers:
+Every Go linter built on a shared findings format reinvents the same three layers:
 
-| Layer                                       | branching-flow | erraudit      | go-structure-linter                    |
+| Layer                                       | What it does                                                |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| Rule interface                              | Declares a check's identity + `Check` function              |
+| Registry                                    | Holds rules, drives execution                               |
+| **Issue → `finding.Finding` converter**     | **Bridges the linter's native type to the ecosystem type**  |
+
+The third row is the killer. When a linter's own issue type predates the ecosystem's `finding.Finding`, every new finding field means touching the converter. Every refactor cascades. In the LarsArtmann ecosystem this duplication is concrete:
+
+|                                             | branching-flow | erraudit      | go-structure-linter                    |
 | ------------------------------------------- | -------------- | ------------- | -------------------------------------- |
 | Rule interface                              | custom         | custom        | custom                                 |
 | Registry                                    | custom         | custom        | custom                                 |
 | **Violation → `finding.Finding` converter** | **1,871 LOC**  | **1,214 LOC** | **0** (`type Issue = finding.Finding`) |
 
-The third row is the killer. branching-flow and erraudit each maintain a substantial bridge package purely because their native domain types (`Violation`, `ErrorViolation`) predate `finding.Finding`. Every new finding field requires touching the converter. Every refactor cascades.
-
-`go-structure-linter` got it rightest by aliasing `Issue = finding.Finding` — no converter at all. **`go-linter-sdk` codifies that pattern.** A rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, so there is no intermediate type to convert. A linter that adopts this SDK ships a `rules.go` file and a `main.go` one-liner — the registry, detection, and exit codes are shared.
+`go-structure-linter` got it rightest by aliasing `Issue = finding.Finding` — no converter at all. **`go-linter-sdk` codifies that pattern.** A rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, so there is no intermediate type to convert.
 
 ---
 
@@ -33,6 +41,8 @@ go get github.com/larsartmann/go-linter-sdk
 ```
 
 Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.4+.
+
+> **Private dependency.** `go-finding` is a private repository. Set `GOPRIVATE=github.com/larsartmann/*` and authenticate to GitHub (token or SSH) before `go get`, otherwise the module proxy returns 404. CI uses `GITHUB_TOKEN`; local dev uses `GOPRIVATE` plus an SSH `insteadOf` rewrite.
 
 ---
 
@@ -63,8 +73,14 @@ func init() {
             Sev:         finding.SeverityWarning,
         },
         Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
-            // ... scan dir, build findings via finding.NewBuilder(...) ...
-            return nil, nil
+            // ... scan dir for fmt.Println; emit findings directly ...
+            return []finding.Finding{
+                finding.NewBuilder("no-fmt-println", "my-linter",
+                    "fmt.Println is banned in libraries; use a logger",
+                    finding.SeverityWarning,
+                    finding.Pos(finding.FilePath("example.go"), 1, 1)).
+                    MustBuild(),
+            }, nil
         },
     })
 }
@@ -74,6 +90,8 @@ func main() {
     os.Exit(linter.ExitCodeFromReport(report))
 }
 ```
+
+> A complete, runnable version lives at [`examples/minimal-linter`](examples/minimal-linter) — run it with `GOEXPERIMENT=jsonv2 go run ./examples/minimal-linter [dir]`.
 
 ### Plug into BuildFlow's DAG
 
@@ -97,6 +115,60 @@ detectors := linter.DetectorsFromRegistry(registry)
 // attributes timing and errors to individual rules.
 ```
 
+### Building findings with Confidence and FixStrategy
+
+Each finding carries its own `Confidence` and `FixStrategy`, set via
+`finding.NewBuilder(...)`. This is strictly more expressive than rule-level
+defaults: a single rule can emit findings with different confidence levels and
+fix strategies depending on the matched pattern.
+
+```go
+return []finding.Finding{
+    finding.NewBuilder(ruleID, toolName, "unused variable", severity, pos).
+        WithConfidence(finding.ConfidenceHigh).
+        WithFixStrategy(finding.FixStrategyDirect).
+        MustBuild(),
+}, nil
+```
+
+| `Confidence`     | When to use                         |
+| ---------------- | ----------------------------------- |
+| `ConfidenceLow`  | Heuristic match; may be false positive |
+| `ConfidenceMedium` | Likely a real issue                |
+| `ConfidenceHigh` | Definitely a real issue             |
+
+| `FixStrategy`         | Meaning                          |
+| --------------------- | -------------------------------- |
+| `FixStrategyNone`     | No fix available                 |
+| `FixStrategySuggest`  | Suggest a fix in output          |
+| `FixStrategyDirect`   | Can auto-fix programmatically    |
+| `FixStrategyAI`       | Requires AI to generate a fix    |
+
+### Two execution paths
+
+The SDK offers two ways to run rules. Pick based on your integration target:
+
+```mermaid
+graph LR
+    subgraph Run["Registry.Run — standalone CLI"]
+        R1["Rule 1"] --> R2["Rule 2"] --> R3["Rule N"] --> RR["*finding.Report"]
+    end
+
+    subgraph Det["DetectorsFromRegistry — pipeline"]
+        D0["Split"] --> D1["Detector: Rule 1"]
+        D0 --> D2["Detector: Rule 2"]
+        D0 --> D3["Detector: Rule N"]
+        D1 & D2 & D3 -.->|parallel| DR["pipeline.Run"]
+    end
+```
+
+| | `Registry.Run` | `DetectorsFromRegistry` |
+| --- | --- | --- |
+| **Execution** | Sequential | Parallel (one goroutine per rule) |
+| **Failure policy** | Fail-fast (default) or `ContinueOnError()` | Per-detector isolation (pipeline handles) |
+| **Granularity** | Single opaque run | Per-rule detectors with named metrics |
+| **Best for** | Simple CLI linters | go-finding/pipeline, BuildFlow DAG |
+
 ---
 
 ## API
@@ -116,13 +188,18 @@ detectors := linter.DetectorsFromRegistry(registry)
 | Function                            | Returns                  | Purpose                                                                                         |
 | ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------- |
 | `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                  |
-| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate/empty ID)                                                       |
+| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                    |
 | `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                    |
-| `(*Registry).Run(ctx, dir)`         | `*finding.Report, error` | Run all rules; aggregate findings                                                               |
+| `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                             |
+| `(*Registry).Has(id)`               | `bool`                   | Check if a rule ID is registered                                                                |
+| `(*Registry).Deregister(id)`        | `bool`                   | Remove a rule by ID (returns true if found)                                                     |
+| `(*Registry).Run(ctx, dir, opts…)`  | `*finding.Report, error` | Run all rules; aggregate findings. Fail-fast by default; pass `ContinueOnError()` for partial results |
+| `ContinueOnError()`                 | `RunOption`              | Run option: continue past rule failures, collect partial findings, join errors                  |
 | `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                             |
 | `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)    |
 | `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                  |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`) |
+| `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                          |
 
 ---
 
@@ -132,8 +209,8 @@ detectors := linter.DetectorsFromRegistry(registry)
 - **Rules emit `finding.Finding` directly.** No intermediate Violation/Issue type. No converter layer. This is the core design decision.
 - **Dual identity: `ID()` + `Name()`.** `ID()` is the stable identifier (never changes, used for dedup/suppression/filtering); `Name()` is the display name (mutable). Every rule must declare an explicit ID.
 - **`Category` is an open type.** The 8 built-in constants are recommendations. Define your own for domain-specific taxonomies: `linter.Category("api")`.
-- **`Registry.Register` panics on duplicate/empty IDs** — duplicate or missing rule IDs are programming errors that should surface at startup.
-- **Two execution paths.** `DetectorFromRegistry` for a single opaque detector (simple CLI/BuildFlow); `DetectorsFromRegistry` for per-rule detectors (go-finding/pipeline with parallelism, timeouts, error isolation).
+- **`Registry.Register` panics on duplicate IDs or empty identity fields** — duplicate or missing rule IDs/Names/Descriptions/Categories are programming errors that should surface at startup.
+- **Two execution paths.** `Registry.Run` for standalone CLI (sequential, fail-fast or `ContinueOnError`); `DetectorsFromRegistry` for go-finding/pipeline (parallel, per-rule isolation).
 - **Per-finding Confidence and FixStrategy.** Use `finding.NewBuilder(...).WithConfidence(...).WithFixStrategy(...)` to set these per finding — more expressive than rule-level defaults.
 - **`ExitCodeFromReport` is binary** (0 clean / 1 any findings). The ecosystem convention; tools that want severity-tiered exit codes do their own mapping.
 
