@@ -26,16 +26,17 @@ func NewRegistry() *Registry {
 
 // Register adds a rule. Panics if a rule with the same ID is already
 // registered — duplicate IDs are a programming error that should surface at
-// startup, not silently shadow at runtime. Panics if the rule's ID is empty.
+// startup, not silently shadow at runtime. Panics if any required identity
+// field (ID, Name, Description, Category) is empty.
 func (r *Registry) Register(rule Rule) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ruleID := rule.ID()
-	if ruleID == "" {
-		panic("linter: rule with empty ID cannot be registered")
+	if err := validateRuleIdentity(rule); err != nil {
+		panic(err)
 	}
 
+	ruleID := rule.ID()
 	for _, existing := range r.rules {
 		if existing.ID() == ruleID {
 			panic("linter: duplicate rule ID " + ruleID)
@@ -56,6 +57,54 @@ func (r *Registry) All() []Rule {
 	return out
 }
 
+// Get returns the rule with the given ID and true, or nil and false if no rule
+// with that ID is registered. Lookup is by the stable ID() (not the display
+// Name()), matching Register's deduplication key.
+func (r *Registry) Get(id string) (Rule, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	for _, rule := range r.rules {
+		if rule.ID() == id {
+			return rule, true
+		}
+	}
+
+	return nil, false
+}
+
+// Has reports whether a rule with the given ID is registered.
+func (r *Registry) Has(id string) bool {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	for _, rule := range r.rules {
+		if rule.ID() == id {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Deregister removes the rule with the given ID. Returns true if a rule was
+// removed, false if no rule with that ID was registered. Safe to call
+// concurrently with Run — Run snapshots the rule list via All() before
+// iterating.
+func (r *Registry) Deregister(id string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for i, rule := range r.rules {
+		if rule.ID() == id {
+			r.rules = append(r.rules[:i], r.rules[i+1:]...)
+			return true
+		}
+	}
+
+	return false
+}
+
 // wrapRuleError ensures err is a *RuleError tagged with the rule ID. If err
 // is already a *RuleError (e.g. produced by RuleFunc.Check), it passes through
 // unchanged to avoid double-wrapping.
@@ -67,28 +116,70 @@ func wrapRuleError(ruleID string, err error) error {
 	return NewRuleError(ruleID, err)
 }
 
+// RunOption configures a Registry.Run invocation.
+type RunOption func(*runConfig)
+
+type runConfig struct {
+	continueOnError bool
+}
+
+// ContinueOnError configures Run to continue executing remaining rules after
+// one fails, collecting partial findings and joining all errors. The returned
+// report contains findings from every rule that completed (including partial
+// findings from failed rules); the returned error is the join of all rule
+// failures, each individually wrapped as a *RuleError.
+//
+// Without this option (the default), Run fails fast: the first rule error
+// aborts the run and returns (nil, err).
+func ContinueOnError() RunOption {
+	return func(c *runConfig) { c.continueOnError = true }
+}
+
 // Run executes every rule against dir, aggregating findings. This is the
 // standalone execution path (the linter's own CLI). The BuildFlow integration
 // path uses DetectorFromRegistry instead.
 //
-// If a rule fails, the returned error is a *RuleError identifying the rule.
-func (r *Registry) Run(ctx context.Context, dir string) (*finding.Report, error) {
+// By default Run fails fast: the first rule error aborts the run and returns
+// (nil, err). Pass ContinueOnError() to run all rules regardless of
+// individual failures, collecting partial findings and joining all errors:
+//
+//	report, err := registry.Run(ctx, dir, linter.ContinueOnError())
+//
+// In continue-on-error mode the returned report is always non-nil (it contains
+// findings from every rule that succeeded) and err is the join of all failures
+// (nil if every rule succeeded).
+func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*finding.Report, error) {
+	cfg := runConfig{}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	toolName := finding.ToolName("linter")
 	report := finding.NewReport(finding.ToolInfo{
 		Name:    string(toolName),
 		Version: "",
 	})
 
+	var errs []error
+
 	for _, rule := range r.All() {
 		findings, err := rule.Check(ctx, dir)
 		if err != nil {
-			return nil, wrapRuleError(rule.ID(), err)
+			wrapped := wrapRuleError(rule.ID(), err)
+			if !cfg.continueOnError {
+				return nil, wrapped
+			}
+			errs = append(errs, wrapped)
 		}
 
 		report.AddFindings(findings)
 	}
 
 	report.ComputeSummary()
+
+	if len(errs) > 0 {
+		return report, errors.Join(errs...)
+	}
 
 	return report, nil
 }

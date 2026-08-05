@@ -55,6 +55,73 @@ func TestRegistry_DuplicatePanics(t *testing.T) {
 	r.Register(makeRule("dup", nil))
 }
 
+func TestRegistry_Get(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(makeRule("r1", nil))
+	r.Register(makeRule("r2", nil))
+
+	rule, ok := r.Get("r1")
+	if !ok {
+		t.Fatal("expected to find r1")
+	}
+
+	if rule.ID() != "r1" {
+		t.Errorf("expected rule ID 'r1', got %q", rule.ID())
+	}
+
+	if _, ok := r.Get("nonexistent"); ok {
+		t.Error("expected Get to return false for unregistered ID")
+	}
+}
+
+func TestRegistry_Has(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(makeRule("exists", nil))
+
+	if !r.Has("exists") {
+		t.Error("expected Has to return true for registered rule")
+	}
+
+	if r.Has("missing") {
+		t.Error("expected Has to return false for unregistered rule")
+	}
+}
+
+func TestRegistry_Deregister(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(makeRule("r1", nil))
+	r.Register(makeRule("r2", nil))
+	r.Register(makeRule("r3", nil))
+
+	if !r.Deregister("r2") {
+		t.Fatal("expected Deregister to return true for existing rule")
+	}
+
+	if r.Has("r2") {
+		t.Error("expected r2 to be gone after Deregister")
+	}
+
+	if got := len(r.All()); got != 2 {
+		t.Fatalf("expected 2 rules after Deregister, got %d", got)
+	}
+
+	remaining := r.All()
+	if remaining[0].ID() != "r1" || remaining[1].ID() != "r3" {
+		t.Errorf("expected r1,r3 after Deregister, got %s,%s",
+			remaining[0].ID(), remaining[1].ID())
+	}
+
+	if r.Deregister("nonexistent") {
+		t.Error("expected Deregister to return false for unregistered ID")
+	}
+}
+
 func TestRegistry_Run_AggregatesFindings(t *testing.T) {
 	t.Parallel()
 
@@ -86,7 +153,7 @@ func TestDetectorFromRegistry_ReadsWorkDirFromContext(t *testing.T) {
 	seen := ""
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "ctx-rule", Name: "ctx-rule"},
+		Meta: linter.RuleMeta{ID: "ctx-rule", Name: "ctx-rule", Description: "test", Cat: linter.CategoryStyle},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
 
@@ -114,7 +181,7 @@ func TestDetectorFromRegistry_DefaultDir(t *testing.T) {
 	seen := ""
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "default-dir-rule", Name: "default-dir-rule"},
+		Meta: linter.RuleMeta{ID: "default-dir-rule", Name: "default-dir-rule", Description: "test", Cat: linter.CategoryStyle},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
 
@@ -218,6 +285,99 @@ func TestRegistry_Run_NoDoubleWrap(t *testing.T) {
 	if ruleErr.Cause != errSentinel { //nolint:errorlint // exact identity proves single-wrap; errors.Is would also match a re-wrapped cause
 		t.Fatalf("expected cause to be raw errSentinel (wrapped exactly once), got %T: %v",
 			ruleErr.Cause, ruleErr.Cause)
+	}
+}
+
+func TestRegistry_Run_ContinueOnError_CollectsPartialAndErrors(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	f1 := finding.NewBuilder("ok-rule", "test", "found", finding.SeverityWarning,
+		finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()
+
+	r.Register(makeRule("ok-rule", []finding.Finding{f1}))
+	r.Register(failingRule("bad-rule"))
+
+	report, err := r.Run(context.Background(), ".", linter.ContinueOnError())
+
+	if report == nil {
+		t.Fatal("expected non-nil report in continue-on-error mode")
+	}
+
+	if report.Len() != 1 {
+		t.Errorf("expected 1 finding from the successful rule, got %d", report.Len())
+	}
+
+	if err == nil {
+		t.Fatal("expected error from failed rule in continue-on-error mode")
+	}
+
+	if !errors.Is(err, linter.ErrRuleFailed) {
+		t.Error("expected errors.Is(err, ErrRuleFailed) to be true")
+	}
+}
+
+func TestRegistry_Run_ContinueOnError_MultipleFailures(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	f1 := finding.NewBuilder("ok", "test", "ok", finding.SeverityInfo,
+		finding.Pos(finding.FilePath("ok.go"), 1, 1)).MustBuild()
+
+	r.Register(failingRule("fail-1"))
+	r.Register(makeRule("ok", []finding.Finding{f1}))
+	r.Register(failingRule("fail-2"))
+
+	report, err := r.Run(context.Background(), ".", linter.ContinueOnError())
+
+	if report == nil || report.Len() != 1 {
+		t.Fatalf("expected 1 finding from successful rule, got %d", report.Len())
+	}
+
+	if err == nil {
+		t.Fatal("expected joined error from two failed rules")
+	}
+
+	if !errors.Is(err, linter.ErrRuleFailed) {
+		t.Error("expected errors.Is(err, ErrRuleFailed) to be true")
+	}
+}
+
+func TestRegistry_Run_DefaultFailsFast(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	secondRan := false
+	r.Register(failingRule("first-fail"))
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "second",
+			Name:        "second",
+			Description: "should not run",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+			secondRan = true
+			return nil, nil
+		},
+	})
+
+	report, err := r.Run(context.Background(), ".")
+
+	if report != nil {
+		t.Error("expected nil report on fail-fast")
+	}
+
+	if err == nil {
+		t.Fatal("expected error on fail-fast")
+	}
+
+	if secondRan {
+		t.Error("second rule should not have run in fail-fast mode")
 	}
 }
 
@@ -350,7 +510,7 @@ func TestRegistry_DuplicateIDPanics(t *testing.T) {
 	}()
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "same-id", Name: "different-display-name"},
+		Meta: linter.RuleMeta{ID: "same-id", Name: "different-display-name", Description: "test", Cat: linter.CategoryStyle},
 		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
 	})
 }
@@ -370,6 +530,95 @@ func TestRegistry_EmptyIDPanics(t *testing.T) {
 		Meta: linter.RuleMeta{Name: "has-name-but-no-id"},
 		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
 	})
+}
+
+func TestRegistry_EmptyDescriptionPanics(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("expected panic on empty Description")
+		}
+	}()
+
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{ID: "has-id", Name: "has-name", Cat: linter.CategoryStyle},
+		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	})
+}
+
+func TestRegistry_EmptyCategoryPanics(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("expected panic on empty Category")
+		}
+	}()
+
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{ID: "has-id", Name: "has-name", Description: "has-desc"},
+		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	})
+}
+
+func TestRuleMeta_Validate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		meta    linter.RuleMeta
+		wantErr bool
+	}{
+		{
+			name:    "all fields set",
+			meta:    linter.RuleMeta{ID: "x", Name: "X", Description: "desc", Cat: linter.CategoryStyle},
+			wantErr: false,
+		},
+		{
+			name:    "empty ID",
+			meta:    linter.RuleMeta{Name: "X", Description: "desc", Cat: linter.CategoryStyle},
+			wantErr: true,
+		},
+		{
+			name:    "empty Name",
+			meta:    linter.RuleMeta{ID: "x", Description: "desc", Cat: linter.CategoryStyle},
+			wantErr: true,
+		},
+		{
+			name:    "empty Description",
+			meta:    linter.RuleMeta{ID: "x", Name: "X", Cat: linter.CategoryStyle},
+			wantErr: true,
+		},
+		{
+			name:    "empty Cat",
+			meta:    linter.RuleMeta{ID: "x", Name: "X", Description: "desc"},
+			wantErr: true,
+		},
+		{
+			name:    "multiple missing",
+			meta:    linter.RuleMeta{ID: "x"},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.meta.Validate()
+			if tt.wantErr && err == nil {
+				t.Error("expected error, got nil")
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("expected no error, got: %v", err)
+			}
+		})
+	}
 }
 
 func TestDetectorsFromRegistry_OneDetectorPerRule(t *testing.T) {
@@ -407,7 +656,7 @@ func TestDetectorsFromRegistry_ReadsWorkDirFromContext(t *testing.T) {
 	seen := ""
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "dir-rule", Name: "dir-rule"},
+		Meta: linter.RuleMeta{ID: "dir-rule", Name: "dir-rule", Description: "test", Cat: linter.CategoryStyle},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
 
