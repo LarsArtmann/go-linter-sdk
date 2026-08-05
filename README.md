@@ -232,18 +232,23 @@ Each step compiles and runs independently. No big-bang migration.
 
 ## Consumers
 
-Planned:
+Example consumers in this repo:
+
+- `examples/minimal-linter` — minimal linter proving the Rule → `finding.Finding` path
+- `examples/no-go-mod` — pilot port of `go-structure-linter`'s `NoGoModRule`
+
+Planned adoption targets:
 
 - `go-structure-linter` — cleanest existing pattern; pilot target
 - `branching-flow` (1,871 LOC of converters to delete)
 - `erraudit` (1,214 LOC of converters to delete)
 - Future linters
 
-No active consumers yet.
+No external consumers yet.
 
 ## Status
 
-Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven in `go-structure-linter`'s existing `type Issue = finding.Finding` pattern but no linter has been ported yet.
+Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`) but no production linter has fully migrated yet.
 
 ## License
 
