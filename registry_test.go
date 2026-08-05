@@ -181,7 +181,12 @@ func TestDetectorFromRegistry_DefaultDir(t *testing.T) {
 	seen := ""
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "default-dir-rule", Name: "default-dir-rule", Description: "test", Cat: linter.CategoryStyle},
+		Meta: linter.RuleMeta{
+			ID:          "default-dir-rule",
+			Name:        "default-dir-rule",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			seen = dir
 
@@ -351,6 +356,7 @@ func TestRegistry_Run_DefaultFailsFast(t *testing.T) {
 	r := linter.NewRegistry()
 
 	secondRan := false
+
 	r.Register(failingRule("first-fail"))
 	r.Register(linter.RuleFunc{
 		Meta: linter.RuleMeta{
@@ -362,6 +368,7 @@ func TestRegistry_Run_DefaultFailsFast(t *testing.T) {
 		},
 		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
 			secondRan = true
+
 			return nil, nil
 		},
 	})
@@ -510,8 +517,13 @@ func TestRegistry_DuplicateIDPanics(t *testing.T) {
 	}()
 
 	r.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ID: "same-id", Name: "different-display-name", Description: "test", Cat: linter.CategoryStyle},
-		Run:  func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+		Meta: linter.RuleMeta{
+			ID:          "same-id",
+			Name:        "different-display-name",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
 	})
 }
 
@@ -614,6 +626,7 @@ func TestRuleMeta_Validate(t *testing.T) {
 			if tt.wantErr && err == nil {
 				t.Error("expected error, got nil")
 			}
+
 			if !tt.wantErr && err != nil {
 				t.Errorf("expected no error, got: %v", err)
 			}

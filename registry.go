@@ -98,6 +98,7 @@ func (r *Registry) Deregister(id string) bool {
 	for i, rule := range r.rules {
 		if rule.ID() == id {
 			r.rules = append(r.rules[:i], r.rules[i+1:]...)
+
 			return true
 		}
 	}
@@ -149,7 +150,7 @@ func ContinueOnError() RunOption {
 // findings from every rule that succeeded) and err is the join of all failures
 // (nil if every rule succeeded).
 func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*finding.Report, error) {
-	cfg := runConfig{}
+	cfg := runConfig{continueOnError: false}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
@@ -169,6 +170,7 @@ func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*fin
 			if !cfg.continueOnError {
 				return nil, wrapped
 			}
+
 			errs = append(errs, wrapped)
 		}
 

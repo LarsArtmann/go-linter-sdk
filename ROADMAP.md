@@ -18,11 +18,11 @@ Raw ideas:
 - ~~`Registry.RunParallel` — rules are independent; the `Register` mutex does not
   block parallel `Check`~~ — superseded by `DetectorsFromRegistry` (pipeline
   handles per-detector parallelism, done session 7)
-- Registry helpers: `NewRegistryFromRules`, `Deregister`, `Has`, `Get`
+- ~~Registry helpers: `NewRegistryFromRules`, `Deregister`, `Has`, `Get`~~ —
+  `Deregister`, `Has`, `Get` done. `NewRegistryFromRules` still a raw idea.
 - ~~`RuleMeta.Validate` and `Category.All` — fail fast on invalid identity at
-  registration rather than at first run~~ — partially done: empty-ID panics at
-  registration (session 7). Full `Validate` (category non-empty, description
-  non-empty) is still a raw idea.
+  registration rather than at first run~~ — `RuleMeta.Validate` done (Register
+  now panics on any empty identity field). `Category.All` still a raw idea.
 - A typed `RuleSet` wrapper around `[]Rule` for consumers that don't want a
   mutex'd registry
 - `ExitCodeFromFindings([]Finding)` convenience that skips building a `Report`
@@ -37,13 +37,14 @@ unproven until a real linter migrates.
 
 Raw ideas:
 
-- Pilot-port one rule from `go-structure-linter` (cleanest existing pattern) to
-  prove the `Rule → finding.Finding` path end-to-end
+- ~~Pilot-port one rule from `go-structure-linter` (cleanest existing pattern) to
+  prove the `Rule → finding.Finding` path end-to-end~~ — done (`examples/no-go-mod`)
 - Pilot-port a rule from `branching-flow` to validate the converter-deletion
   claim at scale
 - A `cmd/` directory with a CLI binary wrapping the registry (the README
   promises a 5-line linter; no `cmd/` exists yet)
-- An `examples/` directory with a minimal consumer linter
+- ~~An `examples/` directory with a minimal consumer linter~~ — done
+  (`examples/minimal-linter`)
 
 ### 3. Publication & distribution
 
@@ -87,12 +88,11 @@ before the surface grows.
 
 Raw ideas:
 
-- ~~`docs/DOMAIN_LANGUAGE.md` for `Rule`, `RuleFunc`, `RuleMeta`, `Registry`,
-  `Category`, `RuleError`~~ — done (session 6)
-- Package-level examples (`ExampleRegistry_Run`, `ExampleRuleFunc`) visible on
-  pkg.go.dev
-- A diagram of the `DetectorFromRegistry → finding.Detector → BuildFlow DAG`
-  adaptation
+- ~~Package-level examples (`ExampleRegistry_Run`, `ExampleRuleFunc`) visible on
+  pkg.go.dev~~ — done (`ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`,
+  `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`)
+- ~~A diagram of the `DetectorFromRegistry → finding.Detector → BuildFlow DAG`
+  adaptation~~ — done (README "Two execution paths" mermaid diagram)
 
 ### 6. Quality hardening
 
@@ -101,8 +101,9 @@ Raw ideas:
 - Fuzz `NewRuleError` with a nil cause (does `.Error()` panic on `%v` of nil?)
 - Tests for `errors.Is(ruleErr, context.Canceled)` /
   `context.DeadlineExceeded` propagation
-- Decide `Registry.Run` failure policy: fail-fast (today) vs. continue and
-  return partial results — make it explicit or configurable
+- ~~Decide `Registry.Run` failure policy: fail-fast (today) vs. continue and
+  return partial results — make it explicit or configurable~~ — done:
+  `ContinueOnError()` option added; default remains fail-fast.
 - Confirm `Registry.Register`'s panic-on-duplicate is the right contract for a
   library (panics in libraries are sometimes controversial)
 

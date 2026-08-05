@@ -239,6 +239,7 @@ linters:
         - t # *testing.T
         - r # registry / receiver
         - wg # sync.WaitGroup
+        - tt # table-test case
   exclusions:
     generated: lax
     rules:

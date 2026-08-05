@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `Registry.Get(id string) (Rule, bool)` — lookup by stable ID.
+- `Registry.Has(id string) bool` — companion to `Get`.
+- `Registry.Deregister(id string) bool` — runtime rule removal (plugin
+  scenarios); returns true if found.
+- `RuleMeta.Validate() error` — checks ID, Name, Description, and Cat are
+  non-empty. `Register` now calls this through the `Rule` interface and panics
+  on any empty identity field (not just empty ID).
+- `RunOption` functional-option type + `ContinueOnError()` option for
+  `Registry.Run`. Default is fail-fast (unchanged); `ContinueOnError()` runs
+  all rules regardless of individual failures, collects partial findings, and
+  joins errors via `errors.Join`.
+- Testable examples (`ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`,
+  `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`) — visible on
+  pkg.go.dev, verified by `go test`.
+- `examples/minimal-linter/` — a minimal consumer linter proving the full
+  Rule → `finding.Finding` → `Registry.Run` → `ExitCodeFromReport` path.
+- `examples/no-go-mod/` — pilot port of `go-structure-linter`'s `NoGoModRule`,
+  rewritten with `go-linter-sdk`. Validates the converter-deletion claim: a
+  rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, with no
+  intermediate Violation/Issue type.
+- README "Building findings with Confidence and FixStrategy" section showing
+  the `finding.NewBuilder(...)` fluent API and the Confidence/FixStrategy
+  value tables.
+- README "Two execution paths" section with a mermaid diagram comparing
+  `Registry.Run` (sequential, fail-fast) vs `DetectorsFromRegistry` (parallel,
+  per-rule isolation).
+- `.golangci.yml`: `examples/` path exclusion for `depguard`, `forbidigo`,
+  and `mnd` (example CLI code legitimately prints and uses exit codes);
+  `tt` added to `varnamelen` ignore-names (standard Go testing convention).
+
+### Changed
+
+- `Registry.Register` now panics on any empty identity field (ID, Name,
+  Description, Category), not just empty ID. Existing tests updated to provide
+  complete `RuleMeta`.
+
 - `ID() string` added to the `Rule` interface. Every rule must declare a stable
   ID that never changes once published — used for registry deduplication,
   suppression matching, filter config, and the `finding.RuleName` field on

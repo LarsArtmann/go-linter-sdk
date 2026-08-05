@@ -34,7 +34,9 @@ Core types in package `linter`:
 - **`Rule` interface** — `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)`. Rules emit `finding.Finding` directly (no intermediate Violation/Issue type). Dual identity: `ID()` is the stable key (registry dedup, suppression, filtering, finding emission); `Name()` is the mutable display name.
 - **`RuleFunc` struct** — adapter combining `RuleMeta` header + `Run` closure to satisfy `Rule`. Most rules use this. Enabled by default.
 - **`OptIn(rf)`** — wraps a `RuleFunc` as disabled-by-default. Use for noisy, experimental, or domain-specific rules.
-- **`Registry`** — thread-safe (`sync.RWMutex`) collection of rules. `Register` panics on duplicate or empty IDs (programming error).
+- **`Registry`** — thread-safe (`sync.RWMutex`) collection of rules. `Register` panics on duplicate ID or empty identity fields (ID, Name, Description, Category). `Get(id)` / `Has(id)` for lookup; `Deregister(id)` for runtime removal.
+- **`Registry.Run`** — standalone execution. Fail-fast by default; pass `ContinueOnError()` to run all rules regardless of failures, collecting partial findings and joining errors.
+- **`RuleMeta.Validate()`** — checks ID, Name, Description, Cat are non-empty. Called by `Register` through the `Rule` interface.
 - **`DetectorFromRegistry`** — adapts a registry to a single `finding.Detector` for BuildFlow integration. Reads working dir from context.
 - **`DetectorsFromRegistry`** — returns `[]finding.Detector` (one per rule) for `go-finding/pipeline` integration with per-rule parallelism, timeouts, and error isolation. Each detector is named after the rule's ID.
 - **`ExitCodeFromReport`** — binary: 0 if clean, 1 if any findings.
