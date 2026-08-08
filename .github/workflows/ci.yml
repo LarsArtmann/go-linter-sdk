@@ -2,9 +2,14 @@ name: CI
 
 # go-linter-sdk depends on go-finding v1.4.1 (a private repo) resolved from VCS
 # via the module graph — no local replace directive. The Go jobs configure git
-# to authenticate against GitHub using the default GITHUB_TOKEN so the private
-# dependency fetches. The nix job only evaluates the flake (treefmt) and does
-# not compile Go, so it needs no auth.
+# to authenticate against GitHub using a PAT (PRIVATE_REPO_TOKEN) that has read
+# access to both go-linter-sdk and go-finding. The default GITHUB_TOKEN is
+# scoped to THIS repo only and cannot fetch go-finding (different private repo).
+#
+# Required secret:
+#   PRIVATE_REPO_TOKEN — a PAT or fine-grained token with Contents:Read on
+#   github.com/larsartmann/go-finding. Create under Settings → Secrets and
+#   variables → Actions → New repository secret.
 
 on:
   push:
@@ -49,13 +54,25 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Authenticate git for private modules
-        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+        run: git config --global url."https://x-access-token:${{ secrets.PRIVATE_REPO_TOKEN }}@github.com".insteadOf "https://github.com"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26"
       - run: go build ./...
       - run: go vet ./...
-      - run: go test -race -count=1 ./...
+      - name: Check go.mod is tidy
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+      - run: go test -race -count=1 -coverprofile=coverage.out -covermode=atomic ./...
+      - name: Check coverage threshold
+        run: |
+          total=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | tr -d '%')
+          echo "Total coverage: ${total}%"
+          if (( $(echo "$total < 90.0" | bc -l) )); then
+            echo "::error::Coverage ${total}% is below 90% threshold"
+            exit 1
+          fi
     timeout-minutes: 15
 
   lint:
@@ -63,7 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Authenticate git for private modules
-        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+        run: git config --global url."https://x-access-token:${{ secrets.PRIVATE_REPO_TOKEN }}@github.com".insteadOf "https://github.com"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26"
@@ -80,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Authenticate git for private modules
-        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+        run: git config --global url."https://x-access-token:${{ secrets.PRIVATE_REPO_TOKEN }}@github.com".insteadOf "https://github.com"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26"

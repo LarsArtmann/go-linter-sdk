@@ -168,7 +168,8 @@ type runConfig struct {
 // one fails, collecting partial findings and joining all errors. The returned
 // report contains findings from every rule that completed (including partial
 // findings from failed rules); the returned error is the join of all rule
-// failures, each individually wrapped as a *RuleError.
+// failures, each individually wrapped as a *RuleError. Use RuleErrors(err) to
+// enumerate every individual *RuleError from the joined result.
 //
 // Without this option (the default), Run fails fast: the first rule error
 // aborts the run and returns (nil, err).

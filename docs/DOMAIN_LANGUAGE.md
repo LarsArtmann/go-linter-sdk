@@ -121,6 +121,43 @@ check; use `errors.AsType[*RuleError](err)` (Go 1.26+) to recover the rule ID.
   re-wrapped by `Registry.Run`, `DetectorFromRegistry`, or
   `DetectorsFromRegistry`.
 
+### RuleErrors
+
+A helper function that extracts every `*RuleError` from a (possibly joined)
+error tree. Essential when `Registry.Run` is called with `ContinueOnError()`,
+which joins all rule failures into a single error — callers need to enumerate
+the individual failures by rule ID.
+
+Handles both `errors.Join` results (`Unwrap() []error`) and single-chain
+wrapping (`fmt.Errorf("...: %w", inner)`), traversing the full tree.
+
+- **Lives at:** `errors.go` — `func RuleErrors(err error) []*RuleError`
+
+### ErrMissingFields
+
+The sentinel error for rule identity validation failures. When a rule's ID,
+Name, Description, or Category is empty, `Register` wraps the failure in
+`ErrMissingFields` (via `validateIdentityFields`). Consumers can use
+`errors.Is(err, ErrMissingFields)` to distinguish "bad rule definition" from
+"rule execution failure" (`ErrRuleFailed`).
+
+- **Lives at:** `rule.go` — `var ErrMissingFields`
+
+### DetectorFromRegistry / DetectorsFromRegistry
+
+The two integration paths from `Registry` to the `go-finding` ecosystem:
+
+- **DetectorFromRegistry** — returns a single `finding.Detector` that runs
+  every rule sequentially. Used for BuildFlow DAG integration.
+- **DetectorsFromRegistry** — returns `[]finding.Detector` (one per rule) for
+  `go-finding/pipeline` integration with per-rule parallelism, timeouts, and
+  error isolation.
+
+Both read the working directory from the context and wrap rule execution
+errors into `*RuleError`.
+
+- **Lives at:** `registry.go`
+
 ## Relationships
 
 ```
