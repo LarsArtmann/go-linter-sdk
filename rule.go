@@ -119,6 +119,11 @@ type RuleMeta struct {
 	Description string
 	Cat         Category
 	Sev         finding.Severity
+	// ToolName is the tool name stamped onto findings created via [RuleFunc.NewFinding].
+	// When empty, NewFinding falls back to "linter". Set this so findings are attributed
+	// to the actual linter, not a generic "linter" string. A [Registry] configured with
+	// [WithToolName] auto-stamps this field at registration time if the rule does not set it.
+	ToolName finding.ToolName
 }
 
 var errMissingFields = errors.New("linter: rule has missing required field(s)")
@@ -236,4 +241,39 @@ func (r RuleFunc) Check(ctx context.Context, dir string) ([]finding.Finding, err
 	}
 
 	return findings, nil
+}
+
+// NewFinding returns a [finding.Builder] pre-configured with the rule's identity:
+// rule ID, tool name, default severity, and category — all drawn from [RuleMeta].
+// Chain per-finding fields (confidence, suggestion, before/after code, etc.) on
+// the returned builder before calling Build, MustBuild, or BuildOrDefault.
+//
+// This eliminates the boilerplate of repeating rule ID, tool name, severity, and
+// category in every [finding.NewBuilder] call inside a rule's Run function.
+//
+// Example:
+//
+//	f := rule.NewFinding("manual byte formatting", pos).
+//	    WithConfidence(finding.ConfidenceHigh).
+//	    WithSuggestion("use humanize.Bytes").
+//	    MustBuild()
+func (r RuleFunc) NewFinding(message string, pos finding.Position) *finding.Builder {
+	tool := r.Meta.ToolName
+	if tool == "" {
+		tool = "linter"
+	}
+
+	b := finding.NewBuilder(
+		finding.RuleName(r.Meta.ID),
+		tool,
+		message,
+		r.Meta.Sev,
+		pos,
+	)
+
+	if r.Meta.Cat != "" {
+		b = b.WithCategory(finding.Category(r.Meta.Cat))
+	}
+
+	return b
 }
