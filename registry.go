@@ -35,7 +35,7 @@ func WithToolName(name string) RegistryOption {
 //
 //	r := linter.NewRegistry(linter.WithToolName("my-linter"))
 func NewRegistry(opts ...RegistryOption) *Registry {
-	r := &Registry{
+	r := &Registry{ //nolint:exhaustruct // toolName is set via options
 		mu:    sync.RWMutex{},
 		rules: []Rule{},
 	}
@@ -75,8 +75,8 @@ func (r *Registry) Register(rule Rule) {
 				rule = concrete
 			}
 		case optInRule:
-			if concrete.RuleFunc.Meta.ToolName == "" {
-				concrete.RuleFunc.Meta.ToolName = r.toolName
+			if concrete.Meta.ToolName == "" {
+				concrete.Meta.ToolName = r.toolName
 				rule = concrete
 			}
 		}
@@ -364,5 +364,5 @@ func ExitCodeByConfidence(report *finding.Report, threshold finding.Confidence) 
 		}
 	}
 
-	return 2
+	return 2 //nolint:mnd // exit code convention: 2 = below threshold (triage)
 }

@@ -740,9 +740,6 @@ func BenchmarkRegistry_Run(b *testing.B) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// WithToolName
-// ---------------------------------------------------------------------------
 
 func TestWithToolName_AutoStampsRuleFunc(t *testing.T) {
 	t.Parallel()
@@ -841,9 +838,6 @@ func TestWithToolName_AppliesToReport(t *testing.T) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// FilterRules
-// ---------------------------------------------------------------------------
 
 func TestFilterRules_NoFilterReturnsAll(t *testing.T) {
 	t.Parallel()
@@ -927,9 +921,6 @@ func TestFilterRules_EnableAndDisableCombined(t *testing.T) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// ExitCodeByConfidence
-// ---------------------------------------------------------------------------
 
 func TestExitCodeByConfidence_NilReport(t *testing.T) {
 	t.Parallel()
@@ -1004,9 +995,6 @@ func TestExitCodeByConfidence_MixedConfidence(t *testing.T) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// RuleFunc.NewFinding
-// ---------------------------------------------------------------------------
 
 func TestRuleFunc_NewFinding_PreFillsIdentity(t *testing.T) {
 	t.Parallel()
