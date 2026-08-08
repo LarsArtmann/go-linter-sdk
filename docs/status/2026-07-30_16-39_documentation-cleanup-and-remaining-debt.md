@@ -229,3 +229,26 @@ FEATURES.md currently claims specific test counts ("covered by 2 tests", "4 test
 ### Q3: Is the `ireturn` allow-list approach the right long-term strategy?
 
 The allow-list now has two entries (`finding.Detector` for `DetectorFromRegistry`/`DetectorsFromRegistry`, `Rule` for `OptIn`). Each new interface-returning function needs an entry. The LSP diagnostic still fires as a warning even though `golangci-lint run` passes. Three options: (a) keep allow-listing (precise but growing), (b) suppress `ireturn` for the entire package, (c) restructure `OptIn` to return a concrete type instead of the `Rule` interface (would change the API). I cannot decide this without knowing your preference on strictness vs. maintenance overhead.
+
+---
+
+## Resolution (docs-health pass, 2026-08-08)
+
+All actionable items in this report are resolved. Key resolutions:
+
+- **FEATURES.md test counts (Q1, F.5/6/8):** Fixed — stale counts removed
+  entirely, replaced with qualitative "tested" claims. The verification block
+  is updated to 2026-08-08 (97.6% coverage, 0 lint issues, race-clean).
+  Missing feature rows added (`ErrMissingFields`, `RuleErrors`, `OptIn`,
+  `FilterRules`, `ExitCodeByConfidence`, `RuleFunc.NewFinding`, `WithToolName`).
+- **ireturn allow-list (Q3):** Still open as a design observation. The allow-list
+  has two entries and is stable. Routed to ROADMAP.md (Theme 1, API surface
+  maturation). No action needed until consumers request changes.
+- **DOMAIN_LANGUAGE.md corrections:** Done — RuleMeta validation now describes
+  all four identity fields. Registry section updated.
+- **README polish:** Done — Status callout, Quick Start, data-flow diagram,
+  ASCII fallbacks, complete API table.
+- **CONTRIBUTING.md:** Updated in prior session (no replace directive references).
+
+Remaining open items are tracked in `TODO_LIST.md` (CI auth verification,
+go.work, go mod tidy CI check).

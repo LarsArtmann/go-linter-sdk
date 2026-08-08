@@ -355,3 +355,22 @@ slowly. The fix is mechanical and small: close ROADMAP Q5, consolidate
 PLANNED, write reports proactively, and either fix or formally accept the
 daemon's commit messages. The hardest work (the code) is behind us; what
 remains is finishing the documentation honestly.
+
+---
+
+## Resolution (docs-health pass, 2026-08-08)
+
+All actionable items in this report are resolved. Key resolutions:
+
+- **ROADMAP Q5 (white-box vs black-box tests):** Resolved — tests moved to
+  `package linter_test` (black-box). Moved to "Resolved questions" in ROADMAP.md.
+- **FEATURES↔ROADMAP PLANNED split-brain:** Resolved — one-home rule
+  established. FEATURES.md tracks only what has code; not-yet-built capabilities
+  live exclusively in ROADMAP.md.
+- **Daemon commit messages:** Accepted — CHANGELOG.md is the narrative of
+  record. Auto-git daemon behavior documented in AGENTS.md.
+- **Documentation drift:** All stale references fixed in prior sessions and
+  verified in this pass. FEATURES.md, ROADMAP.md, TODO_LIST.md, DOMAIN_LANGUAGE.md,
+  and README.md are all current as of 2026-08-08.
+
+No open items remain from this report.

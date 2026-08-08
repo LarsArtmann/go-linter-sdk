@@ -32,6 +32,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rule that only runs when a consumer explicitly enables it.
 - `OptIn(rf RuleFunc) Rule` constructor for opt-in rules (noisy, experimental,
   or domain-specific).
+- `ErrMissingFields` exported sentinel — `errors.Is(err, ErrMissingFields)` lets
+  consumers distinguish validation failures from runtime failures.
+- `RuleErrors(err) []*RuleError` helper — extracts all `*RuleError` values from
+  joined errors (ContinueOnError mode), tree-walking `Unwrap() []error` and
+  `Unwrap() error` chains.
+- `ExitCodeByConfidence(report, threshold) int` — tiered exit code: 0 clean, 1
+  at-or-above threshold, 2 below threshold (triage mode).
+- `FilterRules(all, enable, disable) []RuleFunc` — standard --enable/--disable
+  filtering for CLI and plugin entry points.
+- `RuleFunc.NewFinding(message, pos) *finding.Builder` — pre-stamped builder
+  from rule metadata (rule ID, tool name, severity, category).
+- `WithToolName(name) RegistryOption` — stamps the tool name onto all findings
+  and the report header at registration time.
 
 #### Registry API
 
@@ -52,16 +65,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `RWMutex` under `-race` (writers + readers + runners).
 - `BenchmarkRegistry_Register`, `BenchmarkRegistry_All`, and
   `BenchmarkRegistry_Run` — the first performance baseline for the registry
-  hot paths.
+  hot paths. Benchmarks modernized to `b.Loop()` (Go 1.24+ pattern).
 - Testable examples (`ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`,
   `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`) — visible on
   pkg.go.dev, verified by `go test`.
 - `examples/minimal-linter/` — a minimal consumer linter proving the full
   Rule -> `finding.Finding` -> `Registry.Run` -> `ExitCodeFromReport` path.
+  Integration tests (`TestExampleMinimalLinter_CleanDir`,
+  `TestExampleMinimalLinter_MissingReadme`) verify exit codes via `exec.Command`.
 - `examples/no-go-mod/` — pilot port of `go-structure-linter`'s `NoGoModRule`,
   rewritten with `go-linter-sdk`. Validates the converter-deletion claim: a
   rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, with no
-  intermediate Violation/Issue type.
+  intermediate Violation/Issue type. Integration tests verify exit codes.
+- `FuzzNewRuleError` fuzz test verifying `Error()` never panics with nil cause
+  or arbitrary rule IDs.
+- `TestRuleError_Is_Canceled` and `TestRuleError_Is_DeadlineExceeded` — verify
+  context errors chain correctly through `RuleError.Unwrap()`.
+- `TestDeregister_DuringRun_SnapshotSemantics` — verifies a rule deregistered
+  mid-run still executes (snapshot semantics from `All()`).
 
 #### Infrastructure
 
@@ -143,6 +164,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TestRegistry_Run_NoDoubleWrap` restored to a positive exact-identity
   assertion (`cause == errSentinel` proves a single wrap), stronger than the
   previous negative-only check.
+- `validateRuleIdentity` and `RuleMeta.Validate` refactored to share a single
+  `validateIdentityFields` function, eliminating duplication between the
+  interface-level and struct-level validation paths.
+- `Deregister` doc comment expanded to explicitly document snapshot semantics:
+  a rule in the `All()` snapshot still executes even if deregistered mid-run.
 - `.golangci.yml` right-sized from first principles: removed the cargo-culted
   `mnd` numbers/functions and `gosec` excludes (zero findings without them —
   this is a pure library), and trimmed `varnamelen` ignore-names from 30+ to
@@ -207,4 +233,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cqrs-lint feedback document moved to `docs/feedback/processed/` and annotated
   with a processing note pointing to Appendix A (maintainer response).
 - `TODO_LIST.md` rebuilt with 5 actionable items harvested from the two most
-  recent status reports (`docs/status/2026-08-05_*`).
+  recent status reports (`docs/status/2026-08-05_*`). All 5 items completed in
+  session 9; TODO_LIST rebuilt again with 4 new items harvested from
+  `2026-07-*` reports (CI auth risk, go.work, go mod tidy check, CONTRIBUTING).
+- README Status callout, Quick Start section, data-flow diagram (mermaid +
+  ASCII fallback), and execution-paths ASCII fallback added. API table
+  completed with `WithToolName`, `ExitCodeByConfidence`, `FilterRules`, and
+  `RuleFunc.NewFinding` entries.
+- `FEATURES.md` updated: verification block refreshed to 2026-08-08 (97.6%
+  coverage, lint clean, race-clean); stale test counts removed (maintenance
+  trap); missing feature rows added (`ErrMissingFields`, `RuleErrors`, `OptIn`,
+  `FilterRules`, `ExitCodeByConfidence`, `RuleFunc.NewFinding`, `WithToolName`).
+- `ROADMAP.md` updated: removed `RuleErrors` and `ErrMissingFields` (shipped).

@@ -141,3 +141,21 @@ Prioritized by impact × cost. Items already in `TODO_LIST.md` are marked `[T]`;
 ## Verdict
 
 The documentation surface went from three missing must-haves to a complete, code-verified, cross-consistent set in one session, and a real coverage-path bug got fixed along the way. That is a genuine win. But the win is undercut by a false CHANGELOG citation (caught and corrected only under direct pressure), a skipped `buildflow` run that repeated the prior session's most-embarassing self-identified failure, and a documented-but-undone trivial fix. The docs are honest about the code; I was not honest enough about my own process while writing them. The correction is straightforward: verify citations with `blame`, treat `buildflow` as the gate, and fix trivial issues instead of cataloguing them.
+
+---
+
+## Resolution (docs-health pass, 2026-08-08)
+
+All actionable items in this report are resolved. Key resolutions:
+
+- **Missing docs (FEATURES, TODO_LIST, ROADMAP):** All created and maintained.
+  FEATURES.md has a complete feature inventory with current verification.
+  TODO_LIST.md has 4 bounded items. ROADMAP.md has 5 themes + 2 open questions.
+- **CHANGELOG citation accuracy:** Established as the narrative of record.
+  Entries are verified against code before adding.
+- **Coverage path bug:** Fixed — `reports/coverage.out` path aligned across
+  flake apps, .gitignore, and BuildFlow.
+- **Full quality gate verified:** `nix run .#lint` (0 issues),
+  `nix run .#test-race` (clean), `nix flake check` (all passed).
+
+No open items remain from this report.

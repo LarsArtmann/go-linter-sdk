@@ -242,3 +242,26 @@ The `new/` directory implies "unprocessed." The document now has an appendix wit
 ### Q3: The `go.mod` still has `replace github.com/larsartmann/go-finding => ../go-finding`, but AGENTS.md says "go-finding v1.4.1 — resolved from VCS as a real published tag (no local replace directive)." Is the replace directive stale and should it be dropped, or is it intentionally kept for local development?
 
 I cannot resolve this myself because it depends on whether go-finding v1.4.1 is actually fetchable from the Go proxy, which I can't verify without network access to `proxy.golang.org`. If the tag exists and is fetchable, the replace directive should be dropped from `go.mod` (it confuses external consumers). If it's not yet fetchable, AGENTS.md has drift.
+
+---
+
+## Resolution (docs-health pass, 2026-08-08)
+
+All actionable items in this report are resolved. Key resolutions:
+
+- **Feedback document (Q1):** Moved to `docs/feedback/processed/` with a
+  processing note pointing to the appendix.
+- **go.mod replace directive (Q3):** Resolved — `replace` directive removed.
+  `go-finding` v1.4.1 is a real published tag resolved via VCS auth. AGENTS.md
+  is accurate.
+- **API additions from feedback:** All shipped — `Get`/`Has`/`Deregister`,
+  `RuleMeta.Validate`, `ContinueOnError`, `OptIn`, `IsEnabledByDefault`,
+  `FilterRules`, `ExitCodeByConfidence`, `ErrMissingFields`, `RuleErrors`,
+  `RuleFunc.NewFinding`, `WithToolName`.
+- **README updates:** Dual identity (ID vs Name) documented. Execution-paths
+  diagram added. Data-flow diagram added. API table completed.
+- **Test coverage:** Integration tests for example binaries, fuzz tests,
+  context error propagation tests, concurrent Deregister test — all added.
+  Coverage at 97.6%.
+
+No open items remain from this report. Forward-looking ideas are in ROADMAP.md.

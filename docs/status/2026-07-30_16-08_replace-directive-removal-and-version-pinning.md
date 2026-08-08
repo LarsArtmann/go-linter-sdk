@@ -177,3 +177,26 @@ First test run failed with stdlib errors (`package compress/flate is not in std`
 ---
 
 _Report scope: This session only — the go.mod replace→version fix. Does not cover the concurrent registry Name→ID refactor or other daemon-committed changes._
+
+---
+
+## Resolution (docs-health pass, 2026-08-08)
+
+All actionable items in this report are resolved. Key resolutions:
+
+- **go.mod replace directive removed (§A, §F.34):** `go-finding` v1.4.1 is a
+  real published tag. No `replace` directive in `go.mod`. Confirmed in
+  `go.mod` (`require github.com/larsartmann/go-finding v1.4.1`).
+- **GOPRIVATE + VCS auth (§B.3, §F.5):** CI uses `GOPRIVATE` with
+  `GITHUB_TOKEN`. Local dev uses `GOPRIVATE` + SSH `insteadOf`. Documented in
+  README and CONTRIBUTING.
+- **flake.lock pinned (§C.1-4):** Quality gate verified: `nix run .#lint`
+  (0 issues), `nix run .#test-race` (clean), `nix flake check` (all passed).
+- **ROADMAP Q1 resolved (§F.2):** go-finding v1.4.1 confirmed real. Moved to
+  "Resolved questions" in ROADMAP.md.
+
+Still open (routed to TODO_LIST.md):
+- **CI auth risk (§B.1, §F.1):** `GITHUB_TOKEN` may not have cross-repo read
+  access to `go-finding`. Needs end-to-end verification or PAT/SSH deploy key.
+- **go.work (§B.2, §F.2):** No workspace file for local cross-repo dev.
+- **go mod tidy CI check (§F.17):** Not yet added.
