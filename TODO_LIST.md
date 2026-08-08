@@ -6,27 +6,27 @@
 
 ## Status legend
 
-| Status           | Meaning                                                     |
-| ---------------- | ----------------------------------------------------------- |
-| TODO         | Not started. Needs doing.                                   |
-| IN_PROGRESS  | Actively being worked on.                                   |
-| BLOCKED      | Cannot proceed, external dependency or decision needed.     |
-| DONE         | Completed. Remove from this list and log in `CHANGELOG.md`. |
+| Status      | Meaning                                                     |
+| ----------- | ----------------------------------------------------------- |
+| TODO        | Not started. Needs doing.                                   |
+| IN_PROGRESS | Actively being worked on.                                   |
+| BLOCKED     | Cannot proceed, external dependency or decision needed.     |
+| DONE        | Completed. Remove from this list and log in `CHANGELOG.md`. |
 
 ## Open work
 
 ### CI & infrastructure
 
-| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
-| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Create `PRIVATE_REPO_TOKEN` GitHub secret for CI | Critical | 5m    | `.github/workflows/ci.yml` now references `secrets.PRIVATE_REPO_TOKEN` (PAT with Contents:Read on `go-finding`). The default `GITHUB_TOKEN` is scoped to THIS repo and cannot fetch the private `go-finding` dependency — CI has been failing since creation. Create under Settings → Secrets → Actions → New repository secret. Value: a PAT or fine-grained token with read access to `github.com/larsartmann/go-finding`. |
+| #   | Task                                             | Impact   | Effort | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------------------------ | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Create `PRIVATE_REPO_TOKEN` GitHub secret for CI | Critical | 5m     | `.github/workflows/ci.yml` now references `secrets.PRIVATE_REPO_TOKEN` (PAT with Contents:Read on `go-finding`). The default `GITHUB_TOKEN` is scoped to THIS repo and cannot fetch the private `go-finding` dependency — CI has been failing since creation. Create under Settings → Secrets → Actions → New repository secret. Value: a PAT or fine-grained token with read access to `github.com/larsartmann/go-finding`. |
 
 ### Consumer adoption
 
-| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
-| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 2   | Pilot-port a branching-flow rule to examples/     | Critical | 90m   | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow` (1,871 LOC of converter code to eliminate). Identified as the #1 value-proving task in the Pareto plan. |
-| 3   | Pilot-port an erraudit rule to examples/          | High   | 90m   | Same proof for the error-handling domain. Sibling repo at `/home/lars/projects/erraudit` (1,214 LOC). |
+| #   | Task                                          | Impact   | Effort | Evidence                                                                                                                                                                                         |
+| --- | --------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2   | Pilot-port a branching-flow rule to examples/ | Critical | 90m    | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow` (1,871 LOC of converter code to eliminate). Identified as the #1 value-proving task in the Pareto plan. |
+| 3   | Pilot-port an erraudit rule to examples/      | High     | 90m    | Same proof for the error-handling domain. Sibling repo at `/home/lars/projects/erraudit` (1,214 LOC).                                                                                            |
 
 ---
 

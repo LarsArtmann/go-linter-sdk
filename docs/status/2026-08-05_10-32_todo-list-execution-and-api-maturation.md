@@ -10,28 +10,28 @@
 
 ### API maturation (TODO items 1-6)
 
-| # | Task | What shipped | Verification |
-| --- | --- | --- | --- |
-| 1 | `Registry.Get(id) (Rule, bool)` | `registry.go` — lookup by stable ID, RLock'd | `TestRegistry_Get` |
-| 2 | `Registry.Has(id) bool` | `registry.go` — existence check, RLock'd | `TestRegistry_Has` |
-| 3 | `Registry.Deregister(id) bool` | `registry.go` — removal by ID, returns true if found, preserves order | `TestRegistry_Deregister` |
-| 4 | `RuleMeta.Validate()` | `rule.go` — checks ID/Name/Description/Cat non-empty; `Register` now panics on ANY empty identity field (not just ID). Added `errMissingFields` sentinel for `err113` compliance. `validateRuleIdentity()` works through the `Rule` interface for custom implementations. | `TestRuleMeta_Validate` (6 subtests), `TestRegistry_EmptyDescriptionPanics`, `TestRegistry_EmptyCategoryPanics` |
-| 5 | Configurable `Registry.Run` failure policy | `registry.go` — `RunOption` functional option + `ContinueOnError()`. Default fail-fast (unchanged behavior). Continue mode: runs all rules, collects partial findings, joins errors via `errors.Join`. | `TestRegistry_Run_ContinueOnError_CollectsPartialAndErrors`, `TestRegistry_Run_ContinueOnError_MultipleFailures`, `TestRegistry_Run_DefaultFailsFast` |
-| 6 | Testable examples | `example_test.go` — `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`. All verified by `go test` (Output: comments). | 4 Example tests pass |
+| #   | Task                                       | What shipped                                                                                                                                                                                                                                                              | Verification                                                                                                                                          |
+| --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `Registry.Get(id) (Rule, bool)`            | `registry.go` — lookup by stable ID, RLock'd                                                                                                                                                                                                                              | `TestRegistry_Get`                                                                                                                                    |
+| 2   | `Registry.Has(id) bool`                    | `registry.go` — existence check, RLock'd                                                                                                                                                                                                                                  | `TestRegistry_Has`                                                                                                                                    |
+| 3   | `Registry.Deregister(id) bool`             | `registry.go` — removal by ID, returns true if found, preserves order                                                                                                                                                                                                     | `TestRegistry_Deregister`                                                                                                                             |
+| 4   | `RuleMeta.Validate()`                      | `rule.go` — checks ID/Name/Description/Cat non-empty; `Register` now panics on ANY empty identity field (not just ID). Added `errMissingFields` sentinel for `err113` compliance. `validateRuleIdentity()` works through the `Rule` interface for custom implementations. | `TestRuleMeta_Validate` (6 subtests), `TestRegistry_EmptyDescriptionPanics`, `TestRegistry_EmptyCategoryPanics`                                       |
+| 5   | Configurable `Registry.Run` failure policy | `registry.go` — `RunOption` functional option + `ContinueOnError()`. Default fail-fast (unchanged behavior). Continue mode: runs all rules, collects partial findings, joins errors via `errors.Join`.                                                                    | `TestRegistry_Run_ContinueOnError_CollectsPartialAndErrors`, `TestRegistry_Run_ContinueOnError_MultipleFailures`, `TestRegistry_Run_DefaultFailsFast` |
+| 6   | Testable examples                          | `example_test.go` — `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`, `ExampleRegistry_Run_continueOnError`. All verified by `go test` (Output: comments).                                                                                           | 4 Example tests pass                                                                                                                                  |
 
 ### Documentation (TODO items 7-8)
 
-| # | Task | What shipped |
-| --- | --- | --- |
-| 7 | "Building Findings" README section | Confidence/FixStrategy tables, `finding.NewBuilder(...)` fluent API example |
-| 8 | Two-execution-paths diagram | Mermaid diagram + comparison table (`Registry.Run` vs `DetectorsFromRegistry`) |
+| #   | Task                               | What shipped                                                                   |
+| --- | ---------------------------------- | ------------------------------------------------------------------------------ |
+| 7   | "Building Findings" README section | Confidence/FixStrategy tables, `finding.NewBuilder(...)` fluent API example    |
+| 8   | Two-execution-paths diagram        | Mermaid diagram + comparison table (`Registry.Run` vs `DetectorsFromRegistry`) |
 
 ### Consumer adoption (TODO items 9-10)
 
-| # | Task | What shipped | Verification |
-| --- | --- | --- | --- |
-| 9 | `examples/` directory | `examples/minimal-linter/main.go` — full lifecycle: rule → finding → `Registry.Run` → `ExitCodeFromReport`. Uses `WithConfidence`/`WithFixStrategy`/`WithSuggestion`. | Built + ran: exit 0 on repo (has README.md), exit 1 on dir without |
-| 10 | Pilot-port from `go-structure-linter` | `examples/no-go-mod/main.go` — port of `NoGoModRule`. Rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, zero converter code. Doc comment shows the before/after comparison. | Built + ran: exit 0 on repo (has go.mod), exit 1 on dir without |
+| #   | Task                                  | What shipped                                                                                                                                                                                   | Verification                                                       |
+| --- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 9   | `examples/` directory                 | `examples/minimal-linter/main.go` — full lifecycle: rule → finding → `Registry.Run` → `ExitCodeFromReport`. Uses `WithConfidence`/`WithFixStrategy`/`WithSuggestion`.                          | Built + ran: exit 0 on repo (has README.md), exit 1 on dir without |
+| 10  | Pilot-port from `go-structure-linter` | `examples/no-go-mod/main.go` — port of `NoGoModRule`. Rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, zero converter code. Doc comment shows the before/after comparison. | Built + ran: exit 0 on repo (has go.mod), exit 1 on dir without    |
 
 ### Documentation updates (all project docs)
 
@@ -71,6 +71,7 @@ Nothing from the TODO_LIST.md remains unstarted. All 10 items were addressed.
 ### 1. The auto-git daemon committed mid-session with misleading messages
 
 The daemon committed `94e53df feat(registry): add lookup/deregister methods, ContinueOnError mode, and full identity validation` and several docs commits while I was still editing. This means:
+
 - Some commits contain intermediate states (e.g. lint warnings that were fixed in later commits)
 - The git history is noisier than it should be for a single session's work
 - The commit messages were auto-generated and don't tell a coherent story
@@ -213,22 +214,22 @@ The ROADMAP says "The value proposition is unproven until a real linter migrates
 Docs-health pass executed. All 10 TODO items from the original backlog remain
 done (no regressions). Section f) items routed as follows:
 
-| Section f) items | Route | Notes |
-| --- | --- | --- |
-| 1-10 (Registry API) | ROADMAP Theme 1 | Raw ideas for API ergonomics |
-| 11-12 (Integration tests for examples) | TODO_LIST #1 | Highest-impact bounded task |
-| 13 (Fuzz NewRuleError) | TODO_LIST #2 | Quick edge-case robustness |
-| 14-15 (errors.Is propagation) | TODO_LIST #3 | Contract verification |
-| 16 (Deregister during concurrent Run) | TODO_LIST #4 | Snapshot semantics test |
-| 17-20 (benchmarks, property tests) | ROADMAP | Long-term quality hardening |
-| 21-24 (pipeline integration) | ROADMAP | Requires go-finding/pipeline |
-| 25-30 (consumer adoption) | ROADMAP Theme 2 | The core value proposition |
-| 31 (mermaid ASCII fallback) | ROADMAP | pkg.go.dev rendering |
-| 32 (DOMAIN_LANGUAGE update) | done | Fixed in docs-health pass |
-| 33-36 (docs) | ROADMAP / done | Mixed |
-| 37-41 (tooling & CI) | ROADMAP Theme 4 | Nix ecosystem parity |
-| 42 (validateRuleIdentity refactor) | TODO_LIST #5 | Eliminate duplication |
-| 43-50 (code quality) | ROADMAP / open Q | Design questions |
+| Section f) items                       | Route            | Notes                        |
+| -------------------------------------- | ---------------- | ---------------------------- |
+| 1-10 (Registry API)                    | ROADMAP Theme 1  | Raw ideas for API ergonomics |
+| 11-12 (Integration tests for examples) | TODO_LIST #1     | Highest-impact bounded task  |
+| 13 (Fuzz NewRuleError)                 | TODO_LIST #2     | Quick edge-case robustness   |
+| 14-15 (errors.Is propagation)          | TODO_LIST #3     | Contract verification        |
+| 16 (Deregister during concurrent Run)  | TODO_LIST #4     | Snapshot semantics test      |
+| 17-20 (benchmarks, property tests)     | ROADMAP          | Long-term quality hardening  |
+| 21-24 (pipeline integration)           | ROADMAP          | Requires go-finding/pipeline |
+| 25-30 (consumer adoption)              | ROADMAP Theme 2  | The core value proposition   |
+| 31 (mermaid ASCII fallback)            | ROADMAP          | pkg.go.dev rendering         |
+| 32 (DOMAIN_LANGUAGE update)            | done             | Fixed in docs-health pass    |
+| 33-36 (docs)                           | ROADMAP / done   | Mixed                        |
+| 37-41 (tooling & CI)                   | ROADMAP Theme 4  | Nix ecosystem parity         |
+| 42 (validateRuleIdentity refactor)     | TODO_LIST #5     | Eliminate duplication        |
+| 43-50 (code quality)                   | ROADMAP / open Q | Design questions             |
 
 Section e) code quality observations: items 1, 3, 5 routed to ROADMAP; items 2,
 4, 6 routed to TODO_LIST; item 7 routed to ROADMAP.

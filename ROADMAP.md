@@ -105,7 +105,7 @@ Decisions made in prior sessions, kept for context. These no longer block work.
 
 - **Q1 — Is `go-finding` a real published tag?** **Yes.** `go-finding v1.4.1`
   is a real published tag, confirmed in `go.mod` (`require
-  github.com/larsartmann/go-finding v1.4.1`). There is no local `replace`
+github.com/larsartmann/go-finding v1.4.1`). There is no local `replace`
   directive. Consumers and CI both fetch `v1.4.1` directly via VCS auth.
   (resolved session 8)
 - **Q4 — Was the `flake.lock` bump that exposed the missing-`self` bug

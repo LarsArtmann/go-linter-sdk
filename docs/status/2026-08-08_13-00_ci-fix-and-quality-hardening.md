@@ -20,6 +20,7 @@ has failed with `fatal: could not read Password for 'https://***@github.com':
 terminal prompts disabled`.
 
 Confirmed via `gh run view 30981664314 --log-failed` — the actual error is:
+
 ```
 registry.go:8:2: could not import github.com/larsartmann/go-finding
 (reading github.com/larsartmann/go-finding/go.mod at revision v1.4.1:
@@ -50,7 +51,7 @@ will fail with "secret not found" instead of "auth denied."
 
 - **Deeply nested RuleErrors test** — `TestRuleErrors_DeeplyNested` verifies
   `RuleErrors` traverses `fmt.Errorf("outer: %w", fmt.Errorf("inner: %w",
-  ruleErr))` chains, not just flat `errors.Join` results.
+ruleErr))` chains, not just flat `errors.Join` results.
 - **Fuzz exploration** — Ran `FuzzNewRuleError` with `-fuzztime=30s`. 7.7M
   executions, 205 interesting inputs, 0 failures. No new corpus to commit.
 
@@ -73,14 +74,14 @@ will fail with "secret not found" instead of "auth denied."
 
 ## Quality gate summary
 
-| Check | Result |
-|-------|--------|
-| `nix run .#lint` | 0 issues |
+| Check                 | Result                  |
+| --------------------- | ----------------------- |
+| `nix run .#lint`      | 0 issues                |
 | `nix run .#test-race` | ok (1.248s, race-clean) |
-| `nix flake check` | all checks passed |
-| Test count | 76 (was 75) |
-| Coverage | 98.2% (was 97.6%) |
-| Fuzz (30s) | 7.7M execs, 0 failures |
+| `nix flake check`     | all checks passed       |
+| Test count            | 76 (was 75)             |
+| Coverage              | 98.2% (was 97.6%)       |
+| Fuzz (30s)            | 7.7M execs, 0 failures  |
 
 ---
 

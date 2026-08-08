@@ -227,83 +227,83 @@ be cleaner than per-line suppressions.
 
 ### Critical path (prove the value)
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 1  | Create `PRIVATE_REPO_TOKEN` GitHub secret | Critical | 5m | **User action.** Until done, CI fails. PAT with Contents:Read on `go-finding`. |
-| 2  | Pilot-port a branching-flow rule to examples/ | Critical | 90m | Proves converter-deletion at scale. 1,871 LOC of converter code to eliminate. |
-| 3  | Pilot-port an erraudit rule to examples/ | High | 90m | Same proof for error-handling domain. 1,214 LOC. |
-| 4  | Full migration of go-structure-linter | Critical | 100m | The pilot consumer. Already aliases `Issue = finding.Finding`. |
-| 5  | Write migration guide from actual pilot ports | High | 30m | Replace aspirational README section with real before/after LOC counts. |
+| #   | Task                                          | Impact   | Effort | Notes                                                                          |
+| --- | --------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------ |
+| 1   | Create `PRIVATE_REPO_TOKEN` GitHub secret     | Critical | 5m     | **User action.** Until done, CI fails. PAT with Contents:Read on `go-finding`. |
+| 2   | Pilot-port a branching-flow rule to examples/ | Critical | 90m    | Proves converter-deletion at scale. 1,871 LOC of converter code to eliminate.  |
+| 3   | Pilot-port an erraudit rule to examples/      | High     | 90m    | Same proof for error-handling domain. 1,214 LOC.                               |
+| 4   | Full migration of go-structure-linter         | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                 |
+| 5   | Write migration guide from actual pilot ports | High     | 30m    | Replace aspirational README section with real before/after LOC counts.         |
 
 ### Quality hardening
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 6  | Push CI fix and trigger a run to verify workflow YAML parses | High | 5m | Verify end-to-end, not just code review. |
-| 7  | Add stress test to CI (`go test -race -count=20`) | Medium | 10m | Single race-clean run ≠ race-free. |
-| 8  | Add test for `collectRuleErrors` with nil elements in join | Low | 10m | `errors.Join(ruleErr, nil)` edge case. |
-| 9  | Add actionlint to CI for workflow YAML validation | Low | 10m | Catches YAML errors before push. |
-| 10 | Add `go mod verify` to CI | Low | 5m | Supply chain integrity. |
-| 11 | Run fuzz tests with longer `-fuzztime` in CI (or nightly) | Low | 15m | 30s is confidence; 5m is thoroughness. |
-| 12 | Decide coverage gate threshold deliberately (90% vs 95%) | Low | — | Current 90% is arbitrary. |
-| 13 | Consider coverage artifact upload in CI | Low | 10m | For visibility on GitHub. |
-| 14 | Clean up CHANGELOG — split into versioned sections or trim | Low | 15m | `[Unreleased]` is 60+ entries. |
-| 15 | Add Renovate or Dependabot config | Low | 15m | Dependency hygiene. |
-| 16 | Review `devShells.ci` — confirm it has what CI needs | Low | 10m | |
+| #   | Task                                                         | Impact | Effort | Notes                                    |
+| --- | ------------------------------------------------------------ | ------ | ------ | ---------------------------------------- |
+| 6   | Push CI fix and trigger a run to verify workflow YAML parses | High   | 5m     | Verify end-to-end, not just code review. |
+| 7   | Add stress test to CI (`go test -race -count=20`)            | Medium | 10m    | Single race-clean run ≠ race-free.       |
+| 8   | Add test for `collectRuleErrors` with nil elements in join   | Low    | 10m    | `errors.Join(ruleErr, nil)` edge case.   |
+| 9   | Add actionlint to CI for workflow YAML validation            | Low    | 10m    | Catches YAML errors before push.         |
+| 10  | Add `go mod verify` to CI                                    | Low    | 5m     | Supply chain integrity.                  |
+| 11  | Run fuzz tests with longer `-fuzztime` in CI (or nightly)    | Low    | 15m    | 30s is confidence; 5m is thoroughness.   |
+| 12  | Decide coverage gate threshold deliberately (90% vs 95%)     | Low    | —      | Current 90% is arbitrary.                |
+| 13  | Consider coverage artifact upload in CI                      | Low    | 10m    | For visibility on GitHub.                |
+| 14  | Clean up CHANGELOG — split into versioned sections or trim   | Low    | 15m    | `[Unreleased]` is 60+ entries.           |
+| 15  | Add Renovate or Dependabot config                            | Low    | 15m    | Dependency hygiene.                      |
+| 16  | Review `devShells.ci` — confirm it has what CI needs         | Low    | 10m    |                                          |
 
 ### API surface (only after consumer feedback)
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 17 | `Registry.Len() int` | Low | 5m | Trivial but ergonomic. |
-| 18 | `Registry.RegisterAll(rules ...Rule)` | Low | 10m | |
-| 19 | `NewRegistryFromRules(rules []Rule) *Registry` | Low | 10m | |
-| 20 | `ExitCodeFromFindings(findings []Finding) int` | Low | 10m | Skips Report construction. |
-| 21 | `Category.All() []Category` | Low | 10m | Returns 8 built-in values. |
-| 22 | `map[string]int` index for O(1) Get/Has/Deregister | Low | 30m | Anti-goal until scale proves need. |
-| 23 | `Filter` type for severity/category filtering | Low | 45m | |
-| 24 | `RuleSet` typed wrapper | Low | 30m | |
-| 25 | Evaluate generics for `RuleFunc` | Low | 12m | Spike, document, decide. |
-| 26 | Confirm `Register` panic contract is right for a library | Medium | — | ROADMAP Q4. Cannot reverse once consumers exist. |
+| #   | Task                                                     | Impact | Effort | Notes                                            |
+| --- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
+| 17  | `Registry.Len() int`                                     | Low    | 5m     | Trivial but ergonomic.                           |
+| 18  | `Registry.RegisterAll(rules ...Rule)`                    | Low    | 10m    |                                                  |
+| 19  | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
+| 20  | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
+| 21  | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
+| 22  | `map[string]int` index for O(1) Get/Has/Deregister       | Low    | 30m    | Anti-goal until scale proves need.               |
+| 23  | `Filter` type for severity/category filtering            | Low    | 45m    |                                                  |
+| 24  | `RuleSet` typed wrapper                                  | Low    | 30m    |                                                  |
+| 25  | Evaluate generics for `RuleFunc`                         | Low    | 12m    | Spike, document, decide.                         |
+| 26  | Confirm `Register` panic contract is right for a library | Medium | —      | ROADMAP Q4. Cannot reverse once consumers exist. |
 
 ### CLI binary (only after consumer pilots prove value)
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 27 | Create `cmd/go-linter-sdk/main.go` skeleton | Medium | 30m | |
-| 28 | Wire registry + Run + ExitCodeFromReport | Medium | 15m | |
-| 29 | Add `--enable`/`--disable` flag parsing | Medium | 30m | Uses `FilterRules`. |
-| 30 | Add `--format text` (default) | Low | 10m | |
-| 31 | Add `--format json` | Medium | 20m | |
-| 32 | Add `--format sarif` | Medium | 20m | |
-| 33 | Add `--config` flag for rule configuration file | Low | 45m | |
+| #   | Task                                            | Impact | Effort | Notes               |
+| --- | ----------------------------------------------- | ------ | ------ | ------------------- |
+| 27  | Create `cmd/go-linter-sdk/main.go` skeleton     | Medium | 30m    |                     |
+| 28  | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
+| 29  | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
+| 30  | Add `--format text` (default)                   | Low    | 10m    |                     |
+| 31  | Add `--format json`                             | Medium | 20m    |                     |
+| 32  | Add `--format sarif`                            | Medium | 20m    |                     |
+| 33  | Add `--config` flag for rule configuration file | Low    | 45m    |                     |
 
 ### Documentation depth
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 34 | Add "Registry patterns" section to README | Low | 15m | init-time, plugin, dynamic Deregister patterns. |
-| 35 | Verify pkg.go.dev renders testable examples correctly | Low | 10m | After publish. |
-| 36 | Split CHANGELOG `[Unreleased]` into versioned sections | Low | 15m | |
-| 37 | Add SECURITY.md | Low | 5m | If project accepts vulnerability reports. |
-| 38 | Add SUPPORT.md or "Getting Help" in CONTRIBUTING | Low | 5m | |
-| 39 | Add issue/PR templates under `.github/` | Low | 10m | |
-| 40 | Add SSH `insteadOf` workaround doc for read-only git config | Low | 5m | |
+| #   | Task                                                        | Impact | Effort | Notes                                           |
+| --- | ----------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| 34  | Add "Registry patterns" section to README                   | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
+| 35  | Verify pkg.go.dev renders testable examples correctly       | Low    | 10m    | After publish.                                  |
+| 36  | Split CHANGELOG `[Unreleased]` into versioned sections      | Low    | 15m    |                                                 |
+| 37  | Add SECURITY.md                                             | Low    | 5m     | If project accepts vulnerability reports.       |
+| 38  | Add SUPPORT.md or "Getting Help" in CONTRIBUTING            | Low    | 5m     |                                                 |
+| 39  | Add issue/PR templates under `.github/`                     | Low    | 10m    |                                                 |
+| 40  | Add SSH `insteadOf` workaround doc for read-only git config | Low    | 5m     |                                                 |
 
 ### Tooling & ecosystem
 
-| #  | Task | Impact | Effort | Notes |
-|----|------|--------|--------|-------|
-| 41 | Add flake `checks` derivations for test/vet/lint | Low | 30m | Only treefmt is a check today. |
-| 42 | Add `apps.watch` (live test re-runs with `entr`) | Low | 10m | |
-| 43 | Add `apps.tidy` (`go mod tidy`) | Low | 5m | |
-| 44 | Add `direnv` setup (`.envrc`) | Low | 10m | |
-| 45 | Add `meta.position` to flake apps | Low | 10m | |
-| 46 | Verify pkg.go.dev badge resolves | Low | 5m | |
-| 47 | Add pre-commit hook rejecting `replace ../` | Low | 10m | |
-| 48 | Add commit signing (gitsign) to CI | Low | 15m | |
-| 49 | Generate `go.work.sum` for workspace checksum consistency | Low | 2m | |
-| 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go` | Low | 5m | Cleaner than per-line `//nolint:gosec`. |
+| #   | Task                                                                       | Impact | Effort | Notes                                   |
+| --- | -------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
+| 41  | Add flake `checks` derivations for test/vet/lint                           | Low    | 30m    | Only treefmt is a check today.          |
+| 42  | Add `apps.watch` (live test re-runs with `entr`)                           | Low    | 10m    |                                         |
+| 43  | Add `apps.tidy` (`go mod tidy`)                                            | Low    | 5m     |                                         |
+| 44  | Add `direnv` setup (`.envrc`)                                              | Low    | 10m    |                                         |
+| 45  | Add `meta.position` to flake apps                                          | Low    | 10m    |                                         |
+| 46  | Verify pkg.go.dev badge resolves                                           | Low    | 5m     |                                         |
+| 47  | Add pre-commit hook rejecting `replace ../`                                | Low    | 10m    |                                         |
+| 48  | Add commit signing (gitsign) to CI                                         | Low    | 15m    |                                         |
+| 49  | Generate `go.work.sum` for workspace checksum consistency                  | Low    | 2m     |                                         |
+| 50  | Consider package-level golangci-lint exclusion for `*_integration_test.go` | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
 
 ---
 
@@ -343,8 +343,9 @@ block legitimate work. What's your preference?
 **Score: 8.5/10.**
 
 **What earned the 8.5:**
+
 - Found and diagnosed the CI root cause using actual log evidence (`gh run
-  view --log-failed`). This was the highest-impact discovery of the session —
+view --log-failed`). This was the highest-impact discovery of the session —
   CI has been broken since project creation and every prior session missed it.
 - 15 tasks completed in one pass. Zero regressions. Quality gate green.
 - Fuzz exploration (7.7M execs, 0 failures) gives real confidence in
@@ -353,6 +354,7 @@ block legitimate work. What's your preference?
 - Coverage improved to 98.2% (was already high, now higher).
 
 **What cost 1.5 points:**
+
 1. Didn't push the CI fix to verify end-to-end (-0.5). The prior session said
    "run the quality gate after every change." I ran lint/test/flake-check but
    never triggered actual CI. This is the "verified components, not

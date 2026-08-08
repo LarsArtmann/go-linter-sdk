@@ -227,8 +227,8 @@ DetectorsFromRegistry (pipeline): Split → [Detector: Rule 1 | Rule 2 | Rule N]
 
 | Function                            | Returns                  | Purpose                                                                                               |
 | ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `NewRegistry(opts…)`               | `*Registry`              | Empty registry; pass `WithToolName(...)` to stamp tool name onto findings                             |
-| `WithToolName(name)`               | `RegistryOption`         | Stamp the tool name onto all findings and the report                                                  |
+| `NewRegistry(opts…)`                | `*Registry`              | Empty registry; pass `WithToolName(...)` to stamp tool name onto findings                             |
+| `WithToolName(name)`                | `RegistryOption`         | Stamp the tool name onto all findings and the report                                                  |
 | `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                          |
 | `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                          |
 | `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                                   |

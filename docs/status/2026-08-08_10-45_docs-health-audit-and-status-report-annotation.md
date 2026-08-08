@@ -10,17 +10,17 @@
 
 ### ROADMAP.md — complete rewrite
 
-| What was wrong | What I did |
-| --- | --- |
-| Theme 1 listed Get/Has/Deregister as raw ideas — all shipped | Removed done items; kept `NewRegistryFromRules` and new ergonomics ideas |
-| Theme 1 said `RuleMeta.Validate` was "partially done" — fully done | Removed; validation checks all 4 identity fields |
-| Theme 2 said "no `cmd/` exists" and "no `examples/`" — both exist | Removed stale references; `cmd/` kept as production-CLI raw idea |
+| What was wrong                                                       | What I did                                                                 |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Theme 1 listed Get/Has/Deregister as raw ideas — all shipped         | Removed done items; kept `NewRegistryFromRules` and new ergonomics ideas   |
+| Theme 1 said `RuleMeta.Validate` was "partially done" — fully done   | Removed; validation checks all 4 identity fields                           |
+| Theme 2 said "no `cmd/` exists" and "no `examples/`" — both exist    | Removed stale references; `cmd/` kept as production-CLI raw idea           |
 | Theme 3 said "pseudo-version + replace directive" — completely false | Rewritten: v1.4.1 is real, no replace, externally resolvable via GOPRIVATE |
-| Theme 5 (Documentation depth) — all items done | Theme removed entirely |
-| Theme 6 said "decide failure policy" — decided and shipped | `ContinueOnError` item removed |
-| Q1 (Open) asked "is go-finding v1.2.0 real?" | Moved to Resolved: v1.4.1 confirmed real |
-| Non-goals had stale "gomoddirectives/replace-local" | Removed |
-| 8 themes with strikethrough clutter | Collapsed to 5 clean themes |
+| Theme 5 (Documentation depth) — all items done                       | Theme removed entirely                                                     |
+| Theme 6 said "decide failure policy" — decided and shipped           | `ContinueOnError` item removed                                             |
+| Q1 (Open) asked "is go-finding v1.2.0 real?"                         | Moved to Resolved: v1.4.1 confirmed real                                   |
+| Non-goals had stale "gomoddirectives/replace-local"                  | Removed                                                                    |
+| 8 themes with strikethrough clutter                                  | Collapsed to 5 clean themes                                                |
 
 **Verification:** `rg "replace directive\|pseudo-version\|v1\.2\.0\|not yet consumable\|5-line" ROADMAP.md` → CLEAN
 
@@ -38,17 +38,18 @@
 
 Harvested 5 bounded, actionable items from the two `2026-08-05` status reports (section f "Up to 50 things"). Each item was verified against the codebase — items already shipped were dropped and logged in CHANGELOG.
 
-| # | Task | Impact | Source |
-| --- | --- | --- | --- |
-| 1 | Integration tests for both example binaries | High | report 10-32 §f.11-12 |
-| 2 | Fuzz `NewRuleError` with nil cause | Medium | report 10-32 §f.13 |
-| 3 | Test `errors.Is` propagation for context errors | Medium | report 10-32 §f.14-15 |
-| 4 | Test `Deregister` during concurrent `Run` | Low | report 10-32 §e.2, §f.16 |
-| 5 | Refactor `validateRuleIdentity` + `RuleMeta.Validate` | Medium | report 10-32 §e.4, §f.42 |
+| #   | Task                                                  | Impact | Source                   |
+| --- | ----------------------------------------------------- | ------ | ------------------------ |
+| 1   | Integration tests for both example binaries           | High   | report 10-32 §f.11-12    |
+| 2   | Fuzz `NewRuleError` with nil cause                    | Medium | report 10-32 §f.13       |
+| 3   | Test `errors.Is` propagation for context errors       | Medium | report 10-32 §f.14-15    |
+| 4   | Test `Deregister` during concurrent `Run`             | Low    | report 10-32 §e.2, §f.16 |
+| 5   | Refactor `validateRuleIdentity` + `RuleMeta.Validate` | Medium | report 10-32 §e.4, §f.42 |
 
 ### CHANGELOG.md — restructured
 
 The `[Unreleased]` section had **duplicate section headers** (2x `### Added`, 3x `### Changed`) accumulated across sessions. Restructured into:
+
 - **Added** — 5 thematic subsections (Core types, Registry API, Testing & examples, Infrastructure, Documentation)
 - **Changed** — split into Breaking changes (5 items, prominent) + Non-breaking changes
 - **Fixed** — consolidated
@@ -59,6 +60,7 @@ The `[Unreleased]` section had **duplicate section headers** (2x `### Added`, 3x
 Both `2026-08-05` reports resolved inline:
 
 **`2026-08-05_10-27_readme-review-and-doc-drift-audit.md`:**
+
 - Section c) items 1-12: all 11 closable items marked `~~done~~` with `done — docs-health pass, 2026-08-08`; item 11 (lint not run) left open
 - Section d) items 1-3: all struck through and resolved
 - Section f) items 1-12 (doc-drift cleanup): all resolved with inline markers
@@ -66,6 +68,7 @@ Both `2026-08-05` reports resolved inline:
 - Resolution appendix added at bottom
 
 **`2026-08-05_10-32_todo-list-execution-and-api-maturation.md`:**
+
 - Section e) items 1-7: each routed (TODO_LIST / ROADMAP / done) with inline markers
 - Section f) prefix: added routing note pointing to resolution table
 - Resolution appendix with full routing table for all 50 items
@@ -126,6 +129,7 @@ The `2026-08-05_10-27` report explicitly called out "I did not run `nix run .#li
 ### 2. The auto-git daemon committed mid-session, splitting my work across 3 commits
 
 The daemon committed:
+
 - `e9e1f00` — ROADMAP, FEATURES, DOMAIN_LANGUAGE, TODO_LIST (my first batch)
 - `4ede38f` — CHANGELOG (my second batch)
 - `e372a3f` — status report annotations + ROADMAP dedup fix (my third batch)
@@ -267,6 +271,7 @@ The CHANGELOG has a massive `[Unreleased]` section spanning multiple sessions. I
 ## Session self-assessment
 
 **What went well:**
+
 - Identified and fixed every stale claim flagged in the prior session's reports
 - ROADMAP rewrite is comprehensive — no stale items remain
 - HARVEST produced a clean, bounded TODO_LIST (5 items, each with evidence)
@@ -276,6 +281,7 @@ The CHANGELOG has a massive `[Unreleased]` section spanning multiple sessions. I
 - Tests and build verified green
 
 **What went wrong:**
+
 - Repeated the `nix run .#lint` process failure from the prior session
 - Didn't fix code issues on sight (bloop warnings, validateRuleIdentity duplication)
 - Didn't annotate older `2026-07-*` reports
