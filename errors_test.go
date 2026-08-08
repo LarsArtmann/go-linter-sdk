@@ -3,6 +3,7 @@ package linter_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -152,6 +153,23 @@ func TestRuleErrors_NonRuleError(t *testing.T) {
 
 	if result := linter.RuleErrors(errors.New("plain error")); result != nil {
 		t.Errorf("expected nil for non-RuleError, got %v", result)
+	}
+}
+
+func TestRuleErrors_DeeplyNested(t *testing.T) {
+	t.Parallel()
+
+	ruleErr := linter.NewRuleError("deep-rule", errors.New("root cause"))
+	wrapped := fmt.Errorf("outer: %w", fmt.Errorf("middle: %w", ruleErr))
+
+	result := linter.RuleErrors(wrapped)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 rule error through nested wrapping, got %d", len(result))
+	}
+
+	if result[0].RuleID != "deep-rule" {
+		t.Errorf("expected 'deep-rule', got %q", result[0].RuleID)
 	}
 }
 

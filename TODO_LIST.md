@@ -23,12 +23,6 @@
 | 2   | Add `go.work` for local cross-repo dev            | High   | 15m    | No `go.work` exists. Local development against an uncommitted `go-finding` checkout requires manual `replace` lines. A workspace file (not committed) would formalize this. Flagged in report 2026-07-30_16-08 §B.2. |
 | 3   | Add `go mod tidy` check to CI                     | Medium | 10m    | CI doesn't verify that `go.mod` and `go.sum` are tidy. A `git diff --exit-code go.mod go.sum` step would catch drift. Flagged in report 2026-07-30_16-39. |
 
-### Documentation
-
-| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
-| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 4   | Add `examples/` directory guidance to CONTRIBUTING | Low    | 15m    | Contributors don't know conventions for example code (module membership, lint exclusions). Flagged in report 2026-08-05_10-27 §f.39.      |
-
 ---
 
 <!-- Guidance for the builder:
