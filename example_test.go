@@ -76,6 +76,76 @@ func ExampleDetectorsFromRegistry() {
 	// findings: 1
 }
 
+// ExampleRuleFunc_NewFinding demonstrates the rule.NewFinding factory: it
+// pre-fills the rule ID, tool name, severity, and category from RuleMeta, so
+// the Run closure only supplies the message and position. Chain per-finding
+// fields (confidence, suggestion, etc.) on the returned builder.
+func ExampleRuleFunc_NewFinding() {
+	var rule linter.RuleFunc
+	rule = linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "demo-rule",
+			Name:        "demo rule",
+			Description: "emits a single finding for demonstration",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+			ToolName:    "example-linter",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+			return []finding.Finding{
+				rule.NewFinding("found a style issue",
+					finding.Pos(finding.FilePath("demo.go"), 1, 1)).
+					WithSuggestion("consider using a constant").
+					MustBuild(),
+			}, nil
+		},
+	}
+
+	registry := linter.NewRegistry(linter.WithToolName("example-linter"))
+	registry.Register(rule)
+
+	report, _ := registry.Run(context.Background(), ".")
+
+	fmt.Println("findings:", report.Len())
+	// Output: findings: 1
+}
+
+// ExampleFilterRules demonstrates the standard --enable/--disable filtering
+// shared by CLI and plugin entry points.
+func ExampleFilterRules() {
+	all := []linter.RuleFunc{
+		{Meta: linter.RuleMeta{ID: "a", Name: "a", Description: "a", Cat: linter.CategoryStyle}},
+		{Meta: linter.RuleMeta{ID: "b", Name: "b", Description: "b", Cat: linter.CategoryStyle}},
+		{Meta: linter.RuleMeta{ID: "c", Name: "c", Description: "c", Cat: linter.CategoryStyle}},
+	}
+
+	enabled := linter.FilterRules(all, map[string]bool{"a": true, "c": true}, nil)
+
+	for _, r := range enabled {
+		fmt.Println(r.Meta.ID)
+	}
+	// Output:
+	// a
+	// c
+}
+
+// ExampleExitCodeByConfidence demonstrates tiered exit codes based on finding
+// confidence: 0 (clean), 1 (must fix), 2 (triage).
+func ExampleExitCodeByConfidence() {
+	report := finding.NewReport(finding.ToolInfo{Name: "demo"})
+
+	low := finding.NewBuilder("r", "demo", "low confidence",
+		finding.SeverityInfo,
+		finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceLow).
+		MustBuild()
+	report.AddFindings([]finding.Finding{low})
+
+	code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh)
+	fmt.Println("exit code:", code)
+	// Output: exit code: 2
+}
+
 // ExampleOptIn demonstrates creating a rule that is disabled by default — it
 // only runs when a consumer explicitly enables it (e.g. via --enable <id>).
 func ExampleOptIn() {

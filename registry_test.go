@@ -739,3 +739,358 @@ func BenchmarkRegistry_Run(b *testing.B) {
 		_, _ = r.Run(ctx, ".")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// WithToolName
+// ---------------------------------------------------------------------------
+
+func TestWithToolName_AutoStampsRuleFunc(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry(linter.WithToolName("my-linter"))
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "r1",
+			Name:        "r1",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	})
+
+	rules := r.All()
+	rf, ok := rules[0].(linter.RuleFunc)
+	if !ok {
+		t.Fatalf("expected RuleFunc, got %T", rules[0])
+	}
+
+	if rf.Meta.ToolName != "my-linter" {
+		t.Errorf("expected auto-stamped tool name 'my-linter', got %q", rf.Meta.ToolName)
+	}
+}
+
+func TestWithToolName_DoesNotOverrideExistingToolName(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry(linter.WithToolName("registry-tool"))
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "r1",
+			Name:        "r1",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+			ToolName:    "explicit-tool",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	})
+
+	rules := r.All()
+	rf, _ := rules[0].(linter.RuleFunc)
+
+	if rf.Meta.ToolName != "explicit-tool" {
+		t.Errorf("expected 'explicit-tool' to be preserved, got %q", rf.Meta.ToolName)
+	}
+}
+
+func TestWithToolName_AutoStampsOptInRule(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry(linter.WithToolName("my-linter"))
+	r.Register(linter.OptIn(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "r1",
+			Name:        "r1",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	}))
+
+	rules := r.All()
+	optIn, ok := rules[0].(interface{ IsEnabledByDefault() bool })
+	if !ok || optIn.IsEnabledByDefault() {
+		t.Fatalf("expected opt-in rule, got %T", rules[0])
+	}
+}
+
+func TestWithToolName_DefaultIsLinter(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	report, err := r.Run(context.Background(), ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if report.Tool.Name != "linter" {
+		t.Errorf("expected default tool name 'linter', got %q", report.Tool.Name)
+	}
+}
+
+func TestWithToolName_AppliesToReport(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry(linter.WithToolName("custom-linter"))
+	report, err := r.Run(context.Background(), ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if report.Tool.Name != "custom-linter" {
+		t.Errorf("expected 'custom-linter', got %q", report.Tool.Name)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// FilterRules
+// ---------------------------------------------------------------------------
+
+func TestFilterRules_NoFilterReturnsAll(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.RuleFunc{
+		makeRule("a", nil),
+		makeRule("b", nil),
+		makeRule("c", nil),
+	}
+
+	got := linter.FilterRules(all, nil, nil)
+	if len(got) != 3 {
+		t.Fatalf("expected 3 rules with no filtering, got %d", len(got))
+	}
+}
+
+func TestFilterRules_DisableRemovesRule(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.RuleFunc{
+		makeRule("a", nil),
+		makeRule("b", nil),
+		makeRule("c", nil),
+	}
+
+	disable := map[string]bool{"b": true}
+	got := linter.FilterRules(all, nil, disable)
+
+	if len(got) != 2 {
+		t.Fatalf("expected 2 rules after disabling b, got %d", len(got))
+	}
+
+	for _, rule := range got {
+		if rule.Meta.ID == "b" {
+			t.Error("disabled rule 'b' should not be in filtered set")
+		}
+	}
+}
+
+func TestFilterRules_EnableWhitelistsRules(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.RuleFunc{
+		makeRule("a", nil),
+		makeRule("b", nil),
+		makeRule("c", nil),
+	}
+
+	enable := map[string]bool{"a": true, "c": true}
+	got := linter.FilterRules(all, enable, nil)
+
+	if len(got) != 2 {
+		t.Fatalf("expected 2 rules when enabling a+c, got %d", len(got))
+	}
+
+	ids := []string{got[0].Meta.ID, got[1].Meta.ID}
+	if ids[0] != "a" || ids[1] != "c" {
+		t.Errorf("expected [a c], got %v", ids)
+	}
+}
+
+func TestFilterRules_EnableAndDisableCombined(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.RuleFunc{
+		makeRule("a", nil),
+		makeRule("b", nil),
+		makeRule("c", nil),
+	}
+
+	enable := map[string]bool{"a": true, "b": true}
+	disable := map[string]bool{"b": true}
+	got := linter.FilterRules(all, enable, disable)
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 rule (a only, b disabled), got %d", len(got))
+	}
+
+	if got[0].Meta.ID != "a" {
+		t.Errorf("expected rule 'a', got %q", got[0].Meta.ID)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// ExitCodeByConfidence
+// ---------------------------------------------------------------------------
+
+func TestExitCodeByConfidence_NilReport(t *testing.T) {
+	t.Parallel()
+
+	if code := linter.ExitCodeByConfidence(nil, finding.ConfidenceHigh); code != 0 {
+		t.Errorf("nil report should be exit 0, got %d", code)
+	}
+}
+
+func TestExitCodeByConfidence_EmptyReport(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReport(finding.ToolInfo{Name: "test"})
+	if code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); code != 0 {
+		t.Errorf("empty report should be exit 0, got %d", code)
+	}
+}
+
+func TestExitCodeByConfidence_AboveThreshold(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReport(finding.ToolInfo{Name: "test"})
+
+	high := finding.NewBuilder("r", "test", "high-confidence",
+		finding.SeverityWarning,
+		finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceFull).
+		MustBuild()
+	report.AddFindings([]finding.Finding{high})
+
+	if code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); code != 1 {
+		t.Errorf("report with full-confidence finding should be exit 1, got %d", code)
+	}
+}
+
+func TestExitCodeByConfidence_BelowThreshold(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReport(finding.ToolInfo{Name: "test"})
+
+	low := finding.NewBuilder("r", "test", "low-confidence",
+		finding.SeverityInfo,
+		finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceLow).
+		MustBuild()
+	report.AddFindings([]finding.Finding{low})
+
+	if code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); code != 2 {
+		t.Errorf("report with only low-confidence findings should be exit 2, got %d", code)
+	}
+}
+
+func TestExitCodeByConfidence_MixedConfidence(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReport(finding.ToolInfo{Name: "test"})
+
+	low := finding.NewBuilder("r1", "test", "low",
+		finding.SeverityInfo,
+		finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceLow).
+		MustBuild()
+	high := finding.NewBuilder("r2", "test", "high",
+		finding.SeverityWarning,
+		finding.Pos(finding.FilePath("b.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceHigh).
+		MustBuild()
+	report.AddFindings([]finding.Finding{low, high})
+
+	if code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); code != 1 {
+		t.Errorf("report with at least one high-confidence finding should be exit 1, got %d", code)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// RuleFunc.NewFinding
+// ---------------------------------------------------------------------------
+
+func TestRuleFunc_NewFinding_PreFillsIdentity(t *testing.T) {
+	t.Parallel()
+
+	rule := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "H001",
+			Name:        "test-rule",
+			Description: "test description",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+			ToolName:    "go-humanize-linter",
+		},
+	}
+
+	pos := finding.Pos(finding.FilePath("demo.go"), 10, 5)
+	f := rule.NewFinding("manual byte formatting", pos).MustBuild()
+
+	if f.Rule != "H001" {
+		t.Errorf("expected rule 'H001', got %q", f.Rule)
+	}
+
+	if f.ToolName != "go-humanize-linter" {
+		t.Errorf("expected tool 'go-humanize-linter', got %q", f.ToolName)
+	}
+
+	if f.Severity != finding.SeverityWarning {
+		t.Errorf("expected severity warning, got %q", f.Severity)
+	}
+
+	if f.Category != finding.CategoryStyle {
+		t.Errorf("expected category style, got %q", f.Category)
+	}
+}
+
+func TestRuleFunc_NewFinding_DefaultsToLinterTool(t *testing.T) {
+	t.Parallel()
+
+	rule := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "R001",
+			Name:        "test",
+			Description: "test",
+			Cat:         linter.CategoryDesign,
+			Sev:         finding.SeverityInfo,
+		},
+	}
+
+	f := rule.NewFinding("msg", finding.Pos(finding.FilePath("x.go"), 1, 1)).MustBuild()
+
+	if f.ToolName != "linter" {
+		t.Errorf("expected fallback tool 'linter', got %q", f.ToolName)
+	}
+}
+
+func TestRuleFunc_NewFinding_AllowsChaining(t *testing.T) {
+	t.Parallel()
+
+	rule := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "H001",
+			Name:        "test",
+			Description: "test",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+			ToolName:    "my-linter",
+		},
+	}
+
+	f := rule.NewFinding("found issue", finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithConfidence(finding.ConfidenceHigh).
+		WithSuggestion("use humanize.Bytes").
+		WithFixStrategy(finding.FixStrategySuggest).
+		MustBuild()
+
+	if f.Confidence != finding.ConfidenceHigh {
+		t.Errorf("expected ConfidenceHigh, got %v", f.Confidence)
+	}
+
+	if f.Suggestion != "use humanize.Bytes" {
+		t.Errorf("expected suggestion, got %q", f.Suggestion)
+	}
+
+	if f.FixStrategy != finding.FixStrategySuggest {
+		t.Errorf("expected FixStrategySuggest, got %q", f.FixStrategy)
+	}
+}
