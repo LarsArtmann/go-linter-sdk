@@ -69,9 +69,11 @@ Fields use abbreviated names (`Cat`, `Sev`) intentionally — they appear in
 every rule definition and the verbosity cost compounds.
 
 - **Lives at:** `rule.go` — `type RuleMeta`
-- **Validation:** empty ID panics at registration. Other metadata (invalid
-  category, empty description) is not yet validated. Tracked in `ROADMAP.md`
-  Theme 1.
+- **Validation:** all four identity fields (ID, Name, Description, Category)
+  are checked at registration via `validateRuleIdentity`, which works through
+  the `Rule` interface for any implementation. `RuleMeta.Validate()` provides
+  the same check for use during rule construction before the registry.
+  `Register` panics if any field is empty.
 
 ### Category
 
@@ -95,9 +97,9 @@ A thread-safe collection of rules that drives standalone execution
 integration (`DetectorsFromRegistry`). A linter registers all its rules
 (typically in `init()` or a constructor) and the registry handles the rest.
 
-`Register` panics on duplicate rule IDs or empty IDs — duplicate IDs silently
-shadow each other at runtime, which is a programming error that should surface
-at startup, not in production.
+`Register` panics on duplicate rule IDs or any empty identity field (ID, Name,
+Description, Category) — these are programming errors that should surface at
+startup, not silently at runtime.
 
 - **Lives at:** `registry.go` — `type Registry`
 - **Thread safety:** `sync.RWMutex`; `Register` writes, `All`/`Run` read.

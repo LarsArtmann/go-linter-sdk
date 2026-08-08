@@ -55,14 +55,14 @@
 | BuildFlow config                               | 🟢 `FULLY_FUNCTIONAL` | `.buildflow.yml`; BuildFlow passes 35/36 (1 skipped by config = gitleaks); fresh-clone verified                                                        |
 | `reports/` durable on fresh clone              | 🟢 `FULLY_FUNCTIONAL` | `.gitignore` (`reports/.gitkeep` exception); **verified** via `git clone` + `nix develop --command buildflow` (35/36, test-coverage step passes)       |
 | Coverage output path                           | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` `coverage`/`clean` apps write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` + BuildFlow `test-coverage`                     |
-| GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos), lint, fmt check, govulncheck, nix flake check; sibling-clones `go-finding` for the replace directive |
+| GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos), lint, fmt check, govulncheck, nix flake check; resolves `go-finding` v1.4.1 via VCS auth (`GOPRIVATE`) |
 | Registry benchmarks + concurrent stress test   | 🟢 `FULLY_FUNCTIONAL` | `registry_test.go` — `Benchmark*` for `Register`/`All`/`Run` + `TestRegistry_ConcurrentReadWrite` exercising the `RWMutex` under `-race`               |
 
 ## Documentation
 
 | Feature                               | Status                | Notes                                                                                                                                                      |
 | ------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path                                                                                                 |
+| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path, Confidence/FixStrategy tables, two-execution-paths mermaid diagram, examples pointer, private-dep note |
 | `AGENTS.md`                           | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                                                                             |
 | `CONTRIBUTING.md`                     | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                                                                                      |
 | `CHANGELOG.md`                        | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                                                                                    |
