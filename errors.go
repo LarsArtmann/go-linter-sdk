@@ -54,3 +54,52 @@ func NewRuleError(ruleID string, cause error) *RuleError {
 		Cause:  cause,
 	}
 }
+
+// RuleErrors extracts every *RuleError from err, handling both single errors
+// and joined errors produced by Registry.Run in ContinueOnError mode. Returns
+// nil if err is nil or contains no *RuleError values.
+//
+//	report, err := registry.Run(ctx, dir, linter.ContinueOnError())
+//	for _, ruleErr := range linter.RuleErrors(err) {
+//	    log.Printf("rule %s failed: %v", ruleErr.RuleID, ruleErr.Cause)
+//	}
+func RuleErrors(err error) []*RuleError {
+	if err == nil {
+		return nil
+	}
+
+	var result []*RuleError
+
+	collectRuleErrors(err, &result)
+
+	return result
+}
+
+// collectRuleErrors traverses the error tree (handling both Unwrap() error and
+// Unwrap() []error) collecting every *RuleError at the leaves.
+func collectRuleErrors(err error, out *[]*RuleError) {
+	if err == nil {
+		return
+	}
+
+	// Multi-error from errors.Join — traverse children.
+	if multi, ok := err.(interface{ Unwrap() []error }); ok {
+		for _, inner := range multi.Unwrap() {
+			collectRuleErrors(inner, out)
+		}
+
+		return
+	}
+
+	// Direct match.
+	if ruleErr, ok := err.(*RuleError); ok { //nolint:errorlint // exact type for tree walk
+		*out = append(*out, ruleErr)
+
+		return
+	}
+
+	// Single unwrap chain (e.g. fmt.Errorf("...: %w", inner)).
+	if single, ok := err.(interface{ Unwrap() error }); ok {
+		collectRuleErrors(single.Unwrap(), out)
+	}
+}

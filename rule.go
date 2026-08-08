@@ -126,7 +126,14 @@ type RuleMeta struct {
 	ToolName finding.ToolName
 }
 
-var errMissingFields = errors.New("linter: rule has missing required field(s)")
+// ErrMissingFields is the sentinel error returned by RuleMeta.Validate and
+// Register when a rule has one or more empty required identity fields. Use
+// errors.Is to check:
+//
+//	if errors.Is(err, linter.ErrMissingFields) {
+//	    // rule has missing ID, Name, Description, or Category
+//	}
+var ErrMissingFields = errors.New("linter: rule has missing required field(s)")
 
 // Validate returns nil if all required fields are non-empty, or an error
 // listing every missing field. ID, Name, Description, and Cat are required;
@@ -173,7 +180,7 @@ func validateIdentityFields(id, name, description string, cat Category) error {
 	}
 
 	if len(missing) > 0 {
-		return fmt.Errorf("%w: %s", errMissingFields, strings.Join(missing, ", "))
+		return fmt.Errorf("%w: %s", ErrMissingFields, strings.Join(missing, ", "))
 	}
 
 	return nil

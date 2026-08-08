@@ -23,11 +23,7 @@ Raw ideas:
 - `map[string]int` index alongside the rules slice for O(1) Get/Has/Deregister
   (today all three are O(n) linear scans; fine for <100 rules, quadratic if a
   consumer calls Has in a hot loop at scale)
-- `RuleErrors(err) []*RuleError` helper to enumerate individual rule errors from
-  a joined ContinueOnError result
 - Evaluate whether `RuleFunc` should use generics for type-safe rule definitions
-- Consider exporting `ErrMissingFields` so consumers can distinguish validation
-  failures from runtime failures via `errors.Is`
 
 ### 2. Consumer adoption (the reason this SDK exists)
 

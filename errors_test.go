@@ -87,3 +87,95 @@ func FuzzNewRuleError(f *testing.F) {
 		}
 	})
 }
+
+func TestRuleErrors_Single(t *testing.T) {
+	t.Parallel()
+
+	ruleErr := linter.NewRuleError("my-rule", errors.New("boom"))
+	result := linter.RuleErrors(ruleErr)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 rule error, got %d", len(result))
+	}
+
+	if result[0].RuleID != "my-rule" {
+		t.Errorf("expected rule ID 'my-rule', got %q", result[0].RuleID)
+	}
+}
+
+func TestRuleErrors_JoinedMultiple(t *testing.T) {
+	t.Parallel()
+
+	err1 := linter.NewRuleError("rule-a", errors.New("fail-a"))
+	err2 := linter.NewRuleError("rule-b", errors.New("fail-b"))
+	joined := errors.Join(err1, err2)
+
+	result := linter.RuleErrors(joined)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2 rule errors, got %d", len(result))
+	}
+
+	if result[0].RuleID != "rule-a" || result[1].RuleID != "rule-b" {
+		t.Errorf("expected rule-a, rule-b; got %s, %s", result[0].RuleID, result[1].RuleID)
+	}
+}
+
+func TestRuleErrors_JoinedMixed(t *testing.T) {
+	t.Parallel()
+
+	ruleErr := linter.NewRuleError("rule-x", errors.New("fail"))
+	other := errors.New("unrelated error")
+	joined := errors.Join(ruleErr, other)
+
+	result := linter.RuleErrors(joined)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 rule error from mixed join, got %d", len(result))
+	}
+
+	if result[0].RuleID != "rule-x" {
+		t.Errorf("expected rule-x, got %q", result[0].RuleID)
+	}
+}
+
+func TestRuleErrors_Nil(t *testing.T) {
+	t.Parallel()
+
+	if result := linter.RuleErrors(nil); result != nil {
+		t.Errorf("expected nil for nil input, got %v", result)
+	}
+}
+
+func TestRuleErrors_NonRuleError(t *testing.T) {
+	t.Parallel()
+
+	if result := linter.RuleErrors(errors.New("plain error")); result != nil {
+		t.Errorf("expected nil for non-RuleError, got %v", result)
+	}
+}
+
+func TestErrMissingFields(t *testing.T) {
+	t.Parallel()
+
+	err := linter.RuleMeta{
+		Name:        "X",
+		Description: "desc",
+		Cat:         linter.CategoryStyle,
+	}.Validate()
+
+	if !errors.Is(err, linter.ErrMissingFields) {
+		t.Errorf("expected errors.Is(err, ErrMissingFields) to be true")
+	}
+
+	validErr := linter.RuleMeta{
+		ID:          "x",
+		Name:        "X",
+		Description: "desc",
+		Cat:         linter.CategoryStyle,
+	}.Validate()
+
+	if errors.Is(validErr, linter.ErrMissingFields) {
+		t.Errorf("expected valid meta to not match ErrMissingFields")
+	}
+}

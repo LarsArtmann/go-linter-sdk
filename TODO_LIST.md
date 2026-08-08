@@ -15,25 +15,19 @@
 
 ## Open work
 
-Harvested from `docs/status/2026-08-05_10-32` (TODO execution report, section
-f) and `docs/status/2026-08-05_10-27` (doc-drift audit, section f). Each item
-was verified against the codebase — items already shipped were dropped and
-logged in `CHANGELOG.md`.
+### CI & infrastructure
 
-### Testing
+| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
+| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Verify CI can fetch `go-finding` via `GITHUB_TOKEN` | Critical | 30m    | `.github/workflows/ci.yml:52` — uses `secrets.GITHUB_TOKEN` which is scoped to THIS repo. `go-finding` is a DIFFERENT private repo. May silently fail or use a different auth path. Flagged HIGH RISK in report 2026-07-30_16-08 §B.1. Must verify end-to-end or switch to PAT/SSH deploy key. |
+| 2   | Add `go.work` for local cross-repo dev            | High   | 15m    | No `go.work` exists. Local development against an uncommitted `go-finding` checkout requires manual `replace` lines. A workspace file (not committed) would formalize this. Flagged in report 2026-07-30_16-08 §B.2. |
+| 3   | Add `go mod tidy` check to CI                     | Medium | 10m    | CI doesn't verify that `go.mod` and `go.sum` are tidy. A `git diff --exit-code go.mod go.sum` step would catch drift. Flagged in report 2026-07-30_16-39. |
 
-| # | Task                                                    | Impact | Effort | Evidence                                                                  |
-| --- | ------------------------------------------------------ | ------ | ------ | ------------------------------------------------------------------------- |
-| 1   | Integration tests for both example binaries            | High   | 30m    | `examples/minimal-linter/main.go`, `examples/no-go-mod/main.go` — compile and run manually but have no automated test asserting exit codes. Prevents rot of the SDK's key validation evidence. (report 10-32 §f.11-12) |
-| 2   | Fuzz `NewRuleError` with nil cause                     | Medium | 15m    | `errors.go` — `Error()` formats `e.Cause` with `%v`; a nil cause has no test. Verify it does not panic. (report 10-32 §f.13, 10-27 §f.38) |
-| 3   | Test `errors.Is` propagation for context errors        | Medium | 15m    | `errors.go` — `RuleError.Unwrap()` returns `Cause`, but no test verifies `errors.Is(ruleErr, context.Canceled)` or `context.DeadlineExceeded` chains correctly. (report 10-32 §f.14-15) |
-| 4   | Test `Deregister` during concurrent `Run`               | Low    | 20m    | `registry.go` — `Run` snapshots via `All()` before iterating; a rule deregistered after the snapshot but before execution still runs. Document and test this snapshot semantics. (report 10-32 §e.2, §f.16) |
+### Documentation
 
-### Code quality
-
-| # | Task                                                    | Impact | Effort | Evidence                                                                  |
-| --- | ------------------------------------------------------ | ------ | ------ | ------------------------------------------------------------------------- |
-| 5   | Refactor `validateRuleIdentity` + `RuleMeta.Validate`  | Medium | 20m    | `rule.go` — both functions check the same four identity fields through different paths (interface methods vs struct fields). Eliminate the duplication while keeping the interface-level check for custom `Rule` implementations. (report 10-32 §e.4, §f.42) |
+| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
+| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 4   | Add `examples/` directory guidance to CONTRIBUTING | Low    | 15m    | Contributors don't know conventions for example code (module membership, lint exclusions). Flagged in report 2026-08-05_10-27 §f.39.      |
 
 ---
 

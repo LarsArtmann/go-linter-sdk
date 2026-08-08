@@ -14,10 +14,9 @@
 | ⚪ `PLANNED`              | Designed or documented but **not yet implemented** in code.  |
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
-> delivers it AND confirm it works. Verified 2026-07-27: `nix run .#build`,
-> `nix run .#test` (10/10 pass), `nix run .#test-race` (clean), `nix run .#lint`
-> (0 issues), `nix run .#vet`, `nix flake check` (all checks passed), and
-> `nix develop --command buildflow` (35/36). Fresh-clone BuildFlow verified.
+> delivers it AND confirm it works. Verified 2026-08-08: `nix run .#lint`
+> (0 issues), `nix run .#test-race` (clean, 97.6% coverage), `nix flake check`
+> (all checks passed).
 >
 > **One-home rule:** this file tracks only what EXISTS in code today.
 > Not-yet-built capabilities live in `ROADMAP.md` until they graduate to
@@ -33,14 +32,21 @@
 | `Category` taxonomy (open string type)     | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`type Category`) — 8 recommended values; consumers can define custom categories (`Category("api")`)                                                              |
 | `Registry` (thread-safe collection)        | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`type Registry`, `sync.RWMutex`); concurrent-safe by construction, exercised by `TestRegistry_ConcurrentReadWrite` under `-race`                             |
 | `NewRegistry` / `Register` / `All`         | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`NewRegistry`/`Register`/`All`); `Register` panics on duplicate ID or empty identity field (programming error)                                               |
-| `Registry.Get` / `Has` / `Deregister`      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` — lookup by ID (`Get`), existence check (`Has`), runtime removal (`Deregister`); all thread-safe; 3 tests                                                     |
+| `Registry.Get` / `Has` / `Deregister`      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` — lookup by ID (`Get`), existence check (`Has`), runtime removal (`Deregister`); all thread-safe; tested                                                  |
 | `Registry.Run` (standalone execution)      | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func Run`); aggregates findings into a `*finding.Report`; fail-fast by default; `ContinueOnError()` option for partial results                              |
 | `RuleMeta.Validate`                        | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`func Validate`); checks ID/Name/Description/Cat non-empty; `Register` calls it through the interface and panics on empty fields; table-driven test              |
-| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorFromRegistry`); reads working dir via `finding.WorkingDirFromContext`; covered by 2 tests                                                      |
-| `DetectorsFromRegistry` (pipeline adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorsFromRegistry`); returns `[]finding.Detector` (one per rule) for go-finding/pipeline; per-rule parallelism, timeouts, error isolation; 4 tests |
+| `DetectorFromRegistry` (BuildFlow adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorFromRegistry`); reads working dir via `finding.WorkingDirFromContext`; tested                                   |
+| `DetectorsFromRegistry` (pipeline adapter) | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func DetectorsFromRegistry`); returns `[]finding.Detector` (one per rule) for go-finding/pipeline; per-rule parallelism, timeouts, error isolation; tested |
 | `ExitCodeFromReport` (binary exit code)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func ExitCodeFromReport`); 0 clean / 1 any findings; nil/empty cases tested                                                                                 |
-| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`type RuleError`); single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through; carries rule ID; 2 tests                                         |
-| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`var ErrRuleFailed`); `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule ID                                                     |
+| `RuleError` wrapping + no-double-wrap      | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`type RuleError`); single chokepoint wrap in `RuleFunc.Check` + `wrapRuleError` pass-through; carries rule ID; tested          |
+| `ErrRuleFailed` sentinel + `errors.Is/As`  | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`var ErrRuleFailed`); `Is`/`Unwrap` so `errors.Is(err, ErrRuleFailed)` and `errors.As` recover the rule ID                     |
+| `ErrMissingFields` sentinel                 | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`var ErrMissingFields`); exported; `errors.Is(err, ErrMissingFields)` for validation-failure detection                          |
+| `RuleErrors` helper                         | 🟢 `FULLY_FUNCTIONAL` | `errors.go` (`func RuleErrors`); extracts all `*RuleError` from joined errors (ContinueOnError mode); tree-walking                           |
+| `OptIn` constructor                         | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`func OptIn`); wraps `RuleFunc` as disabled-by-default; `IsEnabledByDefault() bool` returns false                               |
+| `FilterRules` (enable/disable filtering)    | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func FilterRules`); standard --enable/--disable set intersection for CLI and plugin entry points                           |
+| `ExitCodeByConfidence` (tiered exit codes)  | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func ExitCodeByConfidence`); 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                           |
+| `RuleFunc.NewFinding` (pre-stamped builder) | 🟢 `FULLY_FUNCTIONAL` | `rule.go` (`func NewFinding`); returns `*finding.Builder` pre-configured with rule identity (ID, tool name, severity, category)            |
+| `WithToolName` registry option              | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`func WithToolName`); auto-stamps tool name onto rules at registration time and report header                                |
 | `errors.AsType` migration                  | 🟢 `FULLY_FUNCTIONAL` | `registry.go` (`wrapRuleError`), `registry_test.go`, and the `errors.go` doc all use `errors.AsType[*RuleError]`; project is gopls-clean (no `errorsastype` hints)          |
 
 ## Tooling & infrastructure
@@ -62,7 +68,7 @@
 
 | Feature                               | Status                | Notes                                                                                                                                                      |
 | ------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: why, install, usage, API table, migration path, Confidence/FixStrategy tables, two-execution-paths mermaid diagram, examples pointer, private-dep note |
+| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: status callout, why, install, quick start, usage, API table (complete), confidence/fixstrategy tables, data-flow diagram, execution-paths mermaid + ASCII fallback, migration path, examples pointer, private-dep note |
 | `AGENTS.md`                           | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                                                                             |
 | `CONTRIBUTING.md`                     | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                                                                                      |
 | `CHANGELOG.md`                        | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                                                                                    |
