@@ -475,9 +475,7 @@ func BenchmarkRegistry_All(b *testing.B) {
 		r.Register(makeRule(strconv.Itoa(i), nil))
 	}
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		_ = r.All()
 	}
 }
@@ -733,9 +731,7 @@ func BenchmarkRegistry_Run(b *testing.B) {
 
 	ctx := context.Background()
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		_, _ = r.Run(ctx, ".")
 	}
 }
