@@ -12,16 +12,39 @@ import (
 // in a rules.go via init() or a constructor) and the registry drives both
 // standalone execution and BuildFlow integration.
 type Registry struct {
-	mu    sync.RWMutex
-	rules []Rule
+	mu       sync.RWMutex
+	rules    []Rule
+	toolName finding.ToolName
 }
 
-// NewRegistry creates an empty registry.
-func NewRegistry() *Registry {
-	return &Registry{
+// RegistryOption configures a Registry at construction time.
+type RegistryOption func(*Registry)
+
+// WithToolName sets the tool name that the Registry stamps onto findings and
+// reports. When set, Register auto-fills [RuleMeta.ToolName] on every
+// [RuleFunc] (and [OptIn] rule) that does not already specify one, and Run
+// uses it for the [finding.ToolInfo] in the aggregated report.
+//
+// Without this option, the tool name defaults to "linter".
+func WithToolName(name string) RegistryOption {
+	return func(r *Registry) { r.toolName = finding.ToolName(name) }
+}
+
+// NewRegistry creates an empty registry. Pass [WithToolName] to set the tool
+// name that flows into finding identity and report metadata:
+//
+//	r := linter.NewRegistry(linter.WithToolName("my-linter"))
+func NewRegistry(opts ...RegistryOption) *Registry {
+	r := &Registry{
 		mu:    sync.RWMutex{},
 		rules: []Rule{},
 	}
+
+	for _, opt := range opts {
+		opt(r)
+	}
+
+	return r
 }
 
 // Register adds a rule. Panics if a rule with the same ID is already
@@ -40,6 +63,22 @@ func (r *Registry) Register(rule Rule) {
 	for _, existing := range r.rules {
 		if existing.ID() == ruleID {
 			panic("linter: duplicate rule ID " + ruleID)
+		}
+	}
+
+	// Auto-stamp the registry's tool name onto rules that do not set their own.
+	if r.toolName != "" {
+		switch concrete := rule.(type) {
+		case RuleFunc:
+			if concrete.Meta.ToolName == "" {
+				concrete.Meta.ToolName = r.toolName
+				rule = concrete
+			}
+		case optInRule:
+			if concrete.RuleFunc.Meta.ToolName == "" {
+				concrete.RuleFunc.Meta.ToolName = r.toolName
+				rule = concrete
+			}
 		}
 	}
 
@@ -155,7 +194,11 @@ func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*fin
 		opt(&cfg)
 	}
 
-	toolName := finding.ToolName("linter")
+	toolName := r.toolName
+	if toolName == "" {
+		toolName = "linter"
+	}
+
 	report := finding.NewReport(finding.ToolInfo{
 		Name:    string(toolName),
 		Version: "",
@@ -264,4 +307,62 @@ func ExitCodeFromReport(report *finding.Report) int {
 	}
 
 	return 1
+}
+
+// FilterRules returns the subset of rules that should run, given the enable
+// and disable sets. When enable is non-empty, only those rules are included
+// (minus any also disabled). When enable is empty, all rules except disabled
+// ones are included. When both are empty, all rules are returned unchanged.
+//
+// This is the standard --enable/--disable filtering logic shared by CLI and
+// plugin entry points:
+//
+//	rules := linter.FilterRules(humanizelint.AllRules(), enableSet, disableSet)
+//	for _, rule := range rules {
+//		registry.Register(rule)
+//	}
+func FilterRules(all []RuleFunc, enable, disable map[string]bool) []RuleFunc {
+	if len(enable) == 0 && len(disable) == 0 {
+		return all
+	}
+
+	var filtered []RuleFunc
+
+	for _, rule := range all {
+		if disable[rule.Meta.ID] {
+			continue
+		}
+
+		if len(enable) > 0 && !enable[rule.Meta.ID] {
+			continue
+		}
+
+		filtered = append(filtered, rule)
+	}
+
+	return filtered
+}
+
+// ExitCodeByConfidence returns a tiered exit code based on finding confidence:
+//   - 0 when the report is nil or has no findings (clean).
+//   - 1 when at least one finding is at or above threshold (must fix).
+//   - 2 when findings exist but all are below threshold (triage).
+//
+// This lets CI distinguish "please review" from "must fix". For example,
+// exit non-zero only for high-confidence findings:
+//
+//	code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh)
+//	os.Exit(code)
+func ExitCodeByConfidence(report *finding.Report, threshold finding.Confidence) int {
+	if report == nil || report.Len() == 0 {
+		return 0
+	}
+
+	for f := range report.All() {
+		if f.Confidence.Compare(threshold) >= 0 {
+			return 1
+		}
+	}
+
+	return 2
 }

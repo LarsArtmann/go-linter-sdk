@@ -229,6 +229,11 @@ func (r RuleFunc) Severity() finding.Severity { return r.Meta.Sev }
 // IsEnabledByDefault returns true for RuleFunc. Rules created via RuleFunc are
 // enabled by default — they run unless a consumer explicitly disables them.
 // For opt-in rules, use OptIn().
+//
+// This is METADATA only — Run, DetectorFromRegistry, and DetectorsFromRegistry
+// execute every registered rule regardless of this value. Consumers that want
+// --enable/--disable semantics must filter the rule set themselves, e.g. via
+// [FilterRules].
 func (RuleFunc) IsEnabledByDefault() bool { return true }
 
 // Check implements Rule. If Run returns an error, it is wrapped into a
