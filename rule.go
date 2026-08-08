@@ -268,7 +268,7 @@ func (r RuleFunc) NewFinding(message string, pos finding.Position) *finding.Buil
 		tool = "linter"
 	}
 
-	b := finding.NewBuilder(
+	builder := finding.NewBuilder(
 		finding.RuleName(r.Meta.ID),
 		tool,
 		message,
@@ -277,8 +277,8 @@ func (r RuleFunc) NewFinding(message string, pos finding.Position) *finding.Buil
 	)
 
 	if r.Meta.Cat != "" {
-		b = b.WithCategory(finding.Category(r.Meta.Cat))
+		builder = builder.WithCategory(finding.Category(r.Meta.Cat))
 	}
 
-	return b
+	return builder
 }

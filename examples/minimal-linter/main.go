@@ -26,7 +26,7 @@ func main() {
 	registry := linter.NewRegistry()
 
 	registry.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{
+		Meta: linter.RuleMeta{ //nolint:exhaustruct // example
 			ID:          "require-readme",
 			Name:        "require README.md",
 			Description: "every project should ship a README.md at its root",

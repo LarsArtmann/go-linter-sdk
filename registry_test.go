@@ -740,7 +740,6 @@ func BenchmarkRegistry_Run(b *testing.B) {
 	}
 }
 
-
 func TestWithToolName_AutoStampsRuleFunc(t *testing.T) {
 	t.Parallel()
 
@@ -756,13 +755,14 @@ func TestWithToolName_AutoStampsRuleFunc(t *testing.T) {
 	})
 
 	rules := r.All()
-	rf, ok := rules[0].(linter.RuleFunc)
+
+	extractedRule, ok := rules[0].(linter.RuleFunc)
 	if !ok {
 		t.Fatalf("expected RuleFunc, got %T", rules[0])
 	}
 
-	if rf.Meta.ToolName != "my-linter" {
-		t.Errorf("expected auto-stamped tool name 'my-linter', got %q", rf.Meta.ToolName)
+	if extractedRule.Meta.ToolName != "my-linter" {
+		t.Errorf("expected auto-stamped tool name 'my-linter', got %q", extractedRule.Meta.ToolName)
 	}
 }
 
@@ -782,10 +782,10 @@ func TestWithToolName_DoesNotOverrideExistingToolName(t *testing.T) {
 	})
 
 	rules := r.All()
-	rf, _ := rules[0].(linter.RuleFunc)
+	extractedRule, _ := rules[0].(linter.RuleFunc)
 
-	if rf.Meta.ToolName != "explicit-tool" {
-		t.Errorf("expected 'explicit-tool' to be preserved, got %q", rf.Meta.ToolName)
+	if extractedRule.Meta.ToolName != "explicit-tool" {
+		t.Errorf("expected 'explicit-tool' to be preserved, got %q", extractedRule.Meta.ToolName)
 	}
 }
 
@@ -804,6 +804,7 @@ func TestWithToolName_AutoStampsOptInRule(t *testing.T) {
 	}))
 
 	rules := r.All()
+
 	optIn, ok := rules[0].(interface{ IsEnabledByDefault() bool })
 	if !ok || optIn.IsEnabledByDefault() {
 		t.Fatalf("expected opt-in rule, got %T", rules[0])
@@ -814,6 +815,7 @@ func TestWithToolName_DefaultIsLinter(t *testing.T) {
 	t.Parallel()
 
 	r := linter.NewRegistry()
+
 	report, err := r.Run(context.Background(), ".")
 	if err != nil {
 		t.Fatal(err)
@@ -828,6 +830,7 @@ func TestWithToolName_AppliesToReport(t *testing.T) {
 	t.Parallel()
 
 	r := linter.NewRegistry(linter.WithToolName("custom-linter"))
+
 	report, err := r.Run(context.Background(), ".")
 	if err != nil {
 		t.Fatal(err)
@@ -837,7 +840,6 @@ func TestWithToolName_AppliesToReport(t *testing.T) {
 		t.Errorf("expected 'custom-linter', got %q", report.Tool.Name)
 	}
 }
-
 
 func TestFilterRules_NoFilterReturnsAll(t *testing.T) {
 	t.Parallel()
@@ -921,7 +923,6 @@ func TestFilterRules_EnableAndDisableCombined(t *testing.T) {
 	}
 }
 
-
 func TestExitCodeByConfidence_NilReport(t *testing.T) {
 	t.Parallel()
 
@@ -995,7 +996,6 @@ func TestExitCodeByConfidence_MixedConfidence(t *testing.T) {
 	}
 }
 
-
 func TestRuleFunc_NewFinding_PreFillsIdentity(t *testing.T) {
 	t.Parallel()
 
@@ -1011,22 +1011,22 @@ func TestRuleFunc_NewFinding_PreFillsIdentity(t *testing.T) {
 	}
 
 	pos := finding.Pos(finding.FilePath("demo.go"), 10, 5)
-	f := rule.NewFinding("manual byte formatting", pos).MustBuild()
+	result := rule.NewFinding("manual byte formatting", pos).MustBuild()
 
-	if f.Rule != "H001" {
-		t.Errorf("expected rule 'H001', got %q", f.Rule)
+	if result.Rule != "H001" {
+		t.Errorf("expected rule 'H001', got %q", result.Rule)
 	}
 
-	if f.ToolName != "go-humanize-linter" {
-		t.Errorf("expected tool 'go-humanize-linter', got %q", f.ToolName)
+	if result.ToolName != "go-humanize-linter" {
+		t.Errorf("expected tool 'go-humanize-linter', got %q", result.ToolName)
 	}
 
-	if f.Severity != finding.SeverityWarning {
-		t.Errorf("expected severity warning, got %q", f.Severity)
+	if result.Severity != finding.SeverityWarning {
+		t.Errorf("expected severity warning, got %q", result.Severity)
 	}
 
-	if f.Category != finding.CategoryStyle {
-		t.Errorf("expected category style, got %q", f.Category)
+	if result.Category != finding.CategoryStyle {
+		t.Errorf("expected category style, got %q", result.Category)
 	}
 }
 
@@ -1043,10 +1043,10 @@ func TestRuleFunc_NewFinding_DefaultsToLinterTool(t *testing.T) {
 		},
 	}
 
-	f := rule.NewFinding("msg", finding.Pos(finding.FilePath("x.go"), 1, 1)).MustBuild()
+	result := rule.NewFinding("msg", finding.Pos(finding.FilePath("x.go"), 1, 1)).MustBuild()
 
-	if f.ToolName != "linter" {
-		t.Errorf("expected fallback tool 'linter', got %q", f.ToolName)
+	if result.ToolName != "linter" {
+		t.Errorf("expected fallback tool 'linter', got %q", result.ToolName)
 	}
 }
 
@@ -1064,21 +1064,21 @@ func TestRuleFunc_NewFinding_AllowsChaining(t *testing.T) {
 		},
 	}
 
-	f := rule.NewFinding("found issue", finding.Pos(finding.FilePath("a.go"), 1, 1)).
+	result := rule.NewFinding("found issue", finding.Pos(finding.FilePath("a.go"), 1, 1)).
 		WithConfidence(finding.ConfidenceHigh).
 		WithSuggestion("use humanize.Bytes").
 		WithFixStrategy(finding.FixStrategySuggest).
 		MustBuild()
 
-	if f.Confidence != finding.ConfidenceHigh {
-		t.Errorf("expected ConfidenceHigh, got %v", f.Confidence)
+	if result.Confidence != finding.ConfidenceHigh {
+		t.Errorf("expected ConfidenceHigh, got %v", result.Confidence)
 	}
 
-	if f.Suggestion != "use humanize.Bytes" {
-		t.Errorf("expected suggestion, got %q", f.Suggestion)
+	if result.Suggestion != "use humanize.Bytes" {
+		t.Errorf("expected suggestion, got %q", result.Suggestion)
 	}
 
-	if f.FixStrategy != finding.FixStrategySuggest {
-		t.Errorf("expected FixStrategySuggest, got %q", f.FixStrategy)
+	if result.FixStrategy != finding.FixStrategySuggest {
+		t.Errorf("expected FixStrategySuggest, got %q", result.FixStrategy)
 	}
 }

@@ -40,7 +40,7 @@ func main() {
 	registry := linter.NewRegistry()
 
 	registry.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{
+		Meta: linter.RuleMeta{ //nolint:exhaustruct // example
 			ID:          "no-go-mod",
 			Name:        "missing go.mod",
 			Description: "ensures go.mod exists for Go module management",

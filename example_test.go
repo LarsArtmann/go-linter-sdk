@@ -82,6 +82,7 @@ func ExampleDetectorsFromRegistry() {
 // fields (confidence, suggestion, etc.) on the returned builder.
 func ExampleRuleFunc_NewFinding() {
 	var rule linter.RuleFunc
+
 	rule = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          "demo-rule",
