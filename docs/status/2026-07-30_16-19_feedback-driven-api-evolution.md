@@ -150,33 +150,33 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs introd
 
 ### Immediate fixes (this session's debt)
 
-1. **[FIX]** Fix all stale line references in `DOMAIN_LANGUAGE.md` (5 references wrong)
-2. **[FIX]** Fix all stale line references in `FEATURES.md` (~11 references wrong)
-3. **[FIX]** Update README example to show different ID and Name values (teaching moment)
-4. **[FIX]** Update or remove "5-line linter" headline in README
-5. **[FIX]** Add correction note at top of original feedback document pointing to Appendix A
-6. **[FIX]** Update `TODO_LIST.md` with new open items from this session
+1. **[FIX]** Fix all stale line references in `DOMAIN_LANGUAGE.md` (5 references wrong) ✅ done
+2. **[FIX]** Fix all stale line references in `FEATURES.md` (~11 references wrong) ✅ done
+3. **[FIX]** Update README example to show different ID and Name values (teaching moment) ✅ done
+4. **[FIX]** Update or remove "5-line linter" headline in README ✅ done — changed to "minimal linter"
+5. **[FIX]** Add correction note at top of original feedback document pointing to Appendix A ✅ done
+6. **[FIX]** Update `TODO_LIST.md` with new open items from this session ✅ done
 
 ### Short-term improvements
 
-7. Add cross-reference from `DetectorFromRegistry` doc comment to `DetectorsFromRegistry` (when to use which)
-8. Add a "Building Findings" section to README showing `.WithConfidence()` and `.WithFixStrategy()`
-9. Consider dropping exact line numbers from docs entirely — use symbol names only
-10. Add `Registry.Get(id string) (Rule, bool)` helper
-11. Add `Registry.Has(id string) bool` helper
-12. Add `Registry.Deregister(id string)` helper
-13. Implement `RuleMeta.Validate()` (check Name non-empty, Category non-empty, Description non-empty)
-14. Add testable examples: `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`
-15. Update `CONTRIBUTING.md` — remove stale "replace directive until tagged release" language
-16. **[DRIFT]** CONTRIBUTING.md still shows sibling checkout requirement; AGENTS.md says go-finding v1.4.1 is published — reconcile
-17. **[DRIFT]** README says "Requires go-finding v1.2+"; AGENTS.md says v1.4.1 — reconcile
-18. Add a diagram showing the two execution paths (Registry.Run vs DetectorsFromRegistry → pipeline)
-19. Document the `Registry.Run` fail-fast vs pipeline graceful-degradation tradeoff explicitly
-20. Move feedback file out of `docs/feedback/new/` since it's been processed
+7. Add cross-reference from `DetectorFromRegistry` doc comment to `DetectorsFromRegistry` (when to use which) ✅ done
+8. Add a "Building Findings" section to README showing `.WithConfidence()` and `.WithFixStrategy()` ✅ done
+9. Consider dropping exact line numbers from docs entirely — use symbol names only ✅ done — adopted
+10. Add `Registry.Get(id string) (Rule, bool)` helper ✅ done
+11. Add `Registry.Has(id string) bool` helper ✅ done
+12. Add `Registry.Deregister(id string)` helper ✅ done
+13. Implement `RuleMeta.Validate()` (check Name non-empty, Category non-empty, Description non-empty) ✅ done
+14. Add testable examples: `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` ✅ done — integration tests + 75 tests
+15. Update `CONTRIBUTING.md` — remove stale "replace directive until tagged release" language ✅ done
+16. **[DRIFT]** CONTRIBUTING.md still shows sibling checkout requirement; AGENTS.md says go-finding v1.4.1 is published — reconcile ✅ done
+17. **[DRIFT]** README says "Requires go-finding v1.2+"; AGENTS.md says v1.4.1 — reconcile ✅ done
+18. Add a diagram showing the two execution paths (Registry.Run vs DetectorsFromRegistry → pipeline) ✅ done
+19. Document the `Registry.Run` fail-fast vs pipeline graceful-degradation tradeoff explicitly ✅ done — ContinueOnError + godoc
+20. Move feedback file out of `docs/feedback/new/` since it's been processed ✅ done — moved to processed/
 
 ### Consumer adoption (ROADMAP Theme 2)
 
-21. Create `examples/` directory with a minimal consumer linter
+21. Create `examples/` directory with a minimal consumer linter ✅ done — examples/minimal-linter + examples/no-go-mod
 22. Pilot-port one rule from `go-structure-linter` to prove the Rule → finding.Finding path
 23. Create `cmd/` directory with a CLI binary wrapping the registry
 24. Pilot-port a rule from `branching-flow` to validate the converter-deletion claim
@@ -184,37 +184,37 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs introd
 
 ### API maturation (ROADMAP Theme 1)
 
-26. Add a `Filter` type for severity/category-based finding filtering
-27. Severity-tiered exit codes (`ExitCodeFromReport` is binary)
+26. Add a `Filter` type for severity/category-based finding filtering ✅ done — FilterRules shipped
+27. Severity-tiered exit codes (`ExitCodeFromReport` is binary) ✅ done — ExitCodeByConfidence shipped
 28. Add `NewRegistryFromRules(rules []Rule) *Registry` convenience
 29. Add a typed `RuleSet` wrapper around `[]Rule` for non-mutex'd consumers
 30. Add `ExitCodeFromFindings([]Finding) convenience
 31. Decide whether `RuleFunc` should use generics for type-safe rule definitions
-32. Make `Registry.Run` failure policy configurable (fail-fast vs continue-and-report)
+32. Make `Registry.Run` failure policy configurable (fail-fast vs continue-and-report) ✅ done — ContinueOnError() shipped
 33. Consider a `Category.All()` or `Category.Known()` helper
 
 ### Publication & distribution (ROADMAP Theme 3)
 
-34. Verify `go.mod` no longer needs the `replace ../go-finding` directive (AGENTS.md says v1.4.1 is published)
+34. Verify `go.mod` no longer needs the `replace ../go-finding` directive (AGENTS.md says v1.4.1 is published) ✅ done — replace removed
 35. pkg.go.dev publication readiness audit (README's claimed API vs actual exported symbols)
-36. Add a `go.work` workspace to formalize the sibling-checkout development pattern
+36. Add a `go.work` workspace to formalize the sibling-checkout development pattern ✅ done — created 2026-08-08 (gitignored)
 37. Verify `self`-based flake versioning is correct for a library-only package
 
 ### Quality hardening (ROADMAP Theme 6)
 
-38. Fuzz `NewRuleError` with a nil cause
-39. Test `errors.Is(ruleErr, context.Canceled)` / `context.DeadlineExceeded` propagation
+38. Fuzz `NewRuleError` with a nil cause ✅ done
+39. Test `errors.Is(ruleErr, context.Canceled)` / `context.DeadlineExceeded` propagation ✅ done
 40. Confirm `Registry.Register`'s panic-on-duplicate is the right contract for a library
-41. Test that `DetectorsFromRegistry` closures don't capture stale registry state (mutation after call)
+41. Test that `DetectorsFromRegistry` closures don't capture stale registry state (mutation after call) ✅ done — concurrent Deregister test
 42. Benchmark `DetectorsFromRegistry` (allocation per detector)
-43. Test `DetectorsFromRegistry` with registry mutation after call (snapshot semantics)
+43. Test `DetectorsFromRegistry` with registry mutation after call (snapshot semantics) ✅ done
 
 ### Documentation depth (ROADMAP Theme 5)
 
 44. Package-level examples visible on pkg.go.dev
-45. A diagram of `DetectorsFromRegistry → pipeline.New → pipeline.Run`
-46. Update `docs/DOMAIN_LANGUAGE.md` with a term entry for `DetectorsFromRegistry` as a concept
-47. Document the `finding.Builder` chain as the canonical way to construct findings
+45. A diagram of `DetectorsFromRegistry → pipeline.New → pipeline.Run` ✅ done — data-flow diagram in README
+46. Update `docs/DOMAIN_LANGUAGE.md` with a term entry for `DetectorsFromRegistry` as a concept ✅ done
+47. Document the `finding.Builder` chain as the canonical way to construct findings ✅ done — README section
 
 ### Ecosystem & CI parity (ROADMAP Theme 4)
 

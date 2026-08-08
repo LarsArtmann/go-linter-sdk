@@ -15,7 +15,7 @@
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
 > delivers it AND confirm it works. Verified 2026-08-08: `nix run .#lint`
-> (0 issues), `nix run .#test-race` (clean, 97.6% coverage), `nix flake check`
+> (0 issues), `nix run .#test-race` (clean, 98.2% coverage), `nix flake check`
 > (all checks passed).
 >
 > **One-home rule:** this file tracks only what EXISTS in code today.

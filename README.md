@@ -11,7 +11,7 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 **[pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)**
 
-> **Status: Early.** The `Rule`/`Registry`/`Detector` core is stable and tested (97.6% coverage, race-clean). The value proposition — eliminating converter code — is proven by `examples/no-go-mod` but **no production linter has fully migrated yet.**
+> **Status: Early.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.2% coverage, race-clean). The value proposition — eliminating converter code — is proven by `examples/no-go-mod` but **no production linter has fully migrated yet.**
 
 ---
 

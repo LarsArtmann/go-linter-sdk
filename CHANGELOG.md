@@ -83,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   context errors chain correctly through `RuleError.Unwrap()`.
 - `TestDeregister_DuringRun_SnapshotSemantics` — verifies a rule deregistered
   mid-run still executes (snapshot semantics from `All()`).
+- `TestRuleErrors_DeeplyNested` — verifies `RuleErrors` traverses deeply nested
+  `fmt.Errorf` wrapping chains (not just flat `errors.Join` results).
 
 #### Infrastructure
 
@@ -98,6 +100,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (ubuntu-latest + macos-latest), lint, format check, govulncheck, and nix
   flake check. Configures VCS auth for private modules (`GOPRIVATE`);
   all actions pinned to commit SHAs.
+- CI workflow uses `PRIVATE_REPO_TOKEN` secret (PAT with read access to
+  `go-finding`) instead of the default `GITHUB_TOKEN` (scoped to this repo
+  only, cannot fetch the private `go-finding` dependency).
+- CI `go mod tidy` check: `git diff --exit-code go.mod go.sum` after tidy to
+  catch module drift.
+- CI coverage gate: test step generates `coverage.out` and fails if total
+  coverage drops below 90%.
+- `.github/CODEOWNERS` file for automated review routing.
+- `go.work` workspace for local cross-repo development (gitignored, not
+  committed). References sibling `../go-finding` checkout.
 - Project metadata: `LICENSE` (MIT), `CONTRIBUTING.md`, `AGENTS.md`,
   `.gitattributes`, durable `reports/.gitkeep`.
 - `.editorconfig` enforcing UTF-8/LF, tabs for Go/Makefile, 2-space for
@@ -245,3 +257,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   trap); missing feature rows added (`ErrMissingFields`, `RuleErrors`, `OptIn`,
   `FilterRules`, `ExitCodeByConfidence`, `RuleFunc.NewFinding`, `WithToolName`).
 - `ROADMAP.md` updated: removed `RuleErrors` and `ErrMissingFields` (shipped).
+- CI badge added to README between Go Report Card and License badges.
+- `DOMAIN_LANGUAGE.md` entries added for `ErrMissingFields`,
+  `RuleErrors`, and `DetectorFromRegistry`/`DetectorsFromRegistry` (the two
+  integration paths from Registry to the go-finding ecosystem).
+- Godoc cross-reference from `ContinueOnError` to `RuleErrors` helper, guiding
+  callers to the right tool for enumerating joined errors.
+- Inline resolution markers (✅ done) added to 119 action items across 5 July
+  status reports (`2026-07-27_11-35`, `2026-07-27_12-14`,
+  `2026-07-30_16-08`, `2026-07-30_16-19`, `2026-07-30_16-39`). Resolves the
+  "appendix-only annotation" failure mode flagged in the prior session.
+- `CONTRIBUTING.md` duplicate "Reporting Issues" section merged into one.
+- README Status callout coverage updated from 96.8% to 98.2%.

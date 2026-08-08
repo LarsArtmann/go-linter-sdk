@@ -19,15 +19,20 @@
 
 | # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
 | --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Verify CI can fetch `go-finding` via `GITHUB_TOKEN` | Critical | 30m    | `.github/workflows/ci.yml:52` — uses `secrets.GITHUB_TOKEN` which is scoped to THIS repo. `go-finding` is a DIFFERENT private repo. May silently fail or use a different auth path. Flagged HIGH RISK in report 2026-07-30_16-08 §B.1. Must verify end-to-end or switch to PAT/SSH deploy key. |
-| 2   | Add `go.work` for local cross-repo dev            | High   | 15m    | No `go.work` exists. Local development against an uncommitted `go-finding` checkout requires manual `replace` lines. A workspace file (not committed) would formalize this. Flagged in report 2026-07-30_16-08 §B.2. |
-| 3   | Add `go mod tidy` check to CI                     | Medium | 10m    | CI doesn't verify that `go.mod` and `go.sum` are tidy. A `git diff --exit-code go.mod go.sum` step would catch drift. Flagged in report 2026-07-30_16-39. |
+| 1   | Create `PRIVATE_REPO_TOKEN` GitHub secret for CI | Critical | 5m    | `.github/workflows/ci.yml` now references `secrets.PRIVATE_REPO_TOKEN` (PAT with Contents:Read on `go-finding`). The default `GITHUB_TOKEN` is scoped to THIS repo and cannot fetch the private `go-finding` dependency — CI has been failing since creation. Create under Settings → Secrets → Actions → New repository secret. Value: a PAT or fine-grained token with read access to `github.com/larsartmann/go-finding`. |
+
+### Consumer adoption
+
+| # | Task                                              | Impact | Effort | Evidence                                                                                                                                  |
+| --- | ------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 2   | Pilot-port a branching-flow rule to examples/     | Critical | 90m   | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow` (1,871 LOC of converter code to eliminate). Identified as the #1 value-proving task in the Pareto plan. |
+| 3   | Pilot-port an erraudit rule to examples/          | High   | 90m   | Same proof for the error-handling domain. Sibling repo at `/home/lars/projects/erraudit` (1,214 LOC). |
 
 ---
 
 <!-- Guidance for the builder:
   - Source of truth is the CODE. Verify each item before adding; many
-    documented TODOs are already done.
+  documented TODOs are already done.
   - DONE items are REMOVED, not kept. Log them in CHANGELOG.md.
   - If a task turns vague, move it to ROADMAP.md.
   - Deduplicate by semantic intent, not by text match.
