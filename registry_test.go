@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
@@ -119,6 +120,59 @@ func TestRegistry_Deregister(t *testing.T) {
 
 	if r.Deregister("nonexistent") {
 		t.Error("expected Deregister to return false for unregistered ID")
+	}
+}
+
+func TestDeregister_DuringRun_SnapshotSemantics(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	ruleStarted := make(chan struct{})
+	releaseRule := make(chan struct{})
+
+	r.Register(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "blocking",
+			Name:        "blocking rule",
+			Description: "blocks until released",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityInfo,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+			close(ruleStarted)
+			<-releaseRule
+
+			return nil, nil
+		},
+	})
+
+	runErr := make(chan error, 1)
+
+	go func() {
+		_, err := r.Run(context.Background(), ".")
+		runErr <- err
+	}()
+
+	<-ruleStarted
+
+	if !r.Deregister("blocking") {
+		t.Fatal("expected Deregister to return true for blocking rule")
+	}
+
+	if r.Has("blocking") {
+		t.Error("expected rule to be removed from registry after Deregister")
+	}
+
+	close(releaseRule)
+
+	select {
+	case err := <-runErr:
+		if err != nil {
+			t.Errorf("expected nil error from Run, got %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Run did not complete within 5s after releasing rule")
 	}
 }
 

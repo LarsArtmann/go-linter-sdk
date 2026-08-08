@@ -128,8 +128,9 @@ func (r *Registry) Has(id string) bool {
 
 // Deregister removes the rule with the given ID. Returns true if a rule was
 // removed, false if no rule with that ID was registered. Safe to call
-// concurrently with Run — Run snapshots the rule list via All() before
-// iterating.
+// concurrently with Run — Run takes a snapshot of the rule list via All()
+// before iterating, so a rule in the snapshot still executes even if it is
+// deregistered mid-run.
 func (r *Registry) Deregister(id string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()

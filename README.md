@@ -10,6 +10,8 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 **[pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)**
 
+> **Status: Early.** The `Rule`/`Registry`/`Detector` core is stable and tested (96.8% coverage, race-clean). The value proposition — eliminating converter code — is proven by `examples/no-go-mod` but **no production linter has fully migrated yet.**
+
 ---
 
 ## Why?
@@ -43,6 +45,18 @@ go get github.com/larsartmann/go-linter-sdk
 Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.4+.
 
 > **Private dependency.** `go-finding` is a private repository. Set `GOPRIVATE=github.com/larsartmann/*` and authenticate to GitHub (token or SSH) before `go get`, otherwise the module proxy returns 404. CI uses `GITHUB_TOKEN`; local dev uses `GOPRIVATE` plus an SSH `insteadOf` rewrite.
+
+---
+
+## Quick Start
+
+Three steps from zero to a running linter:
+
+1. **Install** — `go get github.com/larsartmann/go-linter-sdk` (requires Go 1.26+ and `go-finding` v1.4+)
+2. **Define rules** — write `linter.RuleFunc{Meta: ..., Run: ...}` that emits `finding.Finding` directly
+3. **Run** — `registry.Run(ctx, dir)` + `linter.ExitCodeFromReport(report)`
+
+A complete runnable example is at [`examples/minimal-linter`](examples/minimal-linter). See [Usage](#usage) below for the full walkthrough.
 
 ---
 
@@ -144,6 +158,21 @@ return []finding.Finding{
 | `FixStrategyDirect`  | Can auto-fix programmatically |
 | `FixStrategyAI`      | Requires AI to generate a fix |
 
+### Data flow
+
+Rules emit `finding.Finding` directly — no intermediate type. The SDK aggregates, reports, and maps to exit codes:
+
+```mermaid
+graph LR
+    R["Rule.Check(ctx, dir)"] --> F["[]finding.Finding"]
+    F --> REP["finding.Report"]
+    REP --> EC["ExitCode (0 or 1)"]
+```
+
+```
+Rule.Check(ctx, dir) → []finding.Finding → Report → ExitCode (0 clean / 1 findings)
+```
+
 ### Two execution paths
 
 The SDK offers two ways to run rules. Pick based on your integration target:
@@ -161,6 +190,16 @@ graph LR
         D1 & D2 & D3 -.->|parallel| DR["pipeline.Run"]
     end
 ```
+
+<details>
+<summary>ASCII fallback (for pkg.go.dev)</summary>
+
+```
+Registry.Run (standalone CLI):     Rule 1 → Rule 2 → Rule N → *finding.Report
+DetectorsFromRegistry (pipeline): Split → [Detector: Rule 1 | Rule 2 | Rule N] → pipeline.Run
+```
+
+</details>
 
 |                    | `Registry.Run`                             | `DetectorsFromRegistry`                   |
 | ------------------ | ------------------------------------------ | ----------------------------------------- |
@@ -187,7 +226,8 @@ graph LR
 
 | Function                            | Returns                  | Purpose                                                                                               |
 | ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `NewRegistry()`                     | `*Registry`              | Empty registry                                                                                        |
+| `NewRegistry(opts…)`               | `*Registry`              | Empty registry; pass `WithToolName(...)` to stamp tool name onto findings                             |
+| `WithToolName(name)`               | `RegistryOption`         | Stamp the tool name onto all findings and the report                                                  |
 | `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                          |
 | `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                          |
 | `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                                   |
@@ -198,7 +238,10 @@ graph LR
 | `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                                   |
 | `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)          |
 | `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                        |
+| `ExitCodeByConfidence(report, thr)` | `int`                    | 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                                   |
+| `FilterRules(all, enable, disable)` | `[]RuleFunc`             | Standard --enable/--disable filtering for CLI and plugin entry points                                 |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
+| `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`       | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                       |
 | `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                                |
 
 ---
