@@ -141,30 +141,30 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs/debt f
 
 ### Immediate fixes (this session's debt)
 
-1. **[FIX]** Rewrite ROADMAP.md Theme 3 — the entire "Publication & distribution" section is built on the gone `replace` directive
-2. **[FIX]** Move ROADMAP Open Question Q1 to Resolved Questions (go-finding v1.4.1 is published)
-3. **[FIX]** Update ROADMAP Theme 2 reference to "5-line linter" → "minimal linter"
-4. **[FIX]** Update ROADMAP Non-goals: "the replace directive is the current source of truth" → remove or rewrite
-5. **[FIX]** Update FEATURES.md verification block: "10/10 pass" → "18/18 pass", date → 2026-07-30
-6. **[FIX]** Fix FEATURES.md DetectorFromRegistry "covered by 2 tests" → 3 tests (or drop the count)
-7. **[FIX]** Consider annotating old status report (2026-07-30_16-19) with file-move note
+1. **[FIX]** Rewrite ROADMAP.md Theme 3 — the entire "Publication & distribution" section is built on the gone `replace` directive ✅ done
+2. **[FIX]** Move ROADMAP Open Question Q1 to Resolved Questions (go-finding v1.4.1 is published) ✅ done
+3. **[FIX]** Update ROADMAP Theme 2 reference to "5-line linter" → "minimal linter" ✅ done
+4. **[FIX]** Update ROADMAP Non-goals: "the replace directive is the current source of truth" → remove or rewrite ✅ done
+5. **[FIX]** Update FEATURES.md verification block: "10/10 pass" → "18/18 pass", date → 2026-07-30 ✅ done — updated to 2026-08-08, 97.6% coverage
+6. **[FIX]** Fix FEATURES.md DetectorFromRegistry "covered by 2 tests" → 3 tests (or drop the count) ✅ done — counts dropped, qualitative claims
+7. **[FIX]** Consider annotating old status report (2026-07-30_16-19) with file-move note ✅ done
 
 ### Short-term improvements
 
-8. Drop test counts from FEATURES.md entirely — use qualitative "tested" claims instead
-9. Add "Building Findings" section to README showing `.WithConfidence()` / `.WithFixStrategy()` (TODO_LIST #7)
-10. Add two-execution-paths diagram to README (TODO_LIST #8)
-11. Add `Registry.Get(id string) (Rule, bool)` (TODO_LIST #1)
-12. Add `Registry.Has(id string) bool` (TODO_LIST #2)
-13. Add `Registry.Deregister(id string)` (TODO_LIST #3)
-14. Implement `RuleMeta.Validate()` — empty Name, Description, Category (TODO_LIST #4)
-15. Add testable examples: `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` (TODO_LIST #6)
-16. Clean up TODO_LIST.md guidance HTML comment (references old completed items)
+8. Drop test counts from FEATURES.md entirely — use qualitative "tested" claims instead ✅ done
+9. Add "Building Findings" section to README showing `.WithConfidence()` / `.WithFixStrategy()` (TODO_LIST #7) ✅ done
+10. Add two-execution-paths diagram to README (TODO_LIST #8) ✅ done — data-flow diagram + ASCII fallback
+11. Add `Registry.Get(id string) (Rule, bool)` (TODO_LIST #1) ✅ done
+12. Add `Registry.Has(id string) bool` (TODO_LIST #2) ✅ done
+13. Add `Registry.Deregister(id string)` (TODO_LIST #3) ✅ done
+14. Implement `RuleMeta.Validate()` — empty Name, Description, Category (TODO_LIST #4) ✅ done
+15. Add testable examples: `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` (TODO_LIST #6) ✅ done — integration tests + 75 tests total
+16. Clean up TODO_LIST.md guidance HTML comment (references old completed items) ✅ done — rebuilt
 17. Decide `ireturn` fate — keep allow-listing or suppress the linter for `OptIn`/`DetectorFromRegistry` return types
 
 ### Consumer adoption (ROADMAP Theme 2)
 
-18. Create `examples/` directory with a minimal consumer linter (TODO_LIST #9)
+18. Create `examples/` directory with a minimal consumer linter (TODO_LIST #9) ✅ done — examples/minimal-linter + examples/no-go-mod
 19. Pilot-port one rule from `go-structure-linter` (TODO_LIST #10)
 20. Pilot-port a rule from `branching-flow` to validate converter-deletion claim
 21. Create `cmd/` directory with a CLI binary wrapping the registry
@@ -172,33 +172,33 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs/debt f
 
 ### API maturation (ROADMAP Theme 1)
 
-23. Add `Filter` type for severity/category-based finding filtering
-24. Severity-tiered exit codes (`ExitCodeFromReport` is binary)
+23. Add `Filter` type for severity/category-based finding filtering ✅ done — FilterRules shipped
+24. Severity-tiered exit codes (`ExitCodeFromReport` is binary) ✅ done — ExitCodeByConfidence shipped
 25. Add `NewRegistryFromRules(rules []Rule) *Registry` convenience
 26. Add typed `RuleSet` wrapper around `[]Rule` for non-mutex'd consumers
 27. Add `ExitCodeFromFindings([]Finding)` convenience
-28. Make `Registry.Run` failure policy configurable (fail-fast vs continue-and-report)
+28. Make `Registry.Run` failure policy configurable (fail-fast vs continue-and-report) ✅ done — ContinueOnError() shipped
 29. Evaluate generics for type-safe rule definitions
 30. Add `Category.Known()` / `Category.All()` helper
 
 ### Publication & distribution (ROADMAP Theme 3 — rewritten)
 
 31. pkg.go.dev publication readiness audit (README's claimed API vs actual exported symbols)
-32. Document GOPRIVATE requirement for consumers (go-finding is a private repo)
-33. Add a `go.work` workspace for local cross-repo development (optional, not required)
+32. Document GOPRIVATE requirement for consumers (go-finding is a private repo) ✅ done — README + CONTRIBUTING
+33. Add a `go.work` workspace for local cross-repo development (optional, not required) ✅ done — created 2026-08-08 (gitignored)
 34. Verify `go get github.com/larsartmann/go-linter-sdk` works from a clean consumer project
 
 ### Documentation depth (ROADMAP Theme 5)
 
 35. Add `docs/DOMAIN_LANGUAGE.md` cross-links from code doc comments
-36. Add a diagram of the `DetectorFromRegistry → finding.Detector → BuildFlow DAG` adaptation
-37. Add a diagram showing two execution paths (`Registry.Run` vs `DetectorsFromRegistry` → pipeline)
-38. Document the `Registry.Run` fail-fast vs pipeline graceful-degradation tradeoff explicitly
+36. Add a diagram of the `DetectorFromRegistry → finding.Detector → BuildFlow DAG` adaptation ✅ done — data-flow diagram in README
+37. Add a diagram showing two execution paths (`Registry.Run` vs `DetectorsFromRegistry` → pipeline) ✅ done
+38. Document the `Registry.Run` fail-fast vs pipeline graceful-degradation tradeoff explicitly ✅ done — ContinueOnError + godoc
 
 ### Quality hardening (ROADMAP Theme 6)
 
-39. Fuzz `NewRuleError` with a nil cause
-40. Test `errors.Is(ruleErr, context.Canceled)` / `context.DeadlineExceeded` propagation
+39. Fuzz `NewRuleError` with a nil cause ✅ done
+40. Test `errors.Is(ruleErr, context.Canceled)` / `context.DeadlineExceeded` propagation ✅ done
 41. Confirm `Registry.Register`'s panic-on-duplicate is the right library contract
 
 ### Ecosystem & CI parity (ROADMAP Theme 4)

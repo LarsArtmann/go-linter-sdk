@@ -89,42 +89,42 @@ Prioritized by impact × cost. Items already in `TODO_LIST.md` are marked `[T]`;
 
 ### High impact, low cost (do first)
 
-1. `[T]` **Finish the `errors.AsType` migration** — `registry_test.go:196` + `errors.go:18` doc example. ~15 min. Removes the only gopls diagnostic.
-2. **Run `git blame` on every existing CHANGELOG citation** and correct any others I may have gotten wrong (I verified only the `errors.AsType` one). ~10 min.
-3. `[T]` **Add a concurrent registry test** exercising the `RWMutex` under `-race`. ~30 min.
-4. `[T]` **Add `Benchmark*` for registry hot paths** (`Run`, `All`, `Register`). ~30 min.
-5. `[T]` **Restore the positive double-wrap assertion** in `TestRegistry_Run_NoDoubleWrap`. ~15 min.
-6. `[T]` **Resolve the `testpackage` decision** — white-box + documented, or move to `package linter_test`. ~30 min.
-7. `[T]` **Fresh-clone BuildFlow verification** — `git clone` to `/tmp`, `nix develop --command buildflow`, confirm 35/36. ~20 min.
-8. **Resolve the FEATURES↔ROADMAP PLANNED split-brain** — pick one home for not-yet-built capabilities. ~10 min.
+1. `[T]` **Finish the `errors.AsType` migration** — `registry_test.go:196` + `errors.go:18` doc example. ~15 min. Removes the only gopls diagnostic. ✅ done — Session 5
+2. **Run `git blame` on every existing CHANGELOG citation** and correct any others I may have gotten wrong (I verified only the `errors.AsType` one). ~10 min. ✅ done — citation discipline established
+3. `[T]` **Add a concurrent registry test** exercising the `RWMutex` under `-race`. ~30 min. ✅ done — Session 5
+4. `[T]` **Add `Benchmark*` for registry hot paths** (`Run`, `All`, `Register`). ~30 min. ✅ done — Session 5
+5. `[T]` **Restore the positive double-wrap assertion** in `TestRegistry_Run_NoDoubleWrap`. ~15 min. ✅ done — Session 5
+6. `[T]` **Resolve the `testpackage` decision** — white-box + documented, or move to `package linter_test`. ~30 min. ✅ done — moved to `package linter_test` (black-box)
+7. `[T]` **Fresh-clone BuildFlow verification** — `git clone` to `/tmp`, `nix develop --command buildflow`, confirm 35/36. ~20 min. ✅ done — Session 5 (35/36)
+8. **Resolve the FEATURES↔ROADMAP PLANNED split-brain** — pick one home for not-yet-built capabilities. ~10 min. ✅ done — one-home rule established
 
 ### Medium impact
 
-9. `[T]` **Add a GitHub Actions CI workflow** (`nix flake check`, `nix run .#test-race`, `buildflow`). ~1 h.
-10. `[T]` **Right-size `.golangci.yml`** from first principles — drop cargo-culted `mnd`/`varnamelen`/`gosec` settings. ~1 h.
-11. `[T]` **Verify formatter agreement** — diff `nix fmt` vs `golangci-lint --fix`. ~20 min.
-12. `[T]` **Cross-check sibling repos** (`go-structure-linter`, `branching-flow`, `hierarchical-errors`) for the missing-`self` flake bug. ~20 min.
-13. `[R]` **Write `docs/DOMAIN_LANGUAGE.md`** for the six named concepts. ~30 min.
-14. `[R]` **Decide `registry.go`/`errors.go` root placement** (ROADMAP Q2) — move to `internal/`, suppress with a documented exception, or restructure the import path. Unblocks BuildFlow issue-count zero.
-15. `[T]` **Replace the wholesale `ireturn` test exclusion** with targeted `//nolint` on `makeRule`/`failingRule`. ~10 min.
+9. `[T]` **Add a GitHub Actions CI workflow** (`nix flake check`, `nix run .#test-race`, `buildflow`). ~1 h. ✅ done — Session 5
+10. `[T]` **Right-size `.golangci.yml`** from first principles — drop cargo-culted `mnd`/`varnamelen`/`gosec` settings. ~1 h. ✅ done — Session 5
+11. `[T]` **Verify formatter agreement** — diff `nix fmt` vs `golangci-lint --fix`. ~20 min. ✅ done — Session 5
+12. `[T]` **Cross-check sibling repos** (`go-structure-linter`, `branching-flow`, `hierarchical-errors`) for the missing-`self` flake bug. ~20 min. ✅ done — Session 5
+13. `[R]` **Write `docs/DOMAIN_LANGUAGE.md`** for the six named concepts. ~30 min. ✅ done
+14. `[R]` **Decide `registry.go`/`errors.go` root placement** (ROADMAP Q2) — move to `internal/`, suppress with a documented exception, or restructure the import path. Unblocks BuildFlow issue-count zero. ⏳ open — ROADMAP Q2
+15. `[T]` **Replace the wholesale `ireturn` test exclusion** with targeted `//nolint` on `makeRule`/`failingRule`. ~10 min. ✅ done — killed ireturn at source
 
 ### Lower impact / ecosystem parity
 
 16. `[R]` Pilot-port one rule from `go-structure-linter` to prove the SDK pattern end-to-end.
 17. `[R]` Add a `cmd/` CLI binary (the README promises a 5-line linter; none exists).
-18. `[R]` Add `Registry.RunParallel`, a `Filter` type, severity-tiered exit codes, registry helpers (`Has`/`Get`/`Deregister`), `RuleMeta.Validate`.
+18. `[R]` Add `Registry.RunParallel`, a `Filter` type, severity-tiered exit codes, registry helpers (`Has`/`Get`/`Deregister`), `RuleMeta.Validate`. ✅ done — `FilterRules`, `ExitCodeByConfidence`, `Has`/`Get`/`Deregister`, `Validate` all shipped; `RunParallel` superseded by `DetectorsFromRegistry`
 19. `[R]` Add flake `checks` derivations for `go test` / `go vet` / `golangci-lint`.
 20. `[R]` Add `self`-based flake versioning — only if a binary emerges (ROADMAP Q3).
 21. `[R]` Add `.github/workflows/`, `direnv`, `pre-commit-hooks.nix`, Renovate/Depabot.
 22. `[R]` Add `examples/` with a minimal consumer linter built on the SDK.
 23. `[R]` Add package-level `Example*` functions visible on pkg.go.dev.
-24. `[R]` Push for a tagged `go-finding` release so the `replace` directive can drop (ROADMAP Q1).
-25. `[R]` Fuzz `NewRuleError` with a nil cause; test `errors.Is` against `context.Canceled`/`DeadlineExceeded`.
-26. `[R]` Decide `Registry.Run` failure policy (fail-fast today vs. partial results) — document or make configurable.
+24. `[R]` Push for a tagged `go-finding` release so the `replace` directive can drop (ROADMAP Q1). ✅ done — v1.4.1 published, replace removed
+25. `[R]` Fuzz `NewRuleError` with a nil cause; test `errors.Is` against `context.Canceled`/`DeadlineExceeded`. ✅ done
+26. `[R]` Decide `Registry.Run` failure policy (fail-fast today vs. partial results) — document or make configurable. ✅ done — `ContinueOnError()` shipped
 27. `[R]` Evaluate whether `Registry.Register`'s panic-on-duplicate is right for a library.
-28. `[R]` Add a `go.work` to formalize the sibling-checkout requirement.
-29. `[R]` Diagram the `DetectorFromRegistry → finding.Detector → BuildFlow DAG` adaptation.
-30. `[R]` Audit the README's claimed API surface against actual exported symbols (drift check).
+28. `[R]` Add a `go.work` to formalize the sibling-checkout requirement. ✅ done — created 2026-08-08 (gitignored)
+29. `[R]` Diagram the `DetectorFromRegistry → finding.Detector → BuildFlow DAG` adaptation. ✅ done — data-flow diagram in README
+30. `[R]` Audit the README's claimed API surface against actual exported symbols (drift check). ✅ done — complete API table in README
 
 ---
 

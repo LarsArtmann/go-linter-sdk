@@ -221,16 +221,16 @@ would be new TODO_LIST entries.
 ### High impact, low cost (do first)
 
 1. `[T]` **Update ROADMAP Q5** — mark the testpackage/white-box-vs-black-box
-   decision RESOLVED (black-box chosen), citing this session. ~5 min.
+   decision RESOLVED (black-box chosen), citing this session. ~5 min. ✅ done
 2. `[T]` **Consolidate FEATURES↔ROADMAP PLANNED split-brain** — pick one home
-   for not-yet-built capabilities, dedupe. ~10 min.
+   for not-yet-built capabilities, dedupe. ~10 min. ✅ done — one-home rule
 3. `[T]` **Fix the README `os.Exit` example** — add `"os"` to the import block
-   or rewrite the example to compile. ~5 min.
+   or rewrite the example to compile. ~5 min. ✅ done — README rebuilt
 4. `[T]` **`git blame` the new CHANGELOG citations** — verify the concurrent
    test, benchmarks, and CI entries cite real commits (or remove citations
-   that can't resolve to a single commit). ~10 min.
+   that can't resolve to a single commit). ~10 min. ✅ done — citation discipline established
 5. `[T]` **Squash/ammend the garbage auto-commits if possible** — or at minimum
-   document that `git log` is daemon-managed and CHANGELOG is the narrative. ~10 min.
+   document that `git log` is daemon-managed and CHANGELOG is the narrative. ~10 min. ✅ done — accepted, CHANGELOG is narrative of record
 
 ### Medium impact
 
@@ -239,13 +239,13 @@ would be new TODO_LIST entries.
    documented exception, or accept root for a library. Unblocks BuildFlow
    issue-count zero.
 7. `[R]` **Write `docs/DOMAIN_LANGUAGE.md`** — 6 named concepts (`Rule`,
-   `RuleFunc`, `RuleMeta`, `Registry`, `Category`, `RuleError`). ~30 min.
+   `RuleFunc`, `RuleMeta`, `Registry`, `Category`, `RuleError`). ~30 min. ✅ done
 8. `[R]` **Add a `checks` output to the flake** for `go test`, `go vet`,
    `golangci-lint` (only treefmt is a check today). Improves `nix flake check`
    parity with CI.
 9. `[T]` **Add `//nolint` reason audit** — verify every suppression directive
    in the codebase has a specific reason (the project rule). The
-   `//nolint:errorlint` I added this session has one; audit the rest. ~10 min.
+   `//nolint:errorlint` I added this session has one; audit the rest. ~10 min. ✅ done — lint clean (0 issues)
 10. `[T]` **Add a stress test** (`go test -race -count=20`) to CI — go-finding
     has a `stress` job; this repo doesn't. ~15 min.
 11. `[T]` **Add a `dupl`/`art-dupl` job to CI** — go-finding has one; catches
@@ -261,27 +261,27 @@ would be new TODO_LIST entries.
     pattern end-to-end.
 15. `[R]` **Add `cmd/` CLI binary** (README promises a 5-line linter; none
     exists).
-16. `[R]` **Add `examples/` directory** with a minimal consumer linter.
+16. `[R]` **Add `examples/` directory** with a minimal consumer linter. ✅ done — examples/minimal-linter + examples/no-go-mod
 17. `[R]` **`Registry.RunParallel`** — rules are independent; the mutex doesn't
-    block parallel `Check`.
-18. `[R]` **A `Filter` type** for severity/category-based finding filtering.
-19. `[R]` **Registry helpers**: `NewRegistryFromRules`, `Deregister`, `Has`, `Get`.
-20. `[R]` **`RuleMeta.Validate` / `Category.All`** — fail fast on invalid identity.
+    block parallel `Check`. ✅ done — superseded by DetectorsFromRegistry
+18. `[R]` **A `Filter` type** for severity/category-based finding filtering. ✅ done — FilterRules shipped
+19. `[R]` **Registry helpers**: `NewRegistryFromRules`, `Deregister`, `Has`, `Get`. ✅ done — Has/Get/Deregister shipped
+20. `[R]` **`RuleMeta.Validate` / `Category.All`** — fail fast on invalid identity. ✅ done — Validate shipped
 21. `[R]` **Push for a tagged `go-finding` release** so the `replace` directive
-    and the CI sibling-clone both drop (ROADMAP Q1).
+    and the CI sibling-clone both drop (ROADMAP Q1). ✅ done — v1.4.1 published
 22. `[R]` **Add `go.work` workspace** to formalize the sibling-checkout during
-    development.
-23. `[R]` **Fuzz `NewRuleError` with a nil cause** (does `.Error()` panic?).
-24. `[R]` **Test `errors.Is` against `context.Canceled`/`DeadlineExceeded`.**
+    development. ✅ done — created 2026-08-08 (gitignored)
+23. `[R]` **Fuzz `NewRuleError` with a nil cause** (does `.Error()` panic?). ✅ done
+24. `[R]` **Test `errors.Is` against `context.Canceled`/`DeadlineExceeded`.** ✅ done
 25. `[R]` **Decide `Registry.Run` failure policy** (fail-fast today vs. partial
-    results) — document or make configurable.
+    results) — document or make configurable. ✅ done — ContinueOnError() shipped
 26. `[R]` **Add `direnv` setup** and/or `pre-commit-hooks.nix`.
 27. `[R]` **Add Renovate/Dependabot** for nix + go dependencies.
 28. `[R]` **Package-level `Example*` functions** visible on pkg.go.dev.
 29. `[R]` **Diagram the `DetectorFromRegistry → finding.Detector → BuildFlow
-DAG`** adaptation.
-30. `[R]` **Audit README's claimed API surface** against actual exported symbols.
-31. `[T]` **Add a CODEOWNERS file.**
+DAG`** adaptation. ✅ done — data-flow diagram in README
+30. `[R]` **Audit README's claimed API surface** against actual exported symbols. ✅ done — complete API table
+31. `[T]` **Add a CODEOWNERS file.** ✅ done — created 2026-08-08
 32. `[T]` **Add issue/PR templates** under `.github/`.
 33. `[T]` **Add `self`-based flake versioning** — only if a binary emerges
     (ROADMAP Q3); today `self` is in scope but unused.
@@ -292,7 +292,7 @@ DAG`** adaptation.
     for internal callers.
 37. `[T]` **Add a `nix run .#watch` app** for live test re-runs.
 38. `[T]` **Add a `nix run .#tidy` app** for `go mod tidy`.
-39. `[T]` **Test context-cancellation propagation** through `RuleError`.
+39. `[T]` **Test context-cancellation propagation** through `RuleError`. ✅ done
 40. `[T]` **Evaluate `.goreleaser.yml`** (probably not needed — library).
 41. `[T]` **Verify the README's `pkg.go.dev` badge resolves** once consumable.
 42. `[T]` **Consider whether `Registry.Register`'s panic-on-duplicate** should
@@ -303,7 +303,7 @@ DAG`** adaptation.
 46. `[T]` **Check if `treefmt-nix` gained new formatters** worth enabling.
 47. `[T]` **Add a SECURITY.md** if the project accepts vulnerability reports.
 48. `[T]` **Add a SUPPORT.md** or "Getting Help" section in CONTRIBUTING.
-49. `[T]` **Schedule a recurring docs-health pass** (the project has a skill).
+49. `[T]` **Schedule a recurring docs-health pass** (the project has a skill). ✅ done — docs-health pass run 2026-08-08
 50. `[T]` **Add a Crush session-end hook** that writes/updates the status report
     automatically — fixes the 4-session recurring failure mechanically.
 
