@@ -65,64 +65,83 @@ fix because they were outside the immediate README task:
 
 ### Doc drift (ROADMAP.md is severely stale)
 
-1. **ROADMAP Theme 1** lists "Registry helpers: `NewRegistryFromRules`,
+1. ~~**ROADMAP Theme 1** lists "Registry helpers: `NewRegistryFromRules`,
    `Deregister`, `Has`, `Get`" as raw ideas. Reality: `Get`, `Has`,
    `Deregister` are **all implemented** (`registry.go:63-106`), confirmed in
-   CHANGELOG `[Unreleased]`. Only `NewRegistryFromRules` remains unbuilt.
+   CHANGELOG `[Unreleased]`. Only `NewRegistryFromRules` remains unbuilt.~~
+   done — ROADMAP rewritten; done items removed, `NewRegistryFromRules` kept
+   as a raw idea (docs-health pass, 2026-08-08)
 
-2. **ROADMAP Theme 1** says `RuleMeta.Validate` is "partially done: empty-ID
+2. ~~**ROADMAP Theme 1** says `RuleMeta.Validate` is "partially done: empty-ID
    panics at registration. Full `Validate` (category non-empty, description
    non-empty) is still a raw idea." Reality: `validateRuleIdentity`
    (`rule.go:158-176`) checks **all four** fields (ID, Name, Description,
    Category). `RuleMeta.Validate()` (`rule.go:134-152`) also checks all four.
-   This is **fully done**.
+   This is **fully done**.~~
+   done — ROADMAP rewritten; `RuleMeta.Validate` done items removed
+   (docs-health pass, 2026-08-08)
 
-3. **ROADMAP Theme 2** says "A `cmd/` directory with a CLI binary wrapping the
+3. ~~**ROADMAP Theme 2** says "A `cmd/` directory with a CLI binary wrapping the
    registry (the README promises a 5-line linter; no `cmd/` exists yet)."
    Reality: `examples/minimal-linter/` exists and is a complete runnable CLI.
    Referenced in CHANGELOG. The README no longer promises "5 lines" but the
-   ROADMAP item is stale.
+   ROADMAP item is stale.~~
+   done — ROADMAP Theme 2 rewritten; stale "5-line" reference removed,
+   `cmd/` kept as a production-CLI raw idea (docs-health pass, 2026-08-08)
 
-4. **ROADMAP Theme 2** says "An `examples/` directory with a minimal consumer
+4. ~~**ROADMAP Theme 2** says "An `examples/` directory with a minimal consumer
    linter" as a raw idea. Reality: **two** examples exist
-   (`examples/minimal-linter/`, `examples/no-go-mod/`).
+   (`examples/minimal-linter/`, `examples/no-go-mod/`).~~
+   done — ROADMAP rewritten; examples items removed (docs-health pass, 2026-08-08)
 
-5. **ROADMAP Theme 3** says "The package is not yet consumable externally:
+5. ~~**ROADMAP Theme 3** says "The package is not yet consumable externally:
    `go.mod` uses a pseudo-version + local `replace` directive pointing at a
    sibling `go-finding` checkout." Reality: `go.mod` shows
    `require github.com/larsartmann/go-finding v1.4.1` — a **real published tag**,
    **no replace directive**. The package IS externally resolvable (modulo
-   private-repo auth). This entire theme is outdated.
+   private-repo auth). This entire theme is outdated.~~
+   done — ROADMAP Theme 3 rewritten entirely; false premise corrected
+   (docs-health pass, 2026-08-08)
 
-6. **ROADMAP Theme 6** says "Decide `Registry.Run` failure policy: fail-fast
+6. ~~**ROADMAP Theme 6** says "Decide `Registry.Run` failure policy: fail-fast
    (today) vs. continue and return partial results — make it explicit or
    configurable." Reality: `ContinueOnError()` option exists (`registry.go:134`),
-   documented, tested, in CHANGELOG. **Decided and shipped.**
+   documented, tested, in CHANGELOG. **Decided and shipped.**~~
+   done — ROADMAP rewritten; failure-policy item removed (docs-health pass,
+   2026-08-08)
 
-7. **ROADMAP Q1 (Open)** asks "Is `go-finding v1.2.0` a real published tag…"
+7. ~~**ROADMAP Q1 (Open)** asks "Is `go-finding v1.2.0` a real published tag…"
    Reality: `go-finding v1.4.1` is a real published tag (per `go.mod` and
-   AGENTS.md). **Resolved.** Should move to "Resolved questions."
+   AGENTS.md). **Resolved.** Should move to "Resolved questions."~~
+   done — Q1 moved to Resolved questions; confirmed v1.4.1 is real
+   (docs-health pass, 2026-08-08)
 
-8. **ROADMAP Theme 5** says "Package-level examples (`ExampleRegistry_Run`,
+8. ~~**ROADMAP Theme 5** says "Package-level examples (`ExampleRegistry_Run`,
    `ExampleRuleFunc`) visible on pkg.go.dev" as a raw idea. Reality: four
    testable examples exist in `example_test.go`
    (`ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn`,
-   `ExampleRegistry_Run_continueOnError`). **Done.**
+   `ExampleRegistry_Run_continueOnError`). **Done.**~~
+   done — ROADMAP Theme 5 (Documentation depth) removed entirely; all items
+   were done (docs-health pass, 2026-08-08)
 
 ### Doc drift (DOMAIN_LANGUAGE.md)
 
-9. **DOMAIN_LANGUAGE.md RuleMeta section** says: "Validation: empty ID panics at
+9. ~~**DOMAIN_LANGUAGE.md RuleMeta section** says: "Validation: empty ID panics at
    registration. Other metadata (invalid category, empty description) is not yet
    validated. Tracked in ROADMAP.md Theme 1." Reality: **all four identity
    fields** are validated at registration via `validateRuleIdentity`
-   (`rule.go:158`). The domain language doc is **factually wrong**.
+   (`rule.go:158`). The domain language doc is **factually wrong**.~~
+   done — DOMAIN_LANGUAGE.md corrected; RuleMeta validation now accurately
+   describes all four identity fields (docs-health pass, 2026-08-08)
 
 ### Doc drift (FEATURES.md)
 
-10. **FEATURES.md** README row description: "Sales page: why, install, usage, API
+10. ~~**FEATURES.md** README row description: "Sales page: why, install, usage, API
     table, migration path." Doesn't mention the new sections (Confidence/
     FixStrategy tables, mermaid execution-path diagram, examples pointer,
-    private-dependency note). Minor but stale.
+    private-dependency note). Minor but stale.~~
+    done — FEATURES.md README row updated with all new sections; CI row also
+    fixed (docs-health pass, 2026-08-08)
 
 ### Verification gap
 
@@ -130,29 +149,38 @@ fix because they were outside the immediate README task:
     `go test` only. The project has 14 LSP warnings (pre-existing: `wsl_v5`,
     `err113`, `nlreturn`, `exhaustruct`, `bloop`). I don't know if the lint app
     passes or fails. Per AGENTS.md, `nix run .#lint` is the canonical check.
+    Still open — TODO_LIST does not track this; the 14 warnings may have been
+    fixed in later sessions (current diagnostics show only 2 `bloop` hints).
 
-12. **CHANGELOG.md** `[Unreleased]` section does not mention the README
-    improvements made this session.
+12. ~~**CHANGELOG.md** `[Unreleased]` section does not mention the README
+    improvements made this session.~~
+    done — CHANGELOG.md `[Unreleased]` restructured; README improvements now
+    documented under Added and Documentation (docs-health pass, 2026-08-08)
 
 ---
 
 ## d) TOTALLY FUCKED UP
 
-1. **ROADMAP.md is the most stale file in the repo.** At least **8 items** listed
+1. ~~**ROADMAP.md is the most stale file in the repo.** At least **8 items** listed
    as "raw ideas," "open questions," or "not yet implemented" are **already done
    in code** and logged in CHANGELOG. This is exactly the "doc drift split-brain"
    the AGENTS.md warns about. The ROADMAP has not been reconciled with the
    CHANGELOG or the code since at least session 7 (when Get/Has/Deregister/
-   ContinueOnError/Validate/examples all shipped).
+   ContinueOnError/Validate/examples all shipped).~~
+   done — ROADMAP.md fully rewritten; all stale items removed, false claims
+   corrected, Q1 resolved (docs-health pass, 2026-08-08)
 
-2. **DOMAIN_LANGUAGE.md contains a factual lie** about validation completeness.
+2. ~~**DOMAIN_LANGUAGE.md contains a factual lie** about validation completeness.
    A fresh reader relying on this glossary would believe they need to add
-   validation that already exists.
+   validation that already exists.~~
+   done — DOMAIN_LANGUAGE.md corrected; RuleMeta validation now accurately
+   describes all four identity fields (docs-health pass, 2026-08-08)
 
-3. **I didn't catch the doc drift during my README work.** I read ROADMAP and
+3. ~~**I didn't catch the doc drift during my README work.** I read ROADMAP and
    DOMAIN_LANGUAGE early in the session (for context) but did not flag the drift
    until the self-review prompt forced me to re-examine. A truly excellent
-   session would have caught and fixed these alongside the README.
+   session would have caught and fixed these alongside the README.~~
+   done — docs-health pass executed this session (2026-08-08)
 
 ---
 
@@ -203,35 +231,54 @@ Ranked by impact:
 
 ### Doc-drift cleanup (HIGH — these are factual errors)
 
-1. Update ROADMAP Theme 1: mark `Get`/`Has`/`Deregister` as done; remove from
-   raw ideas
-2. Update ROADMAP Theme 1: mark `RuleMeta.Validate` (full) as done
-3. Update ROADMAP Theme 2: mark `examples/` directory as done (two examples
-   exist)
-4. Update ROADMAP Theme 2: mark `cmd/` CLI as done (minimal-linter exists) or
-   clarify it means a production `cmd/` binary
-5. Update ROADMAP Theme 3: remove "pseudo-version + replace directive" claim;
-   mark go-finding v1.4.1 as a real published tag
-6. Update ROADMAP Theme 6: mark "Registry.Run failure policy" as decided and
-   shipped (`ContinueOnError`)
-7. Move ROADMAP Q1 from "Open" to "Resolved" (go-finding v1.4.1 is real)
-8. Update ROADMAP Theme 5: mark package-level examples as done (4 exist)
-9. Fix DOMAIN_LANGUAGE.md: validation now checks all 4 fields, not just ID
-10. Update FEATURES.md README row to mention new sections
-11. Add CHANGELOG `[Unreleased]` entry for README improvements
-12. Run full `docs-health` skill pass to catch any remaining drift
+> Items 1–12 all resolved in the docs-health pass (2026-08-08). See section c)
+> above for the inline `done` markers on each. ROADMAP.md was fully rewritten,
+> DOMAIN_LANGUAGE.md and FEATURES.md corrected, CHANGELOG `[Unreleased]`
+> restructured, and TODO_LIST.md rebuilt with harvested items.
+
+1. ~~Update ROADMAP Theme 1: mark `Get`/`Has`/`Deregister` as done; remove from
+   raw ideas~~ done (docs-health pass, 2026-08-08)
+2. ~~Update ROADMAP Theme 1: mark `RuleMeta.Validate` (full) as done~~
+   done (docs-health pass, 2026-08-08)
+3. ~~Update ROADMAP Theme 2: mark `examples/` directory as done (two examples
+   exist)~~ done (docs-health pass, 2026-08-08)
+4. ~~Update ROADMAP Theme 2: mark `cmd/` CLI as done (minimal-linter exists) or
+   clarify it means a production `cmd/` binary~~ done (docs-health pass, 2026-08-08)
+5. ~~Update ROADMAP Theme 3: remove "pseudo-version + replace directive" claim;
+   mark go-finding v1.4.1 as a real published tag~~
+   done (docs-health pass, 2026-08-08)
+6. ~~Update ROADMAP Theme 6: mark "Registry.Run failure policy" as decided and
+   shipped (`ContinueOnError`)~~ done (docs-health pass, 2026-08-08)
+7. ~~Move ROADMAP Q1 from "Open" to "Resolved" (go-finding v1.4.1 is real)~~
+   done (docs-health pass, 2026-08-08)
+8. ~~Update ROADMAP Theme 5: mark package-level examples as done (4 exist)~~
+   done (docs-health pass, 2026-08-08)
+9. ~~Fix DOMAIN_LANGUAGE.md: validation now checks all 4 fields, not just ID~~
+   done (docs-health pass, 2026-08-08)
+10. ~~Update FEATURES.md README row to mention new sections~~
+    done (docs-health pass, 2026-08-08)
+11. ~~Add CHANGELOG `[Unreleased]` entry for README improvements~~
+    done (docs-health pass, 2026-08-08)
+12. ~~Run full `docs-health` skill pass to catch any remaining drift~~
+    done (docs-health pass, 2026-08-08)
 
 ### README polish (MEDIUM)
 
-13. Add "Status" callout near the top (zero consumers, early stage)
-14. Mention `examples/no-go-mod/` (the pilot port) in the README
-15. Add a data-flow diagram (Rule → finding.Finding → Report → ExitCode)
-16. Clarify whether the SDK is internal-only or aims for external adoption
-17. Mark the migration path as "untested in production" or remove step 5
-18. Audit the full README end-to-end for consistency after concurrent edits
+13. Add "Status" callout near the top (zero consumers, early stage) — still open
+14. ~~Mention `examples/no-go-mod/` (the pilot port) in the README~~
+    done — already mentioned in README Consumers section (`ab42b88`)
+15. Add a data-flow diagram (Rule -> finding.Finding -> Report -> ExitCode) —
+    still open (ROADMAP material)
+16. Clarify whether the SDK is internal-only or aims for external adoption —
+    still open (ROADMAP Q2/Q3)
+17. ~~Mark the migration path as "untested in production" or remove step 5~~
+    done — README Status section now says "no production linter has fully
+    migrated yet" (`ab42b88`)
+18. Audit the full README end-to-end for consistency after concurrent edits —
+    still open
 19. Verify every README API claim against actual exported symbols (automated
-    check)
-20. Add a "Quick Start" section for readers who want to skim
+    check) — still open
+20. Add a "Quick Start" section for readers who want to skim — still open
 
 ### Verification & quality (MEDIUM)
 
@@ -332,3 +379,29 @@ now, or wait?
 **Score: 6/10.** The README work was solid but I was blind to the surrounding
 doc rot until prompted. A truly excellent engineer would have noticed the ROADMAP
 drift when they first read it for context — not after a self-review prompt.
+
+---
+
+## Resolution (2026-08-08)
+
+Full docs-health pass executed. All 12 doc-drift findings in section c) and
+section f) items 1-12 resolved:
+
+- **ROADMAP.md** — completely rewritten: removed all stale items, fixed the
+  false "pseudo-version + replace directive" Publication theme, resolved Q1
+  (go-finding v1.4.1 confirmed real), updated non-goals.
+- **DOMAIN_LANGUAGE.md** — RuleMeta validation corrected: now accurately
+  describes all four identity fields (ID, Name, Description, Category).
+- **FEATURES.md** — README row updated with all new sections; CI row corrected
+  (VCS auth, not sibling-clone).
+- **CHANGELOG.md** — `[Unreleased]` restructured: consolidated duplicate
+  Added/Changed sections into clean, deduplicated sets.
+- **TODO_LIST.md** — rebuilt with 5 actionable items harvested from this report
+  and the companion TODO-execution report.
+
+Section f) items 13-20 (README polish): item 14 done (already in README),
+item 17 done (README Status section); items 13, 15, 16, 18-20 remain open.
+Items 21-28 (verification): item 11 still open (lint not run in that session;
+current diagnostics show only 2 `bloop` hints). Items 29-50 (consumer adoption,
+API surface, infrastructure): all routed to ROADMAP.md as raw ideas.
+Section g) Q1 resolved; Q2/Q3 remain open in ROADMAP.

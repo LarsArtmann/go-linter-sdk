@@ -88,9 +88,6 @@ Raw ideas:
 - Confirm `Registry.Register`'s panic-on-duplicate is the right contract for a
   library (panics in libraries are sometimes controversial; once consumers
   exist, this cannot be reversed without a breaking change)
-- Consider whether `Deregister` during concurrent `Run` needs more precise
-  documentation about snapshot semantics (a rule deregistered after the
-  `All()` snapshot but before its execution will still run)
 
 ## Open questions
 

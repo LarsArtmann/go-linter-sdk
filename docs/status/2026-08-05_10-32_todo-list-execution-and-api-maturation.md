@@ -91,19 +91,19 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 
 ### Code quality observations
 
-1. **`Get` and `Has` are O(n) linear scans.** The registry stores `[]Rule`, not `map[string]Rule`. For the current scale (~20-50 rules per linter) this is fine, but `Get`/`Has`/`Deregister` all do independent linear scans. If a consumer registers 500 rules and calls `Has` in a hot loop, this becomes quadratic. A `map[string]int` index alongside the slice would make all three O(1). Not urgent, but worth a ROADMAP note.
+1. ~~**`Get` and `Has` are O(n) linear scans.** The registry stores `[]Rule`, not `map[string]Rule`. For the current scale (~20-50 rules per linter) this is fine, but `Get`/`Has`/`Deregister` all do independent linear scans. If a consumer registers 500 rules and calls `Has` in a hot loop, this becomes quadratic. A `map[string]int` index alongside the slice would make all three O(1). Not urgent, but worth a ROADMAP note.~~ routed to ROADMAP Theme 1 (map index idea) — docs-health pass, 2026-08-08
 
-2. **`Deregister` during `Run` has a subtle semantics gap.** `Run` calls `All()` which snapshots the slice, so a concurrent `Deregister` won't crash. But the doc comment claims "Safe to call concurrently with Run" without documenting that a rule deregistered after the snapshot but before its execution will still run. This is the right behavior (the snapshot is intentional), but the doc could be more precise.
+2. **`Deregister` during `Run` has a subtle semantics gap.** `Run` calls `All()` which snapshots the slice, so a concurrent `Deregister` won't crash. But the doc comment claims "Safe to call concurrently with Run" without documenting that a rule deregistered after the snapshot but before its execution will still run. This is the right behavior (the snapshot is intentional), but the doc could be more precise. — routed to TODO_LIST #4 (test + document snapshot semantics) — docs-health pass, 2026-08-08
 
-3. **`ContinueOnError` joins errors but callers can't easily enumerate them.** `errors.Join` produces an error that `errors.Is` can search, but extracting individual `*RuleError` values from the join requires `errors.As` with `[]error` — which is awkward. A `RuleErrors()` helper that returns `[]*RuleError` from a joined error would improve ergonomics.
+3. **`ContinueOnError` joins errors but callers can't easily enumerate them.** `errors.Join` produces an error that `errors.Is` can search, but extracting individual `*RuleError` values from the join requires `errors.As` with `[]error` — which is awkward. A `RuleErrors()` helper that returns `[]*RuleError` from a joined error would improve ergonomics. — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08
 
-4. **`validateRuleIdentity` duplicates the logic of `RuleMeta.Validate`.** Both check the same four fields through different paths (struct fields vs interface methods). A refactor where `RuleFunc.Validate()` delegates to `RuleMeta.Validate()` would eliminate the duplication, though the interface-level check is needed for custom `Rule` implementations.
+4. **`validateRuleIdentity` duplicates the logic of `RuleMeta.Validate`.** Both check the same four fields through different paths (struct fields vs interface methods). A refactor where `RuleFunc.Validate()` delegates to `RuleMeta.Validate()` would eliminate the duplication, though the interface-level check is needed for custom `Rule` implementations. — routed to TODO_LIST #5 — docs-health pass, 2026-08-08
 
-5. **`errMissingFields` is unexported with no `errors.Is` support on `RuleError`.** Callers who want to distinguish "validation failure" from "runtime failure" have no exported sentinel. If this matters to consumers, `errMissingFields` should be exported as `ErrMissingFields`.
+5. **`errMissingFields` is unexported with no `errors.Is` support on `RuleError`.** Callers who want to distinguish "validation failure" from "runtime failure" have no exported sentinel. If this matters to consumers, `errMissingFields` should be exported as `ErrMissingFields`. — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08
 
-6. **The `examples/` binaries have no tests.** They compile and run manually, but there's no integration test that verifies the example binaries produce the expected output. A `TestExamples` that builds and runs them would prevent rot.
+6. **The `examples/` binaries have no tests.** They compile and run manually, but there's no integration test that verifies the example binaries produce the expected output. A `TestExamples` that builds and runs them would prevent rot. — routed to TODO_LIST #1 — docs-health pass, 2026-08-08
 
-7. **The mermaid diagram in README won't render on pkg.go.dev.** pkg.go.dev strips most HTML/mermaid. The diagram is useful on GitHub but invisible on the package documentation site. A text-based fallback or an ASCII diagram would serve both audiences.
+7. **The mermaid diagram in README won't render on pkg.go.dev.** pkg.go.dev strips most HTML/mermaid. The diagram is useful on GitHub but invisible on the package documentation site. A text-based fallback or an ASCII diagram would serve both audiences. — routed to ROADMAP — docs-health pass, 2026-08-08
 
 ### Process observations
 
@@ -116,6 +116,11 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 ---
 
 ## f) Up to 50 things to do next
+
+> Resolution (docs-health pass, 2026-08-08): Items were verified against the
+> codebase and routed. Bounded, actionable items went to TODO_LIST.md (5 items).
+> Vague / long-term items went to ROADMAP.md. Items already done were dropped.
+> See the resolution table in the appendix at the bottom of this file.
 
 ### Registry API (from ROADMAP raw ideas)
 
@@ -200,3 +205,31 @@ Currently `examples/minimal-linter` and `examples/no-go-mod` are part of the mai
 
 **Q3: Is the `examples/no-go-mod` pilot port sufficient to prove the converter-deletion claim, or do you want a full linter migration before calling the SDK "production-ready"?**
 The ROADMAP says "The value proposition is unproven until a real linter migrates." A single ported rule proves the mechanics but not the scale (1,871 LOC of branching-flow converters is a different proof). The answer determines whether the next priority is more pilot ports or a full migration.
+
+---
+
+## Resolution (2026-08-08)
+
+Docs-health pass executed. All 10 TODO items from the original backlog remain
+done (no regressions). Section f) items routed as follows:
+
+| Section f) items | Route | Notes |
+| --- | --- | --- |
+| 1-10 (Registry API) | ROADMAP Theme 1 | Raw ideas for API ergonomics |
+| 11-12 (Integration tests for examples) | TODO_LIST #1 | Highest-impact bounded task |
+| 13 (Fuzz NewRuleError) | TODO_LIST #2 | Quick edge-case robustness |
+| 14-15 (errors.Is propagation) | TODO_LIST #3 | Contract verification |
+| 16 (Deregister during concurrent Run) | TODO_LIST #4 | Snapshot semantics test |
+| 17-20 (benchmarks, property tests) | ROADMAP | Long-term quality hardening |
+| 21-24 (pipeline integration) | ROADMAP | Requires go-finding/pipeline |
+| 25-30 (consumer adoption) | ROADMAP Theme 2 | The core value proposition |
+| 31 (mermaid ASCII fallback) | ROADMAP | pkg.go.dev rendering |
+| 32 (DOMAIN_LANGUAGE update) | done | Fixed in docs-health pass |
+| 33-36 (docs) | ROADMAP / done | Mixed |
+| 37-41 (tooling & CI) | ROADMAP Theme 4 | Nix ecosystem parity |
+| 42 (validateRuleIdentity refactor) | TODO_LIST #5 | Eliminate duplication |
+| 43-50 (code quality) | ROADMAP / open Q | Design questions |
+
+Section e) code quality observations: items 1, 3, 5 routed to ROADMAP; items 2,
+4, 6 routed to TODO_LIST; item 7 routed to ROADMAP.
+Section g) questions remain open — they are design decisions for the maintainer.
