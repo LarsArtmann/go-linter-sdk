@@ -140,29 +140,7 @@ var errMissingFields = errors.New("linter: rule has missing required field(s)")
 //	meta := linter.RuleMeta{ID: "x", Name: "X", ...}
 //	if err := meta.Validate(); err != nil { log.Fatal(err) }
 func (m RuleMeta) Validate() error {
-	var missing []string
-
-	if m.ID == "" {
-		missing = append(missing, "ID")
-	}
-
-	if m.Name == "" {
-		missing = append(missing, "Name")
-	}
-
-	if m.Description == "" {
-		missing = append(missing, "Description")
-	}
-
-	if m.Cat == "" {
-		missing = append(missing, "Cat")
-	}
-
-	if len(missing) > 0 {
-		return fmt.Errorf("%w: %s", errMissingFields, strings.Join(missing, ", "))
-	}
-
-	return nil
+	return validateIdentityFields(m.ID, m.Name, m.Description, m.Cat)
 }
 
 // validateRuleIdentity checks a Rule through its interface methods and returns
@@ -170,21 +148,27 @@ func (m RuleMeta) Validate() error {
 // to surface misconfigured rules at startup. Works for any Rule implementation,
 // not just RuleFunc.
 func validateRuleIdentity(r Rule) error {
+	return validateIdentityFields(r.ID(), r.Name(), r.Description(), r.Category())
+}
+
+// validateIdentityFields is the shared validation core for RuleMeta.Validate
+// and validateRuleIdentity. Returns an error listing every empty field by name.
+func validateIdentityFields(id, name, description string, cat Category) error {
 	var missing []string
 
-	if r.ID() == "" {
+	if id == "" {
 		missing = append(missing, "ID")
 	}
 
-	if r.Name() == "" {
+	if name == "" {
 		missing = append(missing, "Name")
 	}
 
-	if r.Description() == "" {
+	if description == "" {
 		missing = append(missing, "Description")
 	}
 
-	if r.Category() == "" {
+	if cat == "" {
 		missing = append(missing, "Category")
 	}
 
