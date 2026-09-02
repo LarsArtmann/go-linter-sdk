@@ -38,13 +38,13 @@
 
 Harvested 5 bounded, actionable items from the two `2026-08-05` status reports (section f "Up to 50 things"). Each item was verified against the codebase — items already shipped were dropped and logged in CHANGELOG.
 
-| #   | Task                                                  | Impact | Source                   |
-| --- | ----------------------------------------------------- | ------ | ------------------------ |
-| 1   | Integration tests for both example binaries           | High   | report 10-32 §f.11-12    |
-| 2   | Fuzz `NewRuleError` with nil cause                    | Medium | report 10-32 §f.13       |
-| 3   | Test `errors.Is` propagation for context errors       | Medium | report 10-32 §f.14-15    |
-| 4   | Test `Deregister` during concurrent `Run`             | Low    | report 10-32 §e.2, §f.16 |
-| 5   | Refactor `validateRuleIdentity` + `RuleMeta.Validate` | Medium | report 10-32 §e.4, §f.42 |
+| # | Task                                                  | Impact | Source                   |
+| - | ----------------------------------------------------- | ------ | ------------------------ |
+| 1 | Integration tests for both example binaries           | High   | report 10-32 §f.11-12    |
+| 2 | Fuzz `NewRuleError` with nil cause                    | Medium | report 10-32 §f.13       |
+| 3 | Test `errors.Is` propagation for context errors       | Medium | report 10-32 §f.14-15    |
+| 4 | Test `Deregister` during concurrent `Run`             | Low    | report 10-32 §e.2, §f.16 |
+| 5 | Refactor `validateRuleIdentity` + `RuleMeta.Validate` | Medium | report 10-32 §e.4, §f.42 |
 
 ### CHANGELOG.md — restructured
 

@@ -366,5 +366,5 @@ func ExitCodeByConfidence(report *finding.Report, threshold finding.Confidence) 
 		}
 	}
 
-	return 2 //nolint:mnd // exit code convention: 2 = below threshold (triage)
+	return 2
 }

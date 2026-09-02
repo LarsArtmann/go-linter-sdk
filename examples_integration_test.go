@@ -42,8 +42,7 @@ func runExample(t *testing.T, bin, dir string) (string, string, int) {
 
 	exitCode := 0
 
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) {
+	if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 		exitCode = exitErr.ExitCode()
 	} else if err != nil {
 		t.Fatalf("failed to run example binary: %v", err)

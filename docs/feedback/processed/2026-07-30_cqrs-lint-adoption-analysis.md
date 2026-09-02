@@ -399,14 +399,14 @@ Three facts reshape the entire response:
 
 ### Decision Summary
 
-| #   | Proposed Change                                 | Verdict                 | Rationale                                                                                          |
-| --- | ----------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
-| 1   | `CheckContext(ctx, analysis any)`               | **REJECT**              | `any` is a type-safety regression; SDK stays stateless; stateful linters use the pipeline directly |
-| 2   | `DetectorsFromRegistry` (one detector per rule) | **ACCEPT**              | Benefits all pipeline consumers; low-risk; backward compatible; the real high-value change         |
-| 3   | Rule-level `Confidence()` / `AutoFixable()`     | **DOCUMENT, DON'T ADD** | `finding.Finding` already has both at the per-finding level; gap is documentation, not API         |
-| 4   | Custom category taxonomy                        | **ALREADY SOLVED**      | `Category` is already `type Category string`; the constants are recommendations, not enforcement   |
-| 5   | Dual `ID()` + `Name()`                          | **ACCEPT**              | Stable ID + mutable display name is a clean contract; do it now while breaking changes are free    |
-| 6   | Suppression in `Registry.Run`                   | **REJECT**              | Wrong layer; the pipeline already handles suppression via `FindingTransformer` processors          |
+| # | Proposed Change                                 | Verdict                 | Rationale                                                                                          |
+| - | ----------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| 1 | `CheckContext(ctx, analysis any)`               | **REJECT**              | `any` is a type-safety regression; SDK stays stateless; stateful linters use the pipeline directly |
+| 2 | `DetectorsFromRegistry` (one detector per rule) | **ACCEPT**              | Benefits all pipeline consumers; low-risk; backward compatible; the real high-value change         |
+| 3 | Rule-level `Confidence()` / `AutoFixable()`     | **DOCUMENT, DON'T ADD** | `finding.Finding` already has both at the per-finding level; gap is documentation, not API         |
+| 4 | Custom category taxonomy                        | **ALREADY SOLVED**      | `Category` is already `type Category string`; the constants are recommendations, not enforcement   |
+| 5 | Dual `ID()` + `Name()`                          | **ACCEPT**              | Stable ID + mutable display name is a clean contract; do it now while breaking changes are free    |
+| 6 | Suppression in `Registry.Run`                   | **REJECT**              | Wrong layer; the pipeline already handles suppression via `FindingTransformer` processors          |
 
 ---
 

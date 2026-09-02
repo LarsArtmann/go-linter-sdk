@@ -154,7 +154,7 @@ Nothing catastrophic. But two process failures worth calling out:
 47. **Review `flake.nix` license metadata** — confirm MIT is correct.
 48. **Check if `maintainers` list is complete.**
 49. **Verify `platforms = lib.platforms.unix`** is correct (should Go cross-compile to Darwin too?).
-50. **Consider adding ` hydraJobs`** for CI integration if using Hercules CI.
+50. **Consider adding `hydraJobs`** for CI integration if using Hercules CI.
 
 ---
 

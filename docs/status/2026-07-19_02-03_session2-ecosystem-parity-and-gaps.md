@@ -160,7 +160,7 @@ Prioritized roughly by impact × cost.
 46. Consider a `Registry.RunParallel` variant (rules are independent; the mutex on `Register` doesn't block parallel `Check`).
 47. Add a `LICENSE-APACHE`/`LICENSE-MIT` dual-license decision if the ecosystem ever wants MIT/Apache-2.0 (go-finding is MIT-only; probably stay MIT).
 48. Sweep the README for the "consumer plan" section and verify it matches the shipped types.
-49. Add a ` SECURITY.md` if the project ever accepts vulnerability reports.
+49. Add a `SECURITY.md` if the project ever accepts vulnerability reports.
 50. Schedule a recurring docs-health pass (the project has a skill for this; use it).
 
 ---

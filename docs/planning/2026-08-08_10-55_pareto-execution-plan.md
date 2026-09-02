@@ -165,16 +165,16 @@ Every task above is split into subtasks of 12 minutes or less. 138 subtasks tota
 
 ### Tier 1: The 1% that delivers 51% (M1)
 
-| #   | Subtask                                                                      | Effort | Notes                            |
-| --- | ---------------------------------------------------------------------------- | ------ | -------------------------------- |
-| S1  | Read `registry_test.go:480` — confirm `b.N` usage in `BenchmarkRegistry_All` | 2m     | Verify exact code before editing |
-| S2  | Read `registry_test.go:738` — confirm `b.N` usage in `BenchmarkRegistry_Run` | 2m     | Verify exact code before editing |
-| S3  | Fix `b.N` -> `b.Loop()` in `BenchmarkRegistry_All`                           | 2m     | Single line edit                 |
-| S4  | Fix `b.N` -> `b.Loop()` in `BenchmarkRegistry_Run`                           | 2m     | Single line edit                 |
-| S5  | Run `GOEXPERIMENT=jsonv2 go test ./... -count=1` to verify tests still pass  | 5m     |                                  |
-| S6  | Run `nix run .#lint` — verify 0 issues                                       | 10m    | Canonical quality gate           |
-| S7  | Run `nix run .#test-race` — verify race-clean                                | 10m    |                                  |
-| S8  | Run `nix flake check` — validate flake                                       | 10m    |                                  |
+| #  | Subtask                                                                      | Effort | Notes                            |
+| -- | ---------------------------------------------------------------------------- | ------ | -------------------------------- |
+| S1 | Read `registry_test.go:480` — confirm `b.N` usage in `BenchmarkRegistry_All` | 2m     | Verify exact code before editing |
+| S2 | Read `registry_test.go:738` — confirm `b.N` usage in `BenchmarkRegistry_Run` | 2m     | Verify exact code before editing |
+| S3 | Fix `b.N` -> `b.Loop()` in `BenchmarkRegistry_All`                           | 2m     | Single line edit                 |
+| S4 | Fix `b.N` -> `b.Loop()` in `BenchmarkRegistry_Run`                           | 2m     | Single line edit                 |
+| S5 | Run `GOEXPERIMENT=jsonv2 go test ./... -count=1` to verify tests still pass  | 5m     |                                  |
+| S6 | Run `nix run .#lint` — verify 0 issues                                       | 10m    | Canonical quality gate           |
+| S7 | Run `nix run .#test-race` — verify race-clean                                | 10m    |                                  |
+| S8 | Run `nix flake check` — validate flake                                       | 10m    |                                  |
 
 ### Tier 2: The 4% that delivers 64% (M2-M6)
 

@@ -230,83 +230,83 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 ### Critical path (prove the value)
 
-| #   | Task                                                | Impact   | Effort | Notes                                                                                                                        |
-| --- | --------------------------------------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Verify CI can fetch `go-finding` via `GITHUB_TOKEN` | Critical | 30m    | TODO_LIST #1. Default token is scoped to THIS repo. go-finding is a DIFFERENT private repo. May need PAT or machine account. |
-| 2   | Pilot-port a branching-flow rule to examples/       | Critical | 90m    | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow`.                                    |
-| 3   | Pilot-port an erraudit rule to examples/            | High     | 90m    | Same proof for the error-handling domain.                                                                                    |
-| 4   | Full migration of go-structure-linter               | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                                                               |
-| 5   | Write migration guide from actual pilot ports       | High     | 30m    | Replace aspirational README section with real before/after LOC counts.                                                       |
+| # | Task                                                | Impact   | Effort | Notes                                                                                                                        |
+| - | --------------------------------------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Verify CI can fetch `go-finding` via `GITHUB_TOKEN` | Critical | 30m    | TODO_LIST #1. Default token is scoped to THIS repo. go-finding is a DIFFERENT private repo. May need PAT or machine account. |
+| 2 | Pilot-port a branching-flow rule to examples/       | Critical | 90m    | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow`.                                    |
+| 3 | Pilot-port an erraudit rule to examples/            | High     | 90m    | Same proof for the error-handling domain.                                                                                    |
+| 4 | Full migration of go-structure-linter               | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                                                               |
+| 5 | Write migration guide from actual pilot ports       | High     | 30m    | Replace aspirational README section with real before/after LOC counts.                                                       |
 
 ### Quality hardening
 
-| #   | Task                                                                 | Impact | Effort | Notes                                                       |
-| --- | -------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------------------- |
-| 6   | Add inline strikethrough annotations to 5 July reports               | Medium | 45m    | Docs-health skill says appendix-only = #1 failure mode.     |
-| 7   | Add test for deeply nested `RuleErrors` unwrapping                   | Low    | 10m    | `fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", ruleErr))` |
-| 8   | Run `FuzzNewRuleError` with `-fuzztime 60s` and commit corpus        | Low    | 5m     | Explore the input space beyond seeds.                       |
-| 9   | Add coverage gate to CI (fail if < 95%)                              | Medium | 15m    | Prevents silent coverage regression.                        |
-| 10  | Add `go mod tidy` check to CI (`git diff --exit-code go.mod go.sum`) | Medium | 10m    | TODO_LIST #3.                                               |
-| 11  | Wire `nix run .#coverage` into CI as an artifact                     | Low    | 10m    |                                                             |
-| 12  | Add `go.work` for local cross-repo dev                               | High   | 15m    | TODO_LIST #2.                                               |
-| 13  | Add `actionlint` to CI for YAML validation                           | Low    | 10m    |                                                             |
-| 14  | Add `CODEOWNERS` file                                                | Low    | 5m     |                                                             |
-| 15  | Add CI status badge to README                                        | Low    | 5m     | Currently only Go Reference + Go Report Card badges.        |
-| 16  | Add `Renovate` or `Dependabot` config                                | Low    | 15m    |                                                             |
-| 17  | Review `devShells.ci` — confirm it has what CI needs                 | Low    | 10m    |                                                             |
+| #  | Task                                                                 | Impact | Effort | Notes                                                       |
+| -- | -------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------------------- |
+| 6  | Add inline strikethrough annotations to 5 July reports               | Medium | 45m    | Docs-health skill says appendix-only = #1 failure mode.     |
+| 7  | Add test for deeply nested `RuleErrors` unwrapping                   | Low    | 10m    | `fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", ruleErr))` |
+| 8  | Run `FuzzNewRuleError` with `-fuzztime 60s` and commit corpus        | Low    | 5m     | Explore the input space beyond seeds.                       |
+| 9  | Add coverage gate to CI (fail if < 95%)                              | Medium | 15m    | Prevents silent coverage regression.                        |
+| 10 | Add `go mod tidy` check to CI (`git diff --exit-code go.mod go.sum`) | Medium | 10m    | TODO_LIST #3.                                               |
+| 11 | Wire `nix run .#coverage` into CI as an artifact                     | Low    | 10m    |                                                             |
+| 12 | Add `go.work` for local cross-repo dev                               | High   | 15m    | TODO_LIST #2.                                               |
+| 13 | Add `actionlint` to CI for YAML validation                           | Low    | 10m    |                                                             |
+| 14 | Add `CODEOWNERS` file                                                | Low    | 5m     |                                                             |
+| 15 | Add CI status badge to README                                        | Low    | 5m     | Currently only Go Reference + Go Report Card badges.        |
+| 16 | Add `Renovate` or `Dependabot` config                                | Low    | 15m    |                                                             |
+| 17 | Review `devShells.ci` — confirm it has what CI needs                 | Low    | 10m    |                                                             |
 
 ### API surface (only after consumer feedback)
 
-| #   | Task                                                     | Impact | Effort | Notes                                            |
-| --- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
-| 18  | `Registry.Len() int`                                     | Low    | 5m     | Trivial but ergonomic.                           |
-| 19  | `Registry.RegisterAll(rules ...Rule)`                    | Low    | 10m    |                                                  |
-| 20  | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
-| 21  | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
-| 22  | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
-| 23  | `map[string]int` index for O(1) Get/Has/Deregister       | Low    | 30m    | Anti-goal until scale proves need.               |
-| 24  | `Filter` type for severity/category filtering            | Low    | 45m    |                                                  |
-| 25  | `RuleSet` typed wrapper                                  | Low    | 30m    |                                                  |
-| 26  | Evaluate generics for `RuleFunc`                         | Low    | 12m    | Spike, document, decide.                         |
-| 27  | Confirm `Register` panic contract is right for a library | Medium | —      | ROADMAP Q4. Cannot reverse once consumers exist. |
+| #  | Task                                                     | Impact | Effort | Notes                                            |
+| -- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
+| 18 | `Registry.Len() int`                                     | Low    | 5m     | Trivial but ergonomic.                           |
+| 19 | `Registry.RegisterAll(rules ...Rule)`                    | Low    | 10m    |                                                  |
+| 20 | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
+| 21 | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
+| 22 | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
+| 23 | `map[string]int` index for O(1) Get/Has/Deregister       | Low    | 30m    | Anti-goal until scale proves need.               |
+| 24 | `Filter` type for severity/category filtering            | Low    | 45m    |                                                  |
+| 25 | `RuleSet` typed wrapper                                  | Low    | 30m    |                                                  |
+| 26 | Evaluate generics for `RuleFunc`                         | Low    | 12m    | Spike, document, decide.                         |
+| 27 | Confirm `Register` panic contract is right for a library | Medium | —      | ROADMAP Q4. Cannot reverse once consumers exist. |
 
 ### CLI binary (only after consumer pilots prove value)
 
-| #   | Task                                            | Impact | Effort | Notes               |
-| --- | ----------------------------------------------- | ------ | ------ | ------------------- |
-| 28  | Create `cmd/go-linter-sdk/main.go` skeleton     | Medium | 30m    |                     |
-| 29  | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
-| 30  | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
-| 31  | Add `--format text` (default)                   | Low    | 10m    |                     |
-| 32  | Add `--format json`                             | Medium | 20m    |                     |
-| 33  | Add `--format sarif`                            | Medium | 20m    |                     |
-| 34  | Add `--config` flag for rule configuration file | Low    | 45m    |                     |
+| #  | Task                                            | Impact | Effort | Notes               |
+| -- | ----------------------------------------------- | ------ | ------ | ------------------- |
+| 28 | Create `cmd/go-linter-sdk/main.go` skeleton     | Medium | 30m    |                     |
+| 29 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
+| 30 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
+| 31 | Add `--format text` (default)                   | Low    | 10m    |                     |
+| 32 | Add `--format json`                             | Medium | 20m    |                     |
+| 33 | Add `--format sarif`                            | Medium | 20m    |                     |
+| 34 | Add `--config` flag for rule configuration file | Low    | 45m    |                     |
 
 ### Documentation depth
 
-| #   | Task                                                                                                 | Impact | Effort | Notes                                           |
-| --- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
-| 35  | Add "Registry patterns" section to README                                                            | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
-| 36  | Add godoc cross-references between `Run` and `ContinueOnError`                                       | Low    | 5m     |                                                 |
-| 37  | Verify pkg.go.dev renders testable examples correctly                                                | Low    | 10m    | After publish.                                  |
-| 38  | Add `DOMAIN_LANGUAGE.md` entry for `DetectorsFromRegistry`                                           | Low    | 5m     |                                                 |
-| 39  | Add `DOMAIN_LANGUAGE.md` entries for new API (`ErrMissingFields`, `RuleErrors`, `FilterRules`, etc.) | Low    | 15m    |                                                 |
-| 40  | Split CHANGELOG `[Unreleased]` into versioned sections                                               | Low    | 15m    |                                                 |
+| #  | Task                                                                                                 | Impact | Effort | Notes                                           |
+| -- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| 35 | Add "Registry patterns" section to README                                                            | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
+| 36 | Add godoc cross-references between `Run` and `ContinueOnError`                                       | Low    | 5m     |                                                 |
+| 37 | Verify pkg.go.dev renders testable examples correctly                                                | Low    | 10m    | After publish.                                  |
+| 38 | Add `DOMAIN_LANGUAGE.md` entry for `DetectorsFromRegistry`                                           | Low    | 5m     |                                                 |
+| 39 | Add `DOMAIN_LANGUAGE.md` entries for new API (`ErrMissingFields`, `RuleErrors`, `FilterRules`, etc.) | Low    | 15m    |                                                 |
+| 40 | Split CHANGELOG `[Unreleased]` into versioned sections                                               | Low    | 15m    |                                                 |
 
 ### Tooling & ecosystem
 
-| #   | Task                                                        | Impact | Effort | Notes                          |
-| --- | ----------------------------------------------------------- | ------ | ------ | ------------------------------ |
-| 41  | Add flake `checks` derivations for test/vet/lint            | Low    | 30m    | Only treefmt is a check today. |
-| 42  | Add `apps.watch` (live test re-runs with `entr`)            | Low    | 10m    |                                |
-| 43  | Add `apps.tidy` (`go mod tidy`)                             | Low    | 5m     |                                |
-| 44  | Add `direnv` setup (`.envrc`)                               | Low    | 10m    |                                |
-| 45  | Add `meta.position` to flake apps                           | Low    | 10m    |                                |
-| 46  | Verify pkg.go.dev badge resolves                            | Low    | 5m     |                                |
-| 47  | Add SSH `insteadOf` workaround doc for read-only git config | Low    | 5m     |                                |
-| 48  | Add pre-commit hook rejecting `replace ../`                 | Low    | 10m    |                                |
-| 49  | Add commit signing (gitsign) to CI                          | Low    | 15m    |                                |
-| 50  | Add `go mod verify` to CI                                   | Low    | 5m     |                                |
+| #  | Task                                                        | Impact | Effort | Notes                          |
+| -- | ----------------------------------------------------------- | ------ | ------ | ------------------------------ |
+| 41 | Add flake `checks` derivations for test/vet/lint            | Low    | 30m    | Only treefmt is a check today. |
+| 42 | Add `apps.watch` (live test re-runs with `entr`)            | Low    | 10m    |                                |
+| 43 | Add `apps.tidy` (`go mod tidy`)                             | Low    | 5m     |                                |
+| 44 | Add `direnv` setup (`.envrc`)                               | Low    | 10m    |                                |
+| 45 | Add `meta.position` to flake apps                           | Low    | 10m    |                                |
+| 46 | Verify pkg.go.dev badge resolves                            | Low    | 5m     |                                |
+| 47 | Add SSH `insteadOf` workaround doc for read-only git config | Low    | 5m     |                                |
+| 48 | Add pre-commit hook rejecting `replace ../`                 | Low    | 10m    |                                |
+| 49 | Add commit signing (gitsign) to CI                          | Low    | 15m    |                                |
+| 50 | Add `go mod verify` to CI                                   | Low    | 5m     |                                |
 
 ---
 
