@@ -37,6 +37,10 @@ permissions:
 env:
   # Required: go-finding uses encoding/json/v2 (Go experiment).
   GOEXPERIMENT: jsonv2
+  # Pin the exact patch: setup-go's version manifest lags go.dev by hours,
+  # so go-version "1.26" can resolve to an older patch than go.mod requires.
+  # With GOTOOLCHAIN set, Go downloads the exact toolchain regardless.
+  GOTOOLCHAIN: go1.26.7
   # go-finding is a private repo; bypass the public proxy and fetch from VCS.
   GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
 
@@ -64,7 +68,11 @@ jobs:
         run: |
           go mod tidy
           git diff --exit-code go.mod go.sum
-      - run: go test -race -count=1 -coverprofile=coverage.out -covermode=atomic ./...
+      # Coverage measures the library only: examples/ are exercised via
+      # exec.Command from integration tests, so their statements never
+      # attribute and would dilute the total below the gate.
+      - name: Run tests with coverage (library packages)
+        run: go list ./... | grep -v /examples/ | xargs go test -race -count=1 -coverprofile=coverage.out -covermode=atomic
       - name: Check coverage threshold
         run: |
           total=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | tr -d '%')
