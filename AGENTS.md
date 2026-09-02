@@ -49,8 +49,8 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.4.1** — resolved from VCS as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch `v1.4.1` directly. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
-- Go 1.26+ (uses `encoding/json/v2` experiment).
+- **`go-finding` v1.6.0** — resolved from VCS as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it directly. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- Go 1.26.7 (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions
 
@@ -80,11 +80,29 @@ Core types in package `linter`:
   calls — see the `hierarchical-errors` skill for the decision tree.
 - **CI fetches `go-finding` via VCS auth, not a sibling clone.** There is no
   `replace` directive. `.github/workflows/ci.yml` sets `GOPRIVATE` and configures
-  git to use the default `GITHUB_TOKEN` so the private `v1.4.1` tag resolves
-  from GitHub directly. Local dev uses `GOPRIVATE` (global) plus an SSH
+  git with the `PRIVATE_REPO_TOKEN` secret (PAT with Contents:Read on
+  `go-finding`; the default `GITHUB_TOKEN` is scoped to this repo only) so the
+  private tag resolves from GitHub directly. The secret was missing entirely
+  until 2026-09-02, which failed every Go job with `Authentication failed for
+  'https://github.com/larsartmann/go-finding/'`; it is currently provisioned
+  from the maintainer's `gh auth token` — rotate to a scoped fine-grained PAT
+  when convenient. Local dev uses `GOPRIVATE` (global) plus an SSH
   `insteadOf` rewrite; a one-off tidy needs `GIT_CONFIG_COUNT=1
 GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
 GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only.
+- **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
+  setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.26"`
+  resolved 1.26.5 on macos while `go.mod` required 1.26.7 (`go: go.mod
+  requires go >= 1.26.7`). Only a STEP-level `env:` takes precedence over the
+  `GITHUB_ENV` injection — the test job's go steps each pin
+  `GOTOOLCHAIN: go1.26.7` so Go downloads the exact patch.
+- **The coverage gate measures library packages only.** `examples/` are
+  exercised via `exec.Command` from integration tests, so their statements
+  never attribute (`./...` totals 83.3%; the library alone is 98.2%). CI runs
+  `go list ./... | grep -v /examples/ | xargs go test ...` — don't "fix" this
+  back to `./...`.
+- **Released versions: v0.2.0 (2026-09-02).** Tag releases only when CI is
+  green on the exact commit; the v0.1.0 → v0.2.0 delta was all-additive.
 - **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
   `FEATURES.md` tracks only capabilities that have code today
   (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built
