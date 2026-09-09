@@ -156,6 +156,73 @@ func TestExampleNakedReturnGuard_SkipsTestFiles(t *testing.T) {
 	}
 }
 
+// Oops-redundant-guard tests.
+func TestExampleOopsRedundantGuard_CleanCode(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/oops-redundant-guard")
+
+	dir := t.TempDir()
+
+	src := "package a\n\nimport \"github.com/samber/oops\"\n\nfunc good(err error) error {\n\tif err != nil {\n\t\treturn oops.Wrap(err)\n\t}\n\n\treturn doWork()\n}\n\nfunc doWork() error { return nil }\n"
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0, got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
+func TestExampleOopsRedundantGuard_DetectsRedundantGuard(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/oops-redundant-guard")
+
+	dir := t.TempDir()
+
+	src := "package a\n\nimport \"github.com/samber/oops\"\n\nfunc bad(err error) error {\n\tif err != nil {\n\t\treturn oops.Wrap(err)\n\t}\n\n\treturn nil\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 1 {
+		t.Errorf("expected exit 1, got %d", code)
+	}
+
+	if !strings.Contains(stdout, "Redundant nil guard before oops.Wrap(err)") {
+		t.Errorf("expected finding in stdout, got %q", stdout)
+	}
+}
+
+func TestExampleOopsRedundantGuard_GuardWithElseNotFlagged(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/oops-redundant-guard")
+
+	dir := t.TempDir()
+
+	src := "package a\n\nimport (\n\t\"errors\"\n\t\"github.com/samber/oops\"\n)\n\nfunc branches(err error) error {\n\tif err != nil {\n\t\treturn oops.Wrap(err)\n\t} else {\n\t\treturn errors.New(\"x\")\n\t}\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0 (if/else is not the pattern), got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
 // No-go-mod tests.
 func TestExampleNoGoMod_CleanDir(t *testing.T) {
 	t.Parallel()
