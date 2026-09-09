@@ -133,7 +133,7 @@ First test run failed with stdlib errors (`package compress/flate is not in std`
 | **P1**   | 5  | **Align GOPRIVATE** — pick one pattern (wildcards recommended) and use it in both local `go env` and CI env. ✅ done                                                                                                            | Casing split-brain risk                           | Low     |
 | **P1**   | 6  | **Add `go mod verify`** to CI govulncheck job (or separate job)                                                                                                                                                                 | Supply chain integrity                            | Low     |
 | **P1**   | 7  | **Run `nix flake check`** — verify the flake still evaluates after go.mod changes. ✅ done — all passed                                                                                                                         | Unknown flake state                               | Low     |
-| **P1**   | 8  | **Run `go mod verify`** locally — confirm all checksums are valid                                                                                                                                                               | Integrity check                                   | Trivial |
+| **P1**   | 8  | ~~**Run `go mod verify`** locally — confirm all checksums are valid~~ done — "all modules verified" (2026-09-09)                                                                                                                                                               | Integrity check                                   | Trivial |
 | **P1**   | 9  | **Add `.gitignore` entry for `go.work`** (if it should be local-only) or commit it (if shared). ✅ done — already gitignored                                                                                                    | Prevent accidental commits                        | Trivial |
 | **P2**   | 10 | **Add `actionlint`** to CI or pre-commit to validate workflow YAML before push                                                                                                                                                  | Catch CI YAML errors early                        | Low     |
 | **P2**   | 11 | **Update ROADMAP.md** — remove the "publish go-finding tag (ROADMAP Q1)" item since v1.4.1 is already published. ✅ done                                                                                                        | Doc drift                                         | Trivial |
@@ -201,3 +201,8 @@ Still open (routed to TODO_LIST.md):
   access to `go-finding`. Needs end-to-end verification or PAT/SSH deploy key.
 - **go.work (§B.2, §F.2):** No workspace file for local cross-repo dev.
 - **go mod tidy CI check (§F.17):** Not yet added.
+
+> **Addendum (2026-09-09):** All three "still open" items above have since
+> closed. The repos went public — CI is auth-free and green on `487d254`
+> (no token, no `GOPRIVATE`); `go.work` exists locally (gitignored); the
+> `go mod tidy` drift check has run in CI since 2026-08-08.

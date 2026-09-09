@@ -96,11 +96,20 @@ and auto-git daemon commit convention.
 
 Only ROADMAP-level open questions need user input:
 
-- **Q1** — Is `go-finding` going to get a tagged release? (blocks external
-  consumers + pkg.go.dev)
+- ~~**Q1** — Is `go-finding` going to get a tagged release? (blocks external
+  consumers + pkg.go.dev)~~ resolved — published lineage `v1.4.1` → `v1.7.0`, all repos public; pkg.go.dev indexes the module (2026-09-09)
 - **Q2** — Should package files live at repo root or under `internal/`? (the
-  only BuildFlow issue source — 3 findings)
+  only BuildFlow issue source — 3 findings) ← still open — ROADMAP Q2
 - **Q3** — Library-only, or eventual CLI? (determines whether `self`-based
-  flake versioning is needed)
+  flake versioning is needed) ← still open — ROADMAP Q3
 
 Everything else is either done or tracked as a ROADMAP raw idea.
+
+---
+
+## Resolution (docs-health pass, 2026-09-09)
+
+Every item this report set out to do is done (see sections above); Q1 has
+since been resolved and Q2/Q3 live on as ROADMAP open questions, their durable
+home. Archived as fully resolved — see `TODO_LIST.md` / `ROADMAP.md` for all
+open work.

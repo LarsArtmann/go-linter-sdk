@@ -115,7 +115,7 @@ Prioritized by impact × cost. Items already in `TODO_LIST.md` are marked `[T]`;
 18. `[R]` Add `Registry.RunParallel`, a `Filter` type, severity-tiered exit codes, registry helpers (`Has`/`Get`/`Deregister`), `RuleMeta.Validate`. ✅ done — `FilterRules`, `ExitCodeByConfidence`, `Has`/`Get`/`Deregister`, `Validate` all shipped; `RunParallel` superseded by `DetectorsFromRegistry`
 19. `[R]` Add flake `checks` derivations for `go test` / `go vet` / `golangci-lint`.
 20. `[R]` Add `self`-based flake versioning — only if a binary emerges (ROADMAP Q3).
-21. `[R]` Add `.github/workflows/`, `direnv`, `pre-commit-hooks.nix`, Renovate/Depabot.
+21. `[R]` Add `.github/workflows/`, `direnv`, `pre-commit-hooks.nix`, Renovate/Depabot. ~~done in part — `.github/workflows/` CI shipped (session 5); direnv / pre-commit / Renovate remain ROADMAP Theme 4~~
 22. `[R]` Add `examples/` with a minimal consumer linter built on the SDK.
 23. `[R]` Add package-level `Example*` functions visible on pkg.go.dev.
 24. `[R]` Push for a tagged `go-finding` release so the `replace` directive can drop (ROADMAP Q1). ✅ done — v1.4.1 published, replace removed
@@ -159,3 +159,9 @@ All actionable items in this report are resolved. Key resolutions:
   `nix run .#test-race` (clean), `nix flake check` (all passed).
 
 No open items remain from this report.
+
+> **Addendum (2026-09-09):** "no open items" was optimistic — items f.16
+> (go-structure-linter pilot), f.17 (`cmd/` CLI), f.19 (flake `checks`
+> derivations), f.20 (`self` versioning), f.21 remainder (direnv / pre-commit /
+> Renovate), and f.27 (panic contract) are still open and tracked in
+> `TODO_LIST.md` / `ROADMAP.md`.

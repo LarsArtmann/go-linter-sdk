@@ -86,24 +86,6 @@ Conventions:
   assert exit codes.
 - Run examples with `GOEXPERIMENT=jsonv2 go run ./examples/<name> [dir]`.
 
-## Examples directory
-
-The `examples/` directory contains standalone CLI programs that demonstrate
-the SDK's usage. Each example is a `package main` in its own subdirectory
-(e.g., `examples/minimal-linter/`).
-
-Conventions:
-
-- Examples are part of the same Go module — they import
-  `github.com/larsartmann/go-linter-sdk` directly.
-- `.golangci.yml` excludes `examples/` from `depguard`, `forbidigo`, and `mnd`
-  because example CLI code legitimately uses `fmt.Println`, exit codes, and
-  unrestricted imports.
-- Each example should have integration tests in `examples_integration_test.go`
-  (root package) that build the binary, run it on clean/dirty temp dirs, and
-  assert exit codes.
-- Run examples with `GOEXPERIMENT=jsonv2 go run ./examples/<name> [dir]`.
-
 ## Reporting Issues
 
 Please use [GitHub Issues](https://github.com/larsartmann/go-linter-sdk/issues)

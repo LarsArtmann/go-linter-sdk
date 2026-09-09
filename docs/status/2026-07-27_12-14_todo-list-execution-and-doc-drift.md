@@ -250,8 +250,8 @@ would be new TODO_LIST entries.
     has a `stress` job; this repo doesn't. ~15 min.
 11. `[T]` **Add a `dupl`/`art-dupl` job to CI** — go-finding has one; catches
     duplication. ~15 min.
-12. `[T]` **Pin the CI `golangci-lint-action` version to match local**
-    (`.golangci.yml` was tested against v2.12.2; CI uses `v2.10.1`). ~5 min.
+12. ~~**Pin the CI `golangci-lint-action` version to match local**
+    (`.golangci.yml` was tested against v2.12.2; CI uses `v2.10.1`).~~ done — CI pins the action (v9.3.0) and `version: v2.12.2` explicitly
 13. `[T]` **Add benchmark regression checking to CI** — go-finding has
     `benchstat` + baseline; this repo has benchmarks but no baseline file. ~30 min.
 
@@ -287,9 +287,9 @@ DAG`** adaptation. ✅ done — data-flow diagram in README
     (ROADMAP Q3); today `self` is in scope but unused.
 34. `[T]` **Review `devShells.ci`** — confirm it has everything CI needs and
     nothing extra.
-35. `[T]` **Evaluate whether `gomoddirectives` should tighten `replace-local`.**
-36. `[T]` **Consider `wrapcheck` excluding `github.com/larsartmann/go-linter-sdk/*`**
-    for internal callers.
+35. ~~**Evaluate whether `gomoddirectives` should tighten `replace-local`.**~~ **Moot — no `replace` directive since 2026-07-30.**
+36. ~~**Consider `wrapcheck` excluding `github.com/larsartmann/go-linter-sdk/*`**
+    for internal callers.~~ **Moot — lint passes with 0 issues under the current config.**
 37. `[T]` **Add a `nix run .#watch` app** for live test re-runs.
 38. `[T]` **Add a `nix run .#tidy` app** for `go mod tidy`.
 39. `[T]` **Test context-cancellation propagation** through `RuleError`. ✅ done
@@ -299,13 +299,13 @@ DAG`** adaptation. ✅ done — data-flow diagram in README
     return an error instead (panics in libraries are controversial).
 43. `[T]` **Add `meta.position` to flake apps** for richer `nix flake show`.
 44. `[T]` **Consider `flake-schemas`** for richer metadata.
-45. `[T]` **Verify `go_1_26` is still the right Go version** after future lock bumps.
-46. `[T]` **Check if `treefmt-nix` gained new formatters** worth enabling.
+45. ~~**Verify `go_1_26` is still the right Go version** after future lock bumps.~~ done — 1.26.7 pinned (`go.mod` + CI `GOTOOLCHAIN`; lesson in `AGENTS.md`)
+46. ~~**Check if `treefmt-nix` gained new formatters** worth enabling.~~ done — `dprint.json` adopted for md/json/yaml (2026-09-02; wiring pending, TODO_LIST #4)
 47. `[T]` **Add a SECURITY.md** if the project accepts vulnerability reports.
 48. `[T]` **Add a SUPPORT.md** or "Getting Help" section in CONTRIBUTING.
 49. `[T]` **Schedule a recurring docs-health pass** (the project has a skill). ✅ done — docs-health pass run 2026-08-08
-50. `[T]` **Add a Crush session-end hook** that writes/updates the status report
-    automatically — fixes the 4-session recurring failure mechanically.
+50. ~~**Add a Crush session-end hook** that writes/updates the status report
+    automatically — fixes the 4-session recurring failure mechanically.~~ **Won't implement — the report-writing habit recovered in later sessions; no hook configured.**
 
 ---
 

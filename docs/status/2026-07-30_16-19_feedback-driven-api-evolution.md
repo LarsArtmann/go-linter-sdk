@@ -127,20 +127,20 @@ The updated example uses `ID: "no-fmt-println"` and `Name: "no-fmt-println"` —
 
 ### Design improvements identified but NOT implemented
 
-5. **`Registry.Run` failure policy is still fail-fast.** The ROADMAP (Theme 6) asks whether to continue and return partial results. `DetectorsFromRegistry` solves this for the pipeline path (the pipeline has `GracefulDegradation`), but `Registry.Run` still stops on the first rule error. This is now a sharper gap: the pipeline path degrades gracefully, the standalone path doesn't.
-6. **No `Registry.Get(id)` / `Registry.Has(id)` helpers.** With `ID()` now the canonical key, consumers will want to look up rules by ID. ROADMAP Theme 1 already lists this.
-7. **No `Registry.Deregister(id)`.** Same reasoning.
-8. **`RuleMeta.Validate()` is still not implemented.** Empty-ID panics at registration (done this session), but there's no validation for empty Name, empty Description, or empty Category. ROADMAP Theme 1.
-9. **No examples in `examples/` directory.** The README promises a pattern but there's no runnable example. ROADMAP Theme 2.
-10. **No `ExampleRegistry_Run` / `ExampleDetectorsFromRegistry` testable examples.** ROADMAP Theme 5.
-11. **The `ireturn` allow-list approach is growing.** We now allow `finding.Detector` and `Rule`. Each new interface-returning function needs an allow-list entry. Consider whether `ireturn` is pulling its weight or just creating maintenance overhead.
+5. ~~**`Registry.Run` failure policy is still fail-fast.**~~ done — `ContinueOnError()` shipped (v0.2.0)
+6. ~~**No `Registry.Get(id)` / `Registry.Has(id)` helpers.**~~ done — shipped (v0.2.0)
+7. ~~**No `Registry.Deregister(id)`.**~~ done — shipped (v0.2.0)
+8. ~~**`RuleMeta.Validate()` is still not implemented.**~~ done — shipped (v0.2.0, all four identity fields)
+9. ~~**No examples in `examples/` directory.**~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
+10. ~~**No `ExampleRegistry_Run` / `ExampleDetectorsFromRegistry` testable examples.**~~ done — 7 `Example*` functions in `example_test.go`
+11. ~~**The `ireturn` allow-list approach is growing.**~~ **Stable — two entries (`finding.Detector`, `Rule`); kept, revisit only on consumer request.**
 
 ### Architecture observations from the feedback analysis
 
-12. **The SDK now has two execution paths with different capabilities.** `Registry.Run` (sequential, fail-fast, no parallelism) vs `DetectorsFromRegistry` → pipeline (parallel, graceful degradation, timeouts, error isolation). The README and docs should make this tradeoff explicit so consumers choose the right path.
-13. **`DetectorFromRegistry` (singular) is now the "simple but limited" path.** Its doc comment should cross-reference `DetectorsFromRegistry` and explain when to use which.
-14. **The feedback identified that `Category` was perceived as closed despite being open.** This is a documentation problem, not a type problem. The fix (doc comment) is done, but the perception may recur — consider whether the const block layout itself communicates openness poorly.
-15. **The feedback's `Confidence`/`AutoFix` complaint was really about discoverability.** The per-finding `finding.Builder` API exists but isn't surfaced from the SDK's docs. The doc comment on `Rule` now mentions it, but a dedicated "Building Findings" guide would be more discoverable.
+12. ~~**The SDK now has two execution paths with different capabilities.** `Registry.Run` (sequential, fail-fast, no parallelism) vs `DetectorsFromRegistry` → pipeline (parallel, graceful degradation, timeouts, error isolation). The README and docs should make this tradeoff explicit so consumers choose the right path.~~ done — README "Two execution paths" section + comparison table
+13. ~~**`DetectorFromRegistry` (singular) is now the "simple but limited" path.** Its doc comment should cross-reference `DetectorsFromRegistry` and explain when to use which.~~ done — doc comments cross-reference each other
+14. ~~**The feedback identified that `Category` was perceived as closed despite being open.** This is a documentation problem, not a type problem. The fix (doc comment) is done, but the perception may recur — consider whether the const block layout itself communicates openness poorly.~~ done — openness documented in the const-block doc comment + README
+15. ~~**The feedback's `Confidence`/`AutoFix` complaint was really about discoverability.** The per-finding `finding.Builder` API exists but isn't surfaced from the SDK's docs. The doc comment on `Rule` now mentions it, but a dedicated "Building Findings" guide would be more discoverable.~~ done — README "Building findings with Confidence and FixStrategy" section
 
 ---
 
@@ -177,7 +177,7 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs introd
 ### Consumer adoption (ROADMAP Theme 2)
 
 21. Create `examples/` directory with a minimal consumer linter ✅ done — examples/minimal-linter + examples/no-go-mod
-22. Pilot-port one rule from `go-structure-linter` to prove the Rule → finding.Finding path
+22. ~~Pilot-port one rule from `go-structure-linter` to prove the Rule → finding.Finding path~~ done — `examples/no-go-mod` (v0.2.0)
 23. Create `cmd/` directory with a CLI binary wrapping the registry
 24. Pilot-port a rule from `branching-flow` to validate the converter-deletion claim
 25. Write a migration guide for existing linters adopting the SDK
@@ -211,7 +211,7 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs introd
 
 ### Documentation depth (ROADMAP Theme 5)
 
-44. Package-level examples visible on pkg.go.dev
+44. ~~Package-level examples visible on pkg.go.dev~~ done — 7 examples; verified rendering on pkg.go.dev (2026-09-09)
 45. A diagram of `DetectorsFromRegistry → pipeline.New → pipeline.Run` ✅ done — data-flow diagram in README
 46. Update `docs/DOMAIN_LANGUAGE.md` with a term entry for `DetectorsFromRegistry` as a concept ✅ done
 47. Document the `finding.Builder` chain as the canonical way to construct findings ✅ done — README section

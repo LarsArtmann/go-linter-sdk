@@ -81,22 +81,22 @@
 
 ### Process
 
-1. **Never commit a status report in the same commit as the work it describes.** Reports are point-in-time snapshots. Either commit them _before_ the next round of work, or annotate them as superseded. The current state — a report shipping inside a commit that contradicts it — is the worst of both worlds.
-2. **Prefer the honest fix over the lint-silence.** When a linter fires, the answer is either "fix the code" or "disable this linter globally with a written justification." Excluding per-path to make the warning disappear is the pattern that rots codebases.
-3. **Verify the claim you're most proud of.** I was proudest of the `reports/.gitkeep` fix. I never actually cloned fresh to prove it. `check-ignore` is not a buildflow run.
-4. **Diff the formatters.** Before shipping two formatting pipelines (`nix fmt` and `golangci-lint --fix`), run both on the same tree and confirm zero diff. Split-brain formatting is a tax every future contributor pays.
+1. ~~**Never commit a status report in the same commit as the work it describes.** Reports are point-in-time snapshots. Either commit them _before_ the next round of work, or annotate them as superseded. The current state — a report shipping inside a commit that contradicts it — is the worst of both worlds.~~ done — reports are now annotated as superseded (docs-health passes); the daemon's bundling is documented in `AGENTS.md`
+2. ~~**Prefer the honest fix over the lint-silence.** When a linter fires, the answer is either "fix the code" or "disable this linter globally with a written justification." Excluding per-path to make the warning disappear is the pattern that rots codebases.~~ done — `testpackage` satisfied honestly (black-box tests, session 5); wholesale exclusions removed
+3. ~~**Verify the claim you're most proud of.** I was proudest of the `reports/.gitkeep` fix. I never actually cloned fresh to prove it. `check-ignore` is not a buildflow run.~~ done — fresh-clone BuildFlow verified 35/36 (session 5)
+4. ~~**Diff the formatters.** Before shipping two formatting pipelines (`nix fmt` and `golangci-lint --fix`), run both on the same tree and confirm zero diff. Split-brain formatting is a tax every future contributor pays.~~ done — zero-diff verified (session 5); CI also runs `golangci-lint fmt --diff`
 
 ### Code & Config
 
-5. **Right-size `.golangci.yml` from first principles.** Walk each enabled linter and ask "does this earn its place for a 3-file SDK?" Drop the cargo-culted `mnd` numbers, `varnamelen` names, and `gosec` exclusions inherited from go-finding without re-evaluation.
-6. **Resolve the `testpackage` decision explicitly.** Either move tests to `package linter_test` (black-box, what the linter wants) or document why white-box testing is correct for this SDK and disable the linter cleanly.
-7. **Strengthen the double-wrap test.** Restore the positive assertion (`cause == sentinel` means "wrapped exactly once") alongside the negative one (`errors.As(cause, &inner)` means "not wrapped twice"). Both properties matter.
-8. **Add a concurrent registry test.** `sync.RWMutex` without a parallel test is an unverified concurrency claim.
+5. ~~**Right-size `.golangci.yml` from first principles.** Walk each enabled linter and ask "does this earn its place for a 3-file SDK?" Drop the cargo-culted `mnd` numbers, `varnamelen` names, and `gosec` exclusions inherited from go-finding without re-evaluation.~~ done — right-sized empirically (session 5)
+6. ~~**Resolve the `testpackage` decision explicitly.** Either move tests to `package linter_test` (black-box, what the linter wants) or document why white-box testing is correct for this SDK and disable the linter cleanly.~~ done — moved to black-box (session 5; ROADMAP Q5 resolved)
+7. ~~**Strengthen the double-wrap test.** Restore the positive assertion (`cause == sentinel` means "wrapped exactly once") alongside the negative one (`errors.As(cause, &inner)` means "not wrapped twice"). Both properties matter.~~ done — positive assertion restored (session 5)
+8. ~~**Add a concurrent registry test.** `sync.RWMutex` without a parallel test is an unverified concurrency claim.~~ done — `TestRegistry_ConcurrentReadWrite` (session 5)
 
 ### Documentation
 
-9. **Update AGENTS.md** to record `.golangci.yml`, the `reports/.gitkeep` pattern, the buildflow result (33/34), and the `testpackage` decision (whatever it ends up being).
-10. **Write `docs/DOMAIN_LANGUAGE.md`** for the SDK's named concepts before the surface grows.
+9. ~~**Update AGENTS.md** to record `.golangci.yml`, the `reports/.gitkeep` pattern, the buildflow result (33/34), and the `testpackage` decision (whatever it ends up being).~~ done — "Gotchas & conventions" section (sessions 4–5)
+10. ~~**Write `docs/DOMAIN_LANGUAGE.md`** for the SDK's named concepts before the surface grows.~~ done — session 6
 
 ---
 
@@ -106,69 +106,67 @@ Prioritized roughly by impact × cost.
 
 ### High impact, low cost (do first)
 
-1. Fresh-clone verification: `git clone` to `/tmp`, `nix develop --command buildflow`, confirm 33/34.
-2. Restore the positive double-wrap assertion in `TestRegistry_Run_NoDoubleWrap`.
-3. Add a concurrent registry test (`go test -race` should actually exercise the mutex).
-4. Decide `testpackage`: move tests to `package linter_test` OR disable globally with justification. Remove the per-path exclusion either way.
-5. Diff `nix fmt` vs `golangci-lint --fix` output; resolve any disagreement.
-6. Annotate the 01:38 status report with an addendum noting which items closed in `6838158` (or split it out retroactively).
-7. Update AGENTS.md with this session's changes (`.golangci.yml`, `reports/.gitkeep`, lint-clean state, 33/34 buildflow).
-8. Push `6838158` to `origin/master` (blocked on user instruction — see question 1).
+1. ~~Fresh-clone verification: `git clone` to `/tmp`, `nix develop --command buildflow`, confirm 33/34.~~ done — session 5 (35/36)
+2. ~~Restore the positive double-wrap assertion in `TestRegistry_Run_NoDoubleWrap`.~~ done — session 5
+3. ~~Add a concurrent registry test (`go test -race` should actually exercise the mutex).~~ done — `TestRegistry_ConcurrentReadWrite` (session 5)
+4. ~~Decide `testpackage`: move tests to `package linter_test` OR disable globally with justification. Remove the per-path exclusion either way.~~ done — black-box, exclusion removed (session 5)
+5. ~~Diff `nix fmt` vs `golangci-lint --fix` output; resolve any disagreement.~~ done — zero diff (session 5)
+6. ~~Annotate the 01:38 status report with an addendum noting which items closed in `6838158` (or split it out retroactively).~~ done — inline annotations applied (docs-health pass, 2026-09-09)
+7. ~~Update AGENTS.md with this session's changes (`.golangci.yml`, `reports/.gitkeep`, lint-clean state, 33/34 buildflow).~~ done — sessions 4–5
+8. ~~Push `6838158` to `origin/master` (blocked on user instruction — see question 1).~~ done — everything is pushed; the repo is public
 
 ### Medium impact, medium cost
 
-9. Write `docs/DOMAIN_LANGUAGE.md` for `Rule`, `RuleFunc`, `RuleMeta`, `Registry`, `Category`, `RuleError`, `RuleError.Is/Unwrap`.
-10. Add `BenchmarkRegistryRun` and `BenchmarkRegistryAll` (the mutex is a hot path).
-11. Add `FEATURES.md` — honest inventory (the SDK is ~150 LOC of library code; the feature list should reflect that, not oversell).
-12. Add `TODO_LIST.md` seeded from this report's "(c) NOT STARTED" + "(f)" items.
-13. Add `ROADMAP.md` with the go-finding publication dependency as the first milestone.
-14. Add `.github/workflows/ci.yml` running `nix flake check`, `nix run .#test-race`, `nix develop --command buildflow`. Lock the Nix install to a known revision for reproducibility.
-15. Add `AUTHORS` and (optionally) `CONTEXT.md` matching go-finding.
-16. Right-size `.golangci.yml` — audit each linter, drop cargo-culted settings, document the keepers.
-17. Verify `golangci-lint` cache warm vs cold timing (first run downloads every analyzer; CI needs a caching strategy).
-18. Add `//nolint:ireturn` on `makeRule`/`failingRule` instead of the wholesale `_test.go` exclusion (more precise).
-19. Add a `flake.nix` `apps.lint` that passes `--config .golangci.yml` explicitly (defense against future config-file proliferation).
-20. Pin the Nix toolchain to a specific nixpkgs revision in CI (flake.lock does it locally; CI should not roll forward unprompted).
-21. Add a `nix run .#coverage` step that writes `reports/coverage.out` and verify the `.gitkeep` exception keeps it ignored.
-22. Test that `reports/.gitkeep` survives `buildflow --fix` (does buildflow try to rewrite the gitignore block and clobber the exception?).
-23. Add a `.editorconfig` only if the project decides to standardize on non-treefmt tools; otherwise leave absent (ecosystem choice).
+9. ~~Write `docs/DOMAIN_LANGUAGE.md` for `Rule`, `RuleFunc`, `RuleMeta`, `Registry`, `Category`, `RuleError`, `RuleError.Is/Unwrap`.~~ done — session 6
+10. ~~Add `BenchmarkRegistryRun` and `BenchmarkRegistryAll` (the mutex is a hot path).~~ done — three benchmarks (session 5)
+11. ~~Add `FEATURES.md` — honest inventory (the SDK is ~150 LOC of library code; the feature list should reflect that, not oversell).~~ done — session 4
+12. ~~Add `TODO_LIST.md` seeded from this report's "(c) NOT STARTED" + "(f)" items.~~ done at `4691f35`
+13. ~~Add `ROADMAP.md` with the go-finding publication dependency as the first milestone.~~ done at `4691f35`
+14. ~~Add `.github/workflows/ci.yml` running `nix flake check`, `nix run .#test-race`, `nix develop --command buildflow`. Lock the Nix install to a known revision for reproducibility.~~ done — CI since session 5 (Go-jobs form); auth-free and green on `487d254`
+15. ~~Add `AUTHORS` and (optionally) `CONTEXT.md` matching go-finding.~~ **Won't implement — `LICENSE` carries attribution; no `CONTEXT.md` need surfaced.**
+16. ~~Right-size `.golangci.yml` — audit each linter, drop cargo-culted settings, document the keepers.~~ done — session 5
+17. ~~Verify `golangci-lint` cache warm vs cold timing (first run downloads every analyzer; CI needs a caching strategy).~~ done — CI uses `golangci-lint-action`, which caches by default
+18. ~~Add `//nolint:ireturn` on `makeRule`/`failingRule` instead of the wholesale `_test.go` exclusion (more precise).~~ done — solved at the source: factories return concrete `RuleFunc`, no suppression needed (session 5)
+19. ~~Add a `flake.nix` `apps.lint` that passes `--config .golangci.yml` explicitly (defense against future config-file proliferation).~~ **Won't implement — auto-discovery of the single config file is sufficient.**
+20. ~~Pin the Nix toolchain to a specific nixpkgs revision in CI (flake.lock does it locally; CI should not roll forward unprompted).~~ done — CI's nix job evaluates against the committed `flake.lock`
+21. ~~Add a `nix run .#coverage` step that writes `reports/coverage.out` and verify the `.gitkeep` exception keeps it ignored.~~ done at `bd47ffb`
+22. ~~Test that `reports/.gitkeep` survives `buildflow --fix` (does buildflow try to rewrite the gitignore block and clobber the exception?).~~ done — `.gitkeep` + exception still intact (verified 2026-09-09)
+23. ~~Add a `.editorconfig` only if the project decides to standardize on non-treefmt tools; otherwise leave absent (ecosystem choice).~~ done — `.editorconfig` added; `dprint.json` later added for md/json/yaml (2026-09-02)
 
 ### Lower impact, worth doing eventually
 
-24. Evaluate whether `gomoddirectives` should tighten the `replace-local` rule.
-25. Consider whether `wrapcheck` should also exclude `github.com/larsartmann/go-linter-sdk/*` (internal callers).
-26. Add a `cmd/` example binary showing the one-liner `main.go` the README promises.
-27. Add an `examples/` directory with a minimal linter built on the SDK.
-28. Fuzz test for `NewRuleError` with nil cause (does `.Error()` panic on `%v` of nil?).
-29. Test `errors.Is(err, ErrRuleFailed)` against wrapped sentinels other than the one tested.
-30. Test context-cancellation propagation through `RuleError`.
-31. Add `go.work` / `go.work.sum` to formalize the sibling-repo workspace (but see question 2).
-32. Resolve whether `go-finding v1.2.0` is a real published version or was always intended to be a pseudo-version.
-33. Write a `doc.go` package overview (already partially exists in `rule.go`) — extract and centralize.
-34. Consider a `version.go` for `go-finding`-style version reporting.
-35. Evaluate `.goreleaser.yml` (probably not needed — library, not binary).
-36. Consider `git-town.toml` if the project adopts git-town workflow.
-37. Add a CODEOWNERS file.
-38. Add issue/PR templates under `.github/`.
-39. Add a `SUPPORT.md` or a "Getting Help" section in CONTRIBUTING.
-40. Verify the README's `pkg.go.dev` badge actually resolves once the package is consumable.
-41. Audit the README's claimed API surface against the actual exported symbols (drift check).
-42. Consider whether `CategoryConfiguration` (15 chars, the longest const) should be shortened to rebalance the const block.
-43. Add a changelog entry convention (e.g., conventional-commits → CHANGELOG automation).
-44. Evaluate whether the `Registry.Register` panic-on-duplicate should instead return an error (panics in libraries are controversial).
-45. Document the `DetectorFromRegistry` → `finding.Detector` adaptation in a diagram.
-46. Consider a `Registry.RunParallel` variant (rules are independent; the mutex on `Register` doesn't block parallel `Check`).
-47. Add a `LICENSE-APACHE`/`LICENSE-MIT` dual-license decision if the ecosystem ever wants MIT/Apache-2.0 (go-finding is MIT-only; probably stay MIT).
-48. Sweep the README for the "consumer plan" section and verify it matches the shipped types.
-49. Add a `SECURITY.md` if the project ever accepts vulnerability reports.
-50. Schedule a recurring docs-health pass (the project has a skill for this; use it).
+24. ~~Evaluate whether `gomoddirectives` should tighten the `replace-local` rule.~~ **Moot — the `replace` directive was removed 2026-07-30; there is nothing to tighten.**
+25. ~~Consider whether `wrapcheck` should also exclude `github.com/larsartmann/go-linter-sdk/*` (internal callers).~~ **Moot — lint passes with 0 issues under the current `wrapcheck` config; no exclusion needed.**
+26. ~~Add a `cmd/` example binary showing the one-liner `main.go` the README promises.~~ done — `examples/minimal-linter` IS that runnable CLI (v0.2.0); a production `cmd/` remains a ROADMAP Theme 2 idea
+27. ~~Add an `examples/` directory with a minimal linter built on the SDK.~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
+28. ~~Fuzz test for `NewRuleError` with nil cause (does `.Error()` panic on `%v` of nil?).~~ done — `TestNewRuleError_NilCause` + `FuzzNewRuleError`
+29. ~~Test `errors.Is(err, ErrRuleFailed)` against wrapped sentinels other than the one tested.~~ done — context sentinel tests (`errors_test.go`)
+30. ~~Test context-cancellation propagation through `RuleError`.~~ done — `TestRuleError_Is_Canceled` / `_DeadlineExceeded`
+31. ~~Add `go.work` / `go.work.sum` to formalize the sibling-repo workspace (but see question 2).~~ done — `go.work` created 2026-08-08 (gitignored, local-only)
+32. ~~Resolve whether `go-finding v1.2.0` is a real published version or was always intended to be a pseudo-version.~~ resolved — published lineage is real and public (`v1.4.1` → `v1.7.0`)
+33. ~~Write a `doc.go` package overview (already partially exists in `rule.go`) — extract and centralize.~~ **Won't implement — the `rule.go` package doc renders on pkg.go.dev; a separate `doc.go` adds nothing.**
+34. ~~Consider a `version.go` for `go-finding`-style version reporting.~~ **Won't implement — library-only, no version to report (ROADMAP Q3).**
+35. ~~Evaluate `.goreleaser.yml` (probably not needed — library, not binary).~~ done — rejected as a non-goal (ROADMAP Non-goals)
+36. ~~Consider `git-town.toml` if the project adopts git-town workflow.~~ **Won't implement — no git-town in this ecosystem's workflow.**
+37. ~~Add a CODEOWNERS file.~~ done — created 2026-08-08
+38. Add issue/PR templates under `.github/`. ← still open — gated on support posture (ROADMAP Q6)
+39. Add a `SUPPORT.md` or a "Getting Help" section in CONTRIBUTING. ← still open — gated on support posture (ROADMAP Q6)
+40. ~~Verify the README's `pkg.go.dev` badge actually resolves once the package is consumable.~~ done — verified 2026-09-09: pkg.go.dev indexes v0.3.0 with docs + examples
+41. ~~Audit the README's claimed API surface against the actual exported symbols (drift check).~~ done — README API table verified against `go doc` (M9, 2026-08-08)
+42. ~~Consider whether `CategoryConfiguration` (15 chars, the longest const) should be shortened to rebalance the const block.~~ **Won't implement — the name is precise; a rename would churn consumers for cosmetics.**
+43. ~~Add a changelog entry convention (e.g., conventional-commits → CHANGELOG automation).~~ **Won't implement — manual Keep-a-Changelog discipline works; daemon commit noise is handled via CHANGELOG-as-narrative (AGENTS.md).**
+44. Evaluate whether the `Registry.Register` panic-on-duplicate should instead return an error (panics in libraries are controversial). ← still open — ROADMAP Theme 5
+45. ~~Document the `DetectorFromRegistry` → `finding.Detector` adaptation in a diagram.~~ done — data-flow + execution-paths diagrams in README
+46. ~~Consider a `Registry.RunParallel` variant (rules are independent; the mutex on `Register` doesn't block parallel `Check`).~~ done — superseded by `DetectorsFromRegistry` (per-rule pipeline parallelism)
+47. ~~Add a `LICENSE-APACHE`/`LICENSE-MIT` dual-license decision if the ecosystem ever wants MIT/Apache-2.0 (go-finding is MIT-only; probably stay MIT).~~ done — decided: MIT-only (ROADMAP Non-goals)
+48. ~~Sweep the README for the "consumer plan" section and verify it matches the shipped types.~~ done — README Consumers section current (2026-09-09)
+49. Add a `SECURITY.md` if the project ever accepts vulnerability reports. ← still open — gated on support posture (ROADMAP Q6)
+50. ~~Schedule a recurring docs-health pass (the project has a skill for this; use it).~~ done — passes run 2026-08-08 and 2026-09-09
 
 ---
 
 ## (g) THREE QUESTIONS I CANNOT ANSWER MYSELF
 
-1. **Should I push `6838158` (and the prior `18ccbd5`) to `origin/master`?** Both commits are local-only. I'm forbidden from pushing without explicit instruction. The work is green locally; whether you want it on the remote before the fresh-clone verification (item 1 above) or after is your call.
-
-2. **Should tests stay white-box (`package linter`) or move black-box (`package linter_test`) to satisfy `testpackage`?** Both are legitimate Go styles. White-box lets the tests reach unexported helpers (`makeRule`, `failingRule`, `wrapRuleError`); black-box would force a public test-API or `export_test.go` shim. I silenced the linter rather than deciding. This is a project philosophy question, not a technical one — I can't pick for you.
-
-3. **Is the `replace github.com/larsartmann/go-finding => ../go-finding` directive the long-term plan, or a stopgap until go-finding publishes a tagged version?** The answer determines whether I should (a) add a `go.work` to formalize the sibling-checkout requirement, (b) help push go-finding to a v1.2.0 tag so the replace can drop, or (c) leave it as-is and just document the constraint harder. I cannot tell from the repos alone whether a go-finding release is imminent or months away.
+1. ~~**Should I push `6838158` (and the prior `18ccbd5`) to `origin/master`?**~~ resolved — long since pushed; the repo is public
+2. ~~**Should tests stay white-box (`package linter`) or move black-box (`package linter_test`) to satisfy `testpackage`?**~~ resolved — black-box (session 5; ROADMAP Q5)
+3. ~~**Is the `replace github.com/larsartmann/go-finding => ../go-finding` directive the long-term plan, or a stopgap until go-finding publishes a tagged version?**~~ resolved — stopgap: the replace was removed 2026-07-30 and `go-finding` is a public published tag (now v1.7.0)

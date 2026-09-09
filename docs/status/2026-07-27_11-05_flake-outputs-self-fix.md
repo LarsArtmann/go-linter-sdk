@@ -47,9 +47,9 @@ Nothing. The fix itself is binary — either the flake evaluates or it doesn't.
 
 ## (c) NOT STARTED
 
-1. **Did not run `nix fmt` immediately after the edit.** I ran `nix flake check`, `nix build`, `nix test`, and the treefmt check derivation — but forgot to run the formatter itself as part of my post-edit verification loop. I only ran it later when preparing this report. It was clean, but that's luck, not process.
-2. **Did not run `nix run .#lint` as part of my initial verification.** I added it later when writing this report. Again, it passed, but I should have included it in the first verification batch.
-3. **Did not trace the trigger.** The `flake.lock` was modified (`M flake.lock` at session start). This lock update likely pulled in Nix 2.34.8 (or a newer nixpkgs revision that changed evaluator strictness). I treated the symptom without investigating why it surfaced now. The flake.lock was auto-committed as `21b7b36` without me examining its contents.
+1. ~~**Did not run `nix fmt` immediately after the edit.**~~ done — habit adopted; CI now also runs `golangci-lint fmt --diff`
+2. ~~**Did not run `nix run .#lint` as part of my initial verification.**~~ done — the full gate (lint/race/flake-check) is now standard after every change
+3. ~~**Did not trace the trigger.**~~ resolved — the trigger was traced in ROADMAP Q4 (flake.lock bump → Nix 2.34.8 `@`-pattern strictness); recorded in `AGENTS.md`
 
 ---
 
@@ -57,7 +57,7 @@ Nothing. The fix itself is binary — either the flake evaluates or it doesn't.
 
 Nothing catastrophic. But two process failures worth calling out:
 
-1. **Verification was incomplete on first pass.** I declared "all three failures resolved" after running `nix flake check`, `nix build`, `nix test`, and the treefmt derivation — but I did NOT run the actual `buildflow` command that originally failed until preparing this report. I verified components instead of the integration. The components happened to be sufficient, but if `buildflow` had its own evaluation path, I would have declared success prematurely.
+1. ~~**Verification was incomplete on first pass.**~~ done — the "run the ORIGINAL failing command" lesson stuck: later sessions run BuildFlow/CI as the gate (green on `487d254`)
 2. **Didn't flag the coverage path discrepancy I noticed.** The AGENTS.md documents `nix run .#coverage # go test ./... -coverprofile=reports/coverage.out` but the actual flake.nix app writes to `coverage.out` (no `reports/` prefix). The `clean` app also `trash-put`s `coverage.out` at root. This is a real documentation/code mismatch that I saw but didn't report. Previous session reports flagged similar gaps — I should have maintained that standard.
 
 ---
@@ -66,9 +66,9 @@ Nothing catastrophic. But two process failures worth calling out:
 
 ### Process Improvements
 
-1. **Post-edit checklist should always include `nix fmt`, `nix run .#lint`, and the ORIGINAL failing command** — not just component-level checks. I had to be asked to run buildflow; I should have done it immediately.
-2. **Always trace the trigger, not just the symptom.** The flake.lock bump is what broke this. Understanding WHY a regression appeared now (vs. it having worked before) is part of the fix. I skipped this entirely.
-3. **Flag every discrepancy noticed, even if out of scope.** The coverage path mismatch between AGENTS.md and flake.nix is exactly the kind of thing that rots silently. Previous reports caught these. I let one slip.
+1. ~~**Post-edit checklist should always include `nix fmt`, `nix run .#lint`, and the ORIGINAL failing command** — not just component-level checks.~~ done — adopted as the standard gate from session 5 onward
+2. ~~**Always trace the trigger, not just the symptom.**~~ done — traced (ROADMAP Q4, resolved)
+3. ~~**Flag every discrepancy noticed, even if out of scope.**~~ done — docs-health passes now catch these routinely
 
 ### Codebase Improvements (noticed this session, not acted on)
 
@@ -85,7 +85,7 @@ Nothing catastrophic. But two process failures worth calling out:
 ### High Priority (P0 — correctness/consistency)
 
 1. ~~**Align coverage output path** — pick `reports/coverage.out` or `coverage.out` and update AGENTS.md, the `coverage` app, and the `clean` app to match.~~ DONE: bd47ffb;
-2. **Review the flake.lock bump** — examine what nixpkgs revision was pulled in and whether the stricter evaluator behavior affects other patterns.
+2. ~~**Review the flake.lock bump** — examine what nixpkgs revision was pulled in and whether the stricter evaluator behavior affects other patterns.~~ resolved as moot — the strictness lesson is encoded in `AGENTS.md`; lock bumps since caused no recurrence
 3. **Decide on `registry.go` root placement** — either move to `internal/linter/` (satisfying `go-structure-linter`) or suppress the rule with a documented exception.
 4. **Resolve the `internal/` directory warning** — either restructure or document why root-level is correct for this library.
 
@@ -93,8 +93,8 @@ Nothing catastrophic. But two process failures worth calling out:
 
 5. **Add `self`-based versioning** to the flake, matching `go-finding`'s `version = self.rev or self.dirtyRev or "dev"` pattern — if this SDK ever builds a binary.
 6. **Add a `checks` output** to the flake for CI — currently treefmt is the only check derivation; consider adding `go test`, `go vet`, and `golangci-lint` as check derivations.
-7. **Cross-check all sibling projects** for the same missing-`self` latent bug — `go-structure-linter`, `branching-flow`, `hierarchical-errors` may have copied the same broken pattern.
-8. **Add `nix fmt` to the post-edit mental checklist** — or better, add it as a buildflow step if not already present.
+7. ~~**Cross-check all sibling projects** for the same missing-`self` latent bug — `go-structure-linter`, `branching-flow`, `hierarchical-errors` may have copied the same broken pattern.~~ done — session 5: all 4 sibling repos verified clean
+8. ~~**Add `nix fmt` to the post-edit mental checklist** — or better, add it as a buildflow step if not already present.~~ done — adopted (session 5+)
 9. ~~**Document the Nix version sensitivity** in AGENTS.md — note that `@`-pattern strictness changed and `self` must always be declared.~~ DONE: AGENTS.md "Gotchas & conventions" (2026-07-27);
 
 ### Lower Priority (P2 — polish)
@@ -102,14 +102,14 @@ Nothing catastrophic. But two process failures worth calling out:
 10. **Add a `checks.x86_64-linux.test` derivation** wrapping `go test` for `nix flake check` CI parity.
 11. **Add a `checks.x86_64-linux.vet` derivation** for `go vet`.
 12. **Add a `checks.x86_64-linux.lint` derivation** for `golangci-lint`.
-13. **Consider `devShells.default` GOEXPERIMENT** — currently set via `env`; verify this propagates to all subprocesses.
+13. ~~**Consider `devShells.default` GOEXPERIMENT** — currently set via `env`; verify this propagates to all subprocesses.~~ done — verified: BuildFlow, CI, and all flake apps run with the env propagated
 14. **Add `meta.position` to apps** for better `nix flake show` output.
 15. **Review `devShells.ci`** — confirm it has everything CI needs and nothing it doesn't.
-16. **Add a `packages.default`** output if the SDK should produce a buildable artifact.
+16. ~~**Add a `packages.default`** output if the SDK should produce a buildable artifact.~~ **Won't implement — library-only, nothing to build into a package (ROADMAP Q3).**
 17. **Consider `flake-schemas`** for richer `nix flake show` metadata.
-18. **Review `.golangci.yml`** for any new linters enabled by the nixpkgs bump.
-19. **Verify `go_1_26` is still the right Go version** after the lock bump.
-20. **Check if `treefmt-nix` gained new formatters** worth enabling after the lock update.
+18. ~~**Review `.golangci.yml`** for any new linters enabled by the nixpkgs bump.~~ done — right-sized from first principles (session 5) and modernized (2026-09-02)
+19. ~~**Verify `go_1_26` is still the right Go version** after the lock bump.~~ done — 1.26.7 pinned in `go.mod` + CI `GOTOOLCHAIN` (lesson in `AGENTS.md`)
+20. ~~**Check if `treefmt-nix` gained new formatters** worth enabling after the lock update.~~ done — `dprint.json` adopted for md/json/yaml on 2026-09-02 (wiring still pending, TODO_LIST #4)
 
 ### Documentation
 
@@ -121,19 +121,19 @@ Nothing catastrophic. But two process failures worth calling out:
 
 ### Testing
 
-26. **Add a test that verifies `DetectorFromRegistry` works with a real filesystem** (integration test).
+26. ~~**Add a test that verifies `DetectorFromRegistry` works with a real filesystem** (integration test).~~ done — detector tests use real temp dirs; example binaries run against real dirs in `examples_integration_test.go`
 27. ~~**Add tests for `ExitCodeFromReport` edge cases** (nil report, empty findings).~~ DONE: already covered by registry_test.go TestExitCodeFromReport;
 28. ~~**Add tests for `Registry.Register` duplicate-name panic** if not already covered.~~ DONE: already covered by registry_test.go TestRegistry_DuplicatePanics;
-29. **Add benchmarks for `Registry.Run` with many rules**.
-30. **Consider table-driven tests for `RuleMeta` fields**.
+29. ~~**Add benchmarks for `Registry.Run` with many rules**.~~ done — `BenchmarkRegistry_Run` (`registry_test.go`)
+30. ~~**Consider table-driven tests for `RuleMeta` fields**.~~ done — `TestRuleMeta_Validate` (6 subtests)
 
 ### Architecture
 
-31. **Review whether the SDK should have an `examples/` directory** showing consumer integration.
+31. ~~**Review whether the SDK should have an `examples/` directory** showing consumer integration.~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
 32. **Consider a `cmd/` directory** for a CLI binary wrapping the registry.
 33. **Evaluate whether `RuleFunc` should use generics** for type-safe rule definitions.
-34. **Review the `RuleError` wrapping pattern** for Go 1.26 `errors.AsType` migration opportunity.
-35. **Consider a `Filter` type** for severity/category-based finding filtering.
+34. ~~**Review the `RuleError` wrapping pattern** for Go 1.26 `errors.AsType` migration opportunity.~~ done — `errors.AsType[*RuleError]` migration completed (session 5); project is gopls-clean
+35. ~~**Consider a `Filter` type** for severity/category-based finding filtering.~~ done in part — `FilterRules` shipped (v0.2.0) for rule-level enable/disable; finding-level filtering is left to consumers
 
 ### DevEx
 
@@ -146,15 +146,15 @@ Nothing catastrophic. But two process failures worth calling out:
 ### Cleanup
 
 41. **Remove deprecated `devShells.ci`** if unused, or document its purpose.
-42. **Review `trash-cli` dependency** — is it needed in runtime inputs or just devShell?
-43. **Audit all `mkApp` calls** for consistent error handling.
-44. **Review shell quoting** in all app scripts for edge cases.
-45. **Check if `coverage.out` should be in `.gitignore`** (it is via `reports/*` pattern but the path mismatch may break this).
-46. **Verify `.editorconfig` aligns with treefmt settings** (gofumpt, goimports, golines max length 120).
-47. **Review `flake.nix` license metadata** — confirm MIT is correct.
-48. **Check if `maintainers` list is complete.**
-49. **Verify `platforms = lib.platforms.unix`** is correct (should Go cross-compile to Darwin too?).
-50. **Consider adding `hydraJobs`** for CI integration if using Hercules CI.
+42. ~~**Review `trash-cli` dependency** — is it needed in runtime inputs or just devShell?~~ done — reviewed 2026-09-09: it is a runtime input of the `clean` app (`trash-put`); correct as-is
+43. ~~**Audit all `mkApp` calls** for consistent error handling.~~ done — audited 2026-09-09: every app is a short static script (no error paths to harden)
+44. ~~**Review shell quoting** in all app scripts for edge cases.~~ done — audited 2026-09-09: no interpolation beyond `"$@"` passthrough
+45. ~~**Check if `coverage.out` should be in `.gitignore`** (it is via `reports/*` pattern but the path mismatch may break this).~~ done — path aligned to `reports/coverage.out` at `bd47ffb`; ignore rules verified
+46. ~~**Verify `.editorconfig` aligns with treefmt settings** (gofumpt, goimports, golines max length 120).~~ done — `.editorconfig` present and consistent
+47. ~~**Review `flake.nix` license metadata** — confirm MIT is correct.~~ done — `meta.license = lib.licenses.mit` on every app
+48. ~~**Check if `maintainers` list is complete.**~~ done — Lars Artmann set on every app
+49. ~~**Verify `platforms = lib.platforms.unix`** is correct (should Go cross-compile to Darwin too?).~~ done — `unix` covers linux+darwin, matching the ubuntu+macos CI matrix
+50. ~~**Consider adding `hydraJobs`** for CI integration if using Hercules CI.~~ **Won't implement — GitHub Actions is the CI; no Hercules.**
 
 ---
 
