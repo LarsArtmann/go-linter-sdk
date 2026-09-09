@@ -94,27 +94,27 @@ These are things I **noticed during this session** but did not address:
 
 ### Verification gaps
 
-1. **I did not run `nix run .#lint`.** I ran `go test` and `go build` only. Per AGENTS.md, `nix run .#lint` (golangci-lint) is the canonical lint check. This is the exact same process failure flagged in the `2026-08-05_10-27` report (their item 11). I repeated it.
+1. ~~**I did not run `nix run .#lint`.**~~ done — the habit was fixed the very next session (M1) and held: 0 issues, re-verified 2026-09-09
 
-2. **I did not run `nix flake check`.** Also canonical per AGENTS.md.
+2. ~~**I did not run `nix flake check`.**~~ done — all checks passed (re-verified 2026-09-09)
 
-3. **I did not run `nix run .#test-race`.** The race-clean status is unverified this session.
+3. ~~**I did not run `nix run .#test-race`.**~~ done — race-clean (re-verified 2026-09-09)
 
 ### Docs I did not touch
 
-4. **README.md** — I read it end-to-end but did not audit it for the "still open" items from the `10-27` report (Status callout near top, data-flow diagram, Quick Start section, full consistency audit after concurrent edits). These remain in the report as open items.
+4. ~~**README.md** — I read it end-to-end but did not audit it for the "still open" items from the `10-27` report~~ done — Status callout, data-flow diagram, Quick Start, ASCII fallback, and full audit all shipped (M7-M9, 2026-08-08)
 
-5. **CONTRIBUTING.md** — I read it and it looked clean, but I did not formally VERIFY every claim against code.
+5. ~~**CONTRIBUTING.md** — I read it and it looked clean, but I did not formally VERIFY every claim against code.~~ done — verified and de-drifted (docs-health pass, 2026-09-09)
 
-6. **AGENTS.md** — I read it extensively for context but did not audit it for staleness. It appeared current.
+6. ~~**AGENTS.md** — I read it extensively for context but did not audit it for staleness.~~ done — audited and updated (docs-health pass, 2026-09-09)
 
-7. **`docs/status/2026-07-*` reports** — I did not annotate these (user scoped to `2026-08-*` files). Six reports from July may have unresolved items.
+7. ~~**`docs/status/2026-07-*` reports** — I did not annotate these~~ done — 5 annotated 2026-08-08 (12:36 session); the last 2 (`2026-07-19_*`) annotated 2026-09-09
 
-8. **`docs/feedback/processed/`** — I noticed this directory exists but did not inspect its contents.
+8. ~~**`docs/feedback/processed/`** — I noticed this directory exists but did not inspect its contents.~~ done — inspected 2026-09-09: one processed feedback doc with maintainer-response appendix
 
 ### Code quality
 
-9. **2 `bloop` warnings** in `registry_test.go:480` and `registry_test.go:738` — pre-existing (`b.N` can be modernized to `b.Loop()`). Not my code, but noticed during diagnostics. Not fixed.
+9. ~~**2 `bloop` warnings** in `registry_test.go:480` and `registry_test.go:738`~~ done — fixed in M1 (2026-08-08)
 
 ---
 
@@ -166,9 +166,9 @@ The CHANGELOG `[Unreleased]` now contains entries from multiple sessions spannin
 
 ### Code quality observations
 
-7. **The 2 `bloop` warnings are trivially fixable** (`b.N` → `b.Loop()` in 2 benchmark functions). A 30-second fix that would bring diagnostics to zero. Not fixing known warnings when you're already in the file is a missed opportunity.
+7. ~~**The 2 `bloop` warnings are trivially fixable**~~ done — fixed in M1, hours after this report
 
-8. **`validateRuleIdentity` and `RuleMeta.Validate` duplication** (TODO_LIST #5) is the kind of thing that should have been fixed on sight per the AGENTS.md "Fix issues on sight" principle. I noticed it, routed it to TODO_LIST, and moved on. A truly excellent session would have fixed it.
+8. ~~**`validateRuleIdentity` and `RuleMeta.Validate` duplication**~~ done — fixed in M4 (`validateIdentityFields` shared core)
 
 ---
 
@@ -178,38 +178,38 @@ Ranked by impact:
 
 ### Verification & quality gates (HIGH)
 
-1. Run `nix run .#lint` and triage findings (2 known `bloop` warnings + anything else)
-2. Run `nix run .#test-race` to confirm race-clean status
-3. Run `nix flake check` to validate the flake
-4. Fix the 2 `bloop` warnings in `registry_test.go:480,738` (`b.N` → `b.Loop()`)
-5. Run a HARVEST pass over the 3 most recent `2026-07-*` status reports
+1. ~~Run `nix run .#lint` and triage findings (2 known `bloop` warnings + anything else)~~ done — 0 issues (re-verified 2026-09-09)
+2. ~~Run `nix run .#test-race` to confirm race-clean status~~ done — race-clean (re-verified 2026-09-09)
+3. ~~Run `nix flake check` to validate the flake~~ done — all checks passed (re-verified 2026-09-09)
+4. ~~Fix the 2 `bloop` warnings in `registry_test.go:480,738` (`b.N` → `b.Loop()`)~~ done — M1
+5. ~~Run a HARVEST pass over the 3 most recent `2026-07-*` status reports~~ done — 2026-08-08 (M11)
 
 ### Testing (HIGH — from TODO_LIST)
 
-6. Integration tests for `examples/minimal-linter` (build binary, run, assert exit code)
-7. Integration tests for `examples/no-go-mod` (build binary, run, assert exit code)
-8. Fuzz `NewRuleError` with nil cause (does `.Error()` panic?)
-9. Test `errors.Is(ruleErr, context.Canceled)` propagation
-10. Test `errors.Is(ruleErr, context.DeadlineExceeded)` propagation
-11. Test `Deregister` during concurrent `Run` — verify snapshot semantics
-12. Benchmark `Registry.Get`/`Has`/`Deregister` at 100+ rules
+6. ~~Integration tests for `examples/minimal-linter` (build binary, run, assert exit code)~~ done — M2
+7. ~~Integration tests for `examples/no-go-mod` (build binary, run, assert exit code)~~ done — M3
+8. ~~Fuzz `NewRuleError` with nil cause (does `.Error()` panic?)~~ done — M5
+9. ~~Test `errors.Is(ruleErr, context.Canceled)` propagation~~ done — M5
+10. ~~Test `errors.Is(ruleErr, context.DeadlineExceeded)` propagation~~ done — M5
+11. ~~Test `Deregister` during concurrent `Run` — verify snapshot semantics~~ done — M6
+12. Benchmark `Registry.Get`/`Has`/`Deregister` at 100+ rules ← still open (only `Register`/`All`/`Run` are benchmarked)
 
 ### Code quality (MEDIUM)
 
-13. Refactor `validateRuleIdentity` and `RuleMeta.Validate` to share logic
-14. Consider exporting `ErrMissingFields` as `ErrMissingFields` for `errors.Is`
-15. Consider `RuleErrors(err) []*RuleError` helper for joined ContinueOnError results
+13. ~~Refactor `validateRuleIdentity` and `RuleMeta.Validate` to share logic~~ done — M4
+14. ~~Consider exporting `ErrMissingFields` as `ErrMissingFields` for `errors.Is`~~ done — M10
+15. ~~Consider `RuleErrors(err) []*RuleError` helper for joined ContinueOnError results~~ done — M10
 16. Add `Registry.Len() int` convenience method
 17. Consider `Registry.RegisterAll(rules ...Rule)` for bulk registration
 
 ### README polish (MEDIUM — from report 10-27)
 
-18. Add "Status" callout near the top (zero consumers, early stage)
-19. Add a data-flow diagram (Rule → finding.Finding → Report → ExitCode)
-20. Add text/ASCII fallback for the mermaid diagram (pkg.go.dev strips HTML)
-21. Add a "Quick Start" section for readers who want to skim
-22. Audit the full README end-to-end for consistency
-23. Verify every README API claim against actual exported symbols
+18. ~~Add "Status" callout near the top (zero consumers, early stage)~~ done — M7
+19. ~~Add a data-flow diagram (Rule → finding.Finding → Report → ExitCode)~~ done — M8
+20. ~~Add text/ASCII fallback for the mermaid diagram (pkg.go.dev strips HTML)~~ done — M8
+21. ~~Add a "Quick Start" section for readers who want to skim~~ done — M7
+22. ~~Audit the full README end-to-end for consistency~~ done — M9
+23. ~~Verify every README API claim against actual exported symbols~~ done — M9
 
 ### Consumer adoption (HIGH — the reason this SDK exists)
 
@@ -234,7 +234,7 @@ Ranked by impact:
 
 ### Documentation (MEDIUM)
 
-39. Update CONTRIBUTING.md with `examples/` directory guidance
+39. ~~Update CONTRIBUTING.md with `examples/` directory guidance~~ done — M13
 40. Add a "Registry patterns" section to README (init-time, plugin, dynamic Deregister)
 41. Verify pkg.go.dev renders testable examples correctly after next publish
 42. Add godoc cross-references between `Registry.Run` and `ContinueOnError`
@@ -248,7 +248,7 @@ Ranked by impact:
 47. Set up Renovate/Dependabot for nix + go dependencies
 48. Add `direnv` setup and/or pre-commit hooks
 49. Add `meta.position` on apps and `flake-schemas`
-50. Verify whether the pkg.go.dev badge resolves now that v1.4.1 is published
+50. ~~Verify whether the pkg.go.dev badge resolves now that v1.4.1 is published~~ done — verified 2026-09-09: pkg.go.dev indexes v0.3.0
 
 ---
 

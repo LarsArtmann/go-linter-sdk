@@ -63,12 +63,12 @@ Nothing is partially done. Everything I started this session is complete.
 
 These are things I identified as needing to be done but did NOT do this session. They are now tracked in `TODO_LIST.md` or `ROADMAP.md`.
 
-1. **ROADMAP.md Theme 3 is badly stale** (discovered during this self-review — see section D for details). Not fixed yet.
-2. **ROADMAP.md Open Question Q1 is resolved** (go-finding v1.4.1 is published) but still listed as open. Not moved to Resolved.
-3. **FEATURES.md verification block is stale** — says "Verified 2026-07-27: 10/10 pass" but there are now 18 tests and the date is old. Not fixed.
-4. **FEATURES.md test count wrong** — says DetectorFromRegistry is "covered by 2 tests" but there are 3 (`DefaultDir`, `ReadsWorkDirFromContext`, `WrapsRuleError`). Not fixed.
-5. **"Building Findings" section in README** — shows `.WithConfidence()` and `.WithFixStrategy()`. In TODO_LIST as item #7. Not started.
-6. **Two-execution-paths diagram** in README. In TODO_LIST as item #8. Not started.
+1. ~~**ROADMAP.md Theme 3 is badly stale** (discovered during this self-review — see section D for details). Not fixed yet.~~ done — ROADMAP fully rewritten (docs-health pass, 2026-08-08)
+2. ~~**ROADMAP.md Open Question Q1 is resolved** (go-finding v1.4.1 is published) but still listed as open. Not moved to Resolved.~~ done — Q1 moved to Resolved (2026-08-08)
+3. ~~**FEATURES.md verification block is stale** — says "Verified 2026-07-27: 10/10 pass" but there are now 18 tests and the date is old. Not fixed.~~ done — verification block refreshed (now 2026-09-09)
+4. ~~**FEATURES.md test count wrong** — says DetectorFromRegistry is "covered by 2 tests" but there are 3 (`DefaultDir`, `ReadsWorkDirFromContext`, `WrapsRuleError`). Not fixed.~~ done — counts dropped in favor of qualitative claims (2026-08-08)
+5. ~~**"Building Findings" section in README** — shows `.WithConfidence()` and `.WithFixStrategy()`. In TODO_LIST as item #7. Not started.~~ done — section shipped (v0.2.0)
+6. ~~**Two-execution-paths diagram** in README. In TODO_LIST as item #8. Not started.~~ done — mermaid + ASCII fallback shipped (v0.2.0)
 
 ---
 
@@ -160,12 +160,12 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs/debt f
 14. Implement `RuleMeta.Validate()` — empty Name, Description, Category (TODO_LIST #4) ✅ done
 15. Add testable examples: `ExampleRegistry_Run`, `ExampleDetectorsFromRegistry`, `ExampleOptIn` (TODO_LIST #6) ✅ done — integration tests + 75 tests total
 16. Clean up TODO_LIST.md guidance HTML comment (references old completed items) ✅ done — rebuilt
-17. Decide `ireturn` fate — keep allow-listing or suppress the linter for `OptIn`/`DetectorFromRegistry` return types
+17. ~~Decide `ireturn` fate — keep allow-listing or suppress the linter for `OptIn`/`DetectorFromRegistry` return types~~ **Decided — keep the two-entry allow-list; no suppression (recorded in the 2026-08-08 resolution below)**
 
 ### Consumer adoption (ROADMAP Theme 2)
 
 18. Create `examples/` directory with a minimal consumer linter (TODO_LIST #9) ✅ done — examples/minimal-linter + examples/no-go-mod
-19. Pilot-port one rule from `go-structure-linter` (TODO_LIST #10)
+19. ~~Pilot-port one rule from `go-structure-linter` (TODO_LIST #10)~~ done — `examples/no-go-mod` (v0.2.0)
 20. Pilot-port a rule from `branching-flow` to validate converter-deletion claim
 21. Create `cmd/` directory with a CLI binary wrapping the registry
 22. Write a migration guide for existing linters adopting the SDK
@@ -183,10 +183,10 @@ Ranked roughly by impact-to-effort ratio. Items marked **[FIX]** are bugs/debt f
 
 ### Publication & distribution (ROADMAP Theme 3 — rewritten)
 
-31. pkg.go.dev publication readiness audit (README's claimed API vs actual exported symbols)
+31. ~~pkg.go.dev publication readiness audit (README's claimed API vs actual exported symbols)~~ done — API table verified (M9) and pkg.go.dev render confirmed (2026-09-09)
 32. Document GOPRIVATE requirement for consumers (go-finding is a private repo) ✅ done — README + CONTRIBUTING
 33. Add a `go.work` workspace for local cross-repo development (optional, not required) ✅ done — created 2026-08-08 (gitignored)
-34. Verify `go get github.com/larsartmann/go-linter-sdk` works from a clean consumer project
+34. ~~Verify `go get github.com/larsartmann/go-linter-sdk` works from a clean consumer project~~ done — stranger test passed (fresh module, proxy-only `go get` + build + run, 2026-09-09)
 
 ### Documentation depth (ROADMAP Theme 5)
 

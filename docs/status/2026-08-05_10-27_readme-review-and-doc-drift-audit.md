@@ -145,12 +145,11 @@ fix because they were outside the immediate README task:
 
 ### Verification gap
 
-11. **I did not run `nix run .#lint`** (golangci-lint). I ran `go build` and
+11. ~~**I did not run `nix run .#lint`** (golangci-lint). I ran `go build` and
     `go test` only. The project has 14 LSP warnings (pre-existing: `wsl_v5`,
     `err113`, `nlreturn`, `exhaustruct`, `bloop`). I don't know if the lint app
-    passes or fails. Per AGENTS.md, `nix run .#lint` is the canonical check.
-    Still open — TODO_LIST does not track this; the 14 warnings may have been
-    fixed in later sessions (current diagnostics show only 2 `bloop` hints).
+    passes or fails. Per AGENTS.md, `nix run .#lint` is the canonical check.~~
+    done — the lint habit was fixed in later sessions; `nix run .#lint` reports 0 issues (re-verified 2026-09-09; the `bloop` hints died in M1)
 
 12. ~~**CHANGELOG.md** `[Unreleased]` section does not mention the README
     improvements made this session.~~
@@ -264,32 +263,32 @@ Ranked by impact:
 
 ### README polish (MEDIUM)
 
-13. Add "Status" callout near the top (zero consumers, early stage) — still open
+13. ~~Add "Status" callout near the top (zero consumers, early stage) — still open~~ done — shipped (M7, 2026-08-08)
 14. ~~Mention `examples/no-go-mod/` (the pilot port) in the README~~
     done — already mentioned in README Consumers section (`ab42b88`)
-15. Add a data-flow diagram (Rule -> finding.Finding -> Report -> ExitCode) —
-    still open (ROADMAP material)
+15. ~~Add a data-flow diagram (Rule -> finding.Finding -> Report -> ExitCode) —
+    still open (ROADMAP material)~~ done — shipped (M8, 2026-08-08)
 16. Clarify whether the SDK is internal-only or aims for external adoption —
     still open (ROADMAP Q2/Q3)
 17. ~~Mark the migration path as "untested in production" or remove step 5~~
     done — README Status section now says "no production linter has fully
     migrated yet" (`ab42b88`)
-18. Audit the full README end-to-end for consistency after concurrent edits —
-    still open
-19. Verify every README API claim against actual exported symbols (automated
-    check) — still open
-20. Add a "Quick Start" section for readers who want to skim — still open
+18. ~~Audit the full README end-to-end for consistency after concurrent edits —
+    still open~~ done — full audit + symbol verification (M9, 2026-08-08)
+19. ~~Verify every README API claim against actual exported symbols (automated
+    check) — still open~~ done — `go doc` cross-check (M9)
+20. ~~Add a "Quick Start" section for readers who want to skim — still open~~ done — shipped (M7)
 
 ### Verification & quality (MEDIUM)
 
-21. Run `nix run .#lint` and triage the 14 LSP warnings
-22. Fix the `wsl_v5` warnings in `rule.go` (missing whitespace above if blocks)
-23. Fix the `err113` warnings in `rule.go` (dynamic errors)
-24. Fix the `nlreturn` warnings (return with no blank line before)
-25. Fix the `exhaustruct` warning in `registry.go` (runConfig missing field)
-26. Fix the `bloop` warnings in `registry_test.go` (b.N → b.Loop())
-27. Run `nix run .#test-race` to confirm race-clean status
-28. Run `nix flake check` to validate the flake
+21. ~~Run `nix run .#lint` and triage the 14 LSP warnings~~ done — 0 issues; gate green (re-verified 2026-09-09)
+22. ~~Fix the `wsl_v5` warnings in `rule.go` (missing whitespace above if blocks)~~ done — lint reports 0 issues
+23. ~~Fix the `err113` warnings in `rule.go` (dynamic errors)~~ done — `ErrMissingFields` sentinel shipped (v0.2.0)
+24. ~~Fix the `nlreturn` warnings (return with no blank line before)~~ done — lint reports 0 issues
+25. ~~Fix the `exhaustruct` warning in `registry.go` (runConfig missing field)~~ done — resolved in the config refactor
+26. ~~Fix the `bloop` warnings in `registry_test.go` (b.N → b.Loop())~~ done — M1 (2026-08-08)
+27. ~~Run `nix run .#test-race` to confirm race-clean status~~ done — race-clean (re-verified 2026-09-09)
+28. ~~Run `nix flake check` to validate the flake~~ done — all checks passed (re-verified 2026-09-09)
 
 ### Consumer adoption (HIGH — the reason this SDK exists)
 
@@ -307,11 +306,11 @@ Ranked by impact:
 33. Implement `NewRegistryFromRules([]Rule) *Registry` constructor (the only
     un-done Theme 1 item)
 34. Add a `Filter` type for severity/category-based finding filtering (ROADMAP)
-35. Evaluate severity-tiered exit codes (ROADMAP)
+35. ~~Evaluate severity-tiered exit codes (ROADMAP)~~ **Decided against — `ExitCodeFromReport` is binary by design; `ExitCodeByConfidence` covers tiering and severity mapping is left to consumers (README design notes)**
 36. Add `ExitCodeFromFindings([]Finding) int` convenience (ROADMAP)
 37. Evaluate a typed `RuleSet` wrapper (ROADMAP)
-38. Fuzz `NewRuleError` with nil cause (ROADMAP Theme 6)
-39. Test `errors.Is` propagation for `context.Canceled`/`DeadlineExceeded`
+38. ~~Fuzz `NewRuleError` with nil cause (ROADMAP Theme 6)~~ done — `TestNewRuleError_NilCause` + `FuzzNewRuleError` (7.7M execs)
+39. ~~Test `errors.Is` propagation for `context.Canceled`/`DeadlineExceeded`~~ done — `errors_test.go`
 40. Confirm `Registry.Register` panic-on-duplicate is the right library contract
 
 ### Infrastructure (LOW)
@@ -322,11 +321,11 @@ Ranked by impact:
 44. Add `direnv` setup and/or pre-commit hooks
 45. Review `devShells.ci` for completeness
 46. Add `meta.position` on apps and `flake-schemas`
-47. Audit pkg.go.dev publication readiness (does the badge resolve now that
-    v1.4.1 is real?)
-48. Add a `go.work` workspace for sibling-repo development
+47. ~~Audit pkg.go.dev publication readiness (does the badge resolve now that
+    v1.4.1 is real?)~~ done — pkg.go.dev indexes v0.3.0; docs, examples, and API verified rendering (2026-09-09)
+48. ~~Add a `go.work` workspace for sibling-repo development~~ done — created 2026-08-08 (gitignored)
 49. Consider a production `cmd/` binary (beyond examples)
-50. Evaluate `.goreleaser.yml` only if a binary ships
+50. ~~Evaluate `.goreleaser.yml` only if a binary ships~~ **Decided — non-goal while library-only (ROADMAP Non-goals)**
 
 ---
 
@@ -400,8 +399,14 @@ section f) items 1-12 resolved:
   and the companion TODO-execution report.
 
 Section f) items 13-20 (README polish): item 14 done (already in README),
-item 17 done (README Status section); items 13, 15, 16, 18-20 remain open.
+item 17 done (README Status section); items 13, 15, 18-20 remain open.
 Items 21-28 (verification): item 11 still open (lint not run in that session;
 current diagnostics show only 2 `bloop` hints). Items 29-50 (consumer adoption,
 API surface, infrastructure): all routed to ROADMAP.md as raw ideas.
+
+> **Addendum (2026-09-09):** items 13, 15, 18-20 were closed by the M7-M9
+> README work (2026-08-08); items 21-28 are green (0 lint issues, race-clean,
+> flake check passed — re-verified 2026-09-09); item 11's lint gap is closed.
+> Still open from this report: item 16 (internal-vs-external framing — ROADMAP
+> Q2/Q3) and the consumer-adoption items (TODO_LIST #7-8).
 Section g) Q1 resolved; Q2/Q3 remain open in ROADMAP.

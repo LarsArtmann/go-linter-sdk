@@ -96,15 +96,15 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 
 2. **`Deregister` during `Run` has a subtle semantics gap.** `Run` calls `All()` which snapshots the slice, so a concurrent `Deregister` won't crash. But the doc comment claims "Safe to call concurrently with Run" without documenting that a rule deregistered after the snapshot but before its execution will still run. This is the right behavior (the snapshot is intentional), but the doc could be more precise. — routed to TODO_LIST #4 (test + document snapshot semantics) — docs-health pass, 2026-08-08
 
-3. **`ContinueOnError` joins errors but callers can't easily enumerate them.** `errors.Join` produces an error that `errors.Is` can search, but extracting individual `*RuleError` values from the join requires `errors.As` with `[]error` — which is awkward. A `RuleErrors()` helper that returns `[]*RuleError` from a joined error would improve ergonomics. — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08
+3. ~~**`ContinueOnError` joins errors but callers can't easily enumerate them.** `errors.Join` produces an error that `errors.Is` can search, but extracting individual `*RuleError` values from the join requires `errors.As` with `[]error` — which is awkward. A `RuleErrors()` helper that returns `[]*RuleError` from a joined error would improve ergonomics.** — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08~~ done — `RuleErrors(err)` shipped (M10, 2026-08-08)
 
 4. **`validateRuleIdentity` duplicates the logic of `RuleMeta.Validate`.** Both check the same four fields through different paths (struct fields vs interface methods). A refactor where `RuleFunc.Validate()` delegates to `RuleMeta.Validate()` would eliminate the duplication, though the interface-level check is needed for custom `Rule` implementations. — routed to TODO_LIST #5 — docs-health pass, 2026-08-08
 
-5. **`errMissingFields` is unexported with no `errors.Is` support on `RuleError`.** Callers who want to distinguish "validation failure" from "runtime failure" have no exported sentinel. If this matters to consumers, `errMissingFields` should be exported as `ErrMissingFields`. — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08
+5. ~~**`errMissingFields` is unexported with no `errors.Is` support on `RuleError`.** Callers who want to distinguish "validation failure" from "runtime failure" have no exported sentinel. If this matters to consumers, `errMissingFields` should be exported as `ErrMissingFields`. — routed to ROADMAP Theme 1 — docs-health pass, 2026-08-08~~ done — `ErrMissingFields` exported (M10, 2026-08-08)
 
 6. **The `examples/` binaries have no tests.** They compile and run manually, but there's no integration test that verifies the example binaries produce the expected output. A `TestExamples` that builds and runs them would prevent rot. — routed to TODO_LIST #1 — docs-health pass, 2026-08-08
 
-7. **The mermaid diagram in README won't render on pkg.go.dev.** pkg.go.dev strips most HTML/mermaid. The diagram is useful on GitHub but invisible on the package documentation site. A text-based fallback or an ASCII diagram would serve both audiences. — routed to ROADMAP — docs-health pass, 2026-08-08
+7. ~~**The mermaid diagram in README won't render on pkg.go.dev.** pkg.go.dev strips most HTML/mermaid. The diagram is useful on GitHub but invisible on the package documentation site. A text-based fallback or an ASCII diagram would serve both audiences. — routed to ROADMAP — docs-health pass, 2026-08-08~~ done — ASCII fallbacks shipped in `<details>` blocks (M8, 2026-08-08)
 
 ### Process observations
 
@@ -130,20 +130,20 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 3. `RuleSet` — typed wrapper around `[]Rule` for consumers that don't want a mutex'd registry
 4. `ExitCodeFromFindings([]Finding)` — convenience that skips building a Report
 5. `map[string]int` index on Registry for O(1) Get/Has/Deregister
-6. `RuleErrors(err) []*RuleError` — extract individual rule errors from a joined error
-7. Export `ErrMissingFields` for consumers who want to distinguish validation failures
+6. ~~`RuleErrors(err) []*RuleError` — extract individual rule errors from a joined error~~ done — shipped (M10, 2026-08-08)
+7. ~~Export `ErrMissingFields` for consumers who want to distinguish validation failures~~ done — shipped (M10)
 8. Severity-tiered `ExitCodeFromReport` option (exit 2 for critical, 1 for warning, etc.)
 9. `Filter` type for severity/category-based finding filtering
 10. `Category.All()` — return all built-in category values
 
 ### Testing
 
-11. Integration test for `examples/minimal-linter` (build binary, run, assert output)
-12. Integration test for `examples/no-go-mod` (build binary, run, assert exit code)
-13. Fuzz `NewRuleError` with nil cause (does `.Error()` panic?)
-14. Test `errors.Is(ruleErr, context.Canceled)` propagation
-15. Test `errors.Is(ruleErr, context.DeadlineExceeded)` propagation
-16. Test `Deregister` during concurrent `Run` — verify snapshot semantics
+11. ~~Integration test for `examples/minimal-linter` (build binary, run, assert output)~~ done — M2 (2026-08-08)
+12. ~~Integration test for `examples/no-go-mod` (build binary, run, assert exit code)~~ done — M3 (2026-08-08)
+13. ~~Fuzz `NewRuleError` with nil cause (does `.Error()` panic?)~~ done — M5 (2026-08-08)
+14. ~~Test `errors.Is(ruleErr, context.Canceled)` propagation~~ done — M5
+15. ~~Test `errors.Is(ruleErr, context.DeadlineExceeded)` propagation~~ done — M5
+16. ~~Test `Deregister` during concurrent `Run` — verify snapshot semantics~~ done — M6
 17. Benchmark `Registry.Get` / `Has` / `Deregister` at 100+ rules
 18. Test `ContinueOnError` with `errors.As([] *RuleError)` extraction
 19. Test `validateRuleIdentity` with a custom `Rule` implementation (not `RuleFunc`)
@@ -167,7 +167,7 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 
 ### Documentation
 
-31. Text/ASCII fallback for the mermaid diagram in README
+31. ~~Text/ASCII fallback for the mermaid diagram in README~~ done — M8 (2026-08-08)
 32. `docs/DOMAIN_LANGUAGE.md` update with `RunOption`, `ContinueOnError`, `Get`/`Has`/`Deregister`
 33. CONTRIBUTING.md update with examples/ directory guidance
 34. Add a "Registry patterns" section to README (init-time registration, plugin registration, dynamic Deregister)
@@ -234,3 +234,11 @@ done (no regressions). Section f) items routed as follows:
 Section e) code quality observations: items 1, 3, 5 routed to ROADMAP; items 2,
 4, 6 routed to TODO_LIST; item 7 routed to ROADMAP.
 Section g) questions remain open — they are design decisions for the maintainer.
+
+> **Addendum (2026-09-09):** The five TODO_LIST items routed above (#1
+> integration tests, #2 fuzz nil-cause, #3 `errors.Is` propagation, #4
+> Deregister-during-Run, #5 `validateRuleIdentity` refactor) were ALL
+> completed on 2026-08-08 by the Pareto execution (M2–M6), along with
+> `ErrMissingFields` + `RuleErrors` (M10) and the README ASCII fallback (M8).
+> Q2 (examples as separate module) is resolved: they stay in the main module
+> (documented in CONTRIBUTING.md).
