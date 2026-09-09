@@ -235,21 +235,21 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 ### Critical path (prove the value)
 
-| # | Task                                                | Impact   | Effort | Notes                                                                                                                        |
-| - | --------------------------------------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| 1 | ~~Verify CI can fetch `go-finding` via `GITHUB_TOKEN`~~ superseded + done — everything went PUBLIC (2026-09-08); CI is auth-free and green on `487d254` — | Critical | 30m    | TODO_LIST #1. Default token is scoped to THIS repo. go-finding is a DIFFERENT private repo. May need PAT or machine account. || 2 | Pilot-port a branching-flow rule to examples/       | Critical | 90m    | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow`.                                    |
-| 3 | Pilot-port an erraudit rule to examples/            | High     | 90m    | Same proof for the error-handling domain.                                                                                    |
-| 4 | Full migration of go-structure-linter               | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                                                               |
-| 5 | Write migration guide from actual pilot ports       | High     | 30m    | Replace aspirational README section with real before/after LOC counts.                                                       |
+| # | Task                                                                                                                                                      | Impact   | Effort | Notes                                                                                                                        |
+| - | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1 | ~~Verify CI can fetch `go-finding` via `GITHUB_TOKEN`~~ superseded + done — everything went PUBLIC (2026-09-08); CI is auth-free and green on `487d254` — | Critical | 30m    | TODO_LIST #1. Default token is scoped to THIS repo. go-finding is a DIFFERENT private repo. May need PAT or machine account. |
+| 3 | Pilot-port an erraudit rule to examples/                                                                                                                  | High     | 90m    | Same proof for the error-handling domain.                                                                                    |
+| 4 | Full migration of go-structure-linter                                                                                                                     | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                                                               |
+| 5 | Write migration guide from actual pilot ports                                                                                                             | High     | 30m    | Replace aspirational README section with real before/after LOC counts.                                                       |
 
 ### Quality hardening
 
-| #  | Task                                                                 | Impact | Effort | Notes                                                       |
-| -- | -------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------------------- |
-| 6  | ~~Add inline strikethrough annotations to 5 July reports~~ done — 119 inline markers (2026-08-08 12:36 session); the 2 remaining `2026-07-19_*` reports fully annotated 2026-09-09 — | Medium | 45m    | Docs-health skill says appendix-only = #1 failure mode.     || 7  | ~~Add test for deeply nested `RuleErrors` unwrapping~~ done — `TestRuleErrors_DeeplyNested` (2026-08-08) — | Low    | 10m    | `fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", ruleErr))` || 8  | ~~Run `FuzzNewRuleError` with `-fuzztime 60s` and commit corpus~~ done — 30s / 7.7M execs / 0 failures / no corpus to commit (2026-08-08) — | Low    | 5m     | Explore the input space beyond seeds.                       || 9  | ~~Add coverage gate to CI (fail if < 95%)~~ done — gate set at 90%, library-packages-only (documented in AGENTS.md) — | Medium | 15m    | Prevents silent coverage regression.                        || 10 | ~~Add `go mod tidy` check to CI (`git diff --exit-code go.mod go.sum`)~~ done — running in CI since 2026-08-08 — | Medium | 10m    | TODO_LIST #3.                                               || 11 | Wire `nix run .#coverage` into CI as an artifact                     | Low    | 10m    |                                                             |
-| 12 | ~~Add `go.work` for local cross-repo dev~~ done — created 2026-08-08 (gitignored) — | High   | 15m    | TODO_LIST #2.                                               || 13 | Add `actionlint` to CI for YAML validation                           | Low    | 10m    |                                                             |
-| 14 | ~~Add `CODEOWNERS` file~~ done — 2026-08-08 — | Low    | 5m     |                                                             || 15 | ~~Add CI status badge to README~~ done — 2026-08-08 (Go Report Card badge later removed: service sunset) — | Low    | 5m     | Currently only Go Reference + Go Report Card badges.        || 16 | Add `Renovate` or `Dependabot` config                                | Low    | 15m    |                                                             |
-| 17 | Review `devShells.ci` — confirm it has what CI needs                 | Low    | 10m    |                                                             |
+| #  | Task                                                                                                                                                                                 | Impact | Effort | Notes                                                   |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------------------------------------------------- |
+| 6  | ~~Add inline strikethrough annotations to 5 July reports~~ done — 119 inline markers (2026-08-08 12:36 session); the 2 remaining `2026-07-19_*` reports fully annotated 2026-09-09 — | Medium | 45m    | Docs-health skill says appendix-only = #1 failure mode. |
+| 12 | ~~Add `go.work` for local cross-repo dev~~ done — created 2026-08-08 (gitignored) —                                                                                                  | High   | 15m    | TODO_LIST #2.                                           |
+| 14 | ~~Add `CODEOWNERS` file~~ done — 2026-08-08 —                                                                                                                                        | Low    | 5m     |                                                         |
+| 17 | Review `devShells.ci` — confirm it has what CI needs                                                                                                                                 | Low    | 10m    |                                                         |
 
 ### API surface (only after consumer feedback)
 
@@ -280,24 +280,25 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 ### Documentation depth
 
-| #  | Task                                                                                                 | Impact | Effort | Notes                                           |
-| -- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
-| 35 | Add "Registry patterns" section to README                                                            | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
-| 36 | ~~Add godoc cross-references between `Run` and `ContinueOnError`~~ done — `ContinueOnError` → `RuleErrors` (2026-08-08) — | Low    | 5m     |                                                 || 37 | Verify pkg.go.dev renders testable examples correctly                                                | Low    | 10m    | After publish.                                  |
-| 38 | ~~Add `DOMAIN_LANGUAGE.md` entry for `DetectorsFromRegistry`~~ done — 2026-08-08 — | Low    | 5m     |                                                 || 39 | ~~Add `DOMAIN_LANGUAGE.md` entries for new API (`ErrMissingFields`, `RuleErrors`, `FilterRules`, etc.)~~ done — 2026-08-08 — | Low    | 15m    |                                                 || 40 | ~~Split CHANGELOG `[Unreleased]` into versioned sections~~ done — v0.2.0 cut 2026-09-02; v0.3.0 2026-09-08 — | Low    | 15m    |                                                 |
+| #  | Task                                                                                                                      | Impact | Effort | Notes                                           |
+| -- | ------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| 35 | Add "Registry patterns" section to README                                                                                 | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
+| 36 | ~~Add godoc cross-references between `Run` and `ContinueOnError`~~ done — `ContinueOnError` → `RuleErrors` (2026-08-08) — | Low    | 5m     |                                                 |
+| 38 | ~~Add `DOMAIN_LANGUAGE.md` entry for `DetectorsFromRegistry`~~ done — 2026-08-08 —                                        | Low    | 5m     |                                                 |
+
 ### Tooling & ecosystem
 
-| #  | Task                                                        | Impact | Effort | Notes                          |
-| -- | ----------------------------------------------------------- | ------ | ------ | ------------------------------ |
-| 41 | Add flake `checks` derivations for test/vet/lint            | Low    | 30m    | Only treefmt is a check today. |
-| 42 | Add `apps.watch` (live test re-runs with `entr`)            | Low    | 10m    |                                |
-| 43 | Add `apps.tidy` (`go mod tidy`)                             | Low    | 5m     |                                |
-| 44 | Add `direnv` setup (`.envrc`)                               | Low    | 10m    |                                |
-| 45 | Add `meta.position` to flake apps                           | Low    | 10m    |                                |
-| 46 | Verify pkg.go.dev badge resolves                            | Low    | 5m     |                                |
-| 47 | ~~Add SSH `insteadOf` workaround doc for read-only git config~~ done — recorded in `AGENTS.md`; verified 2026-09-09 that proxy-only works without it — | Low    | 5m     |                                || 48 | Add pre-commit hook rejecting `replace ../`                 | Low    | 10m    |                                |
-| 49 | Add commit signing (gitsign) to CI                          | Low    | 15m    |                                |
-| 50 | Add `go mod verify` to CI                                   | Low    | 5m     |                                |
+| #  | Task                                                                                                                                                   | Impact | Effort | Notes                          |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------------------------ |
+| 41 | Add flake `checks` derivations for test/vet/lint                                                                                                       | Low    | 30m    | Only treefmt is a check today. |
+| 42 | Add `apps.watch` (live test re-runs with `entr`)                                                                                                       | Low    | 10m    |                                |
+| 43 | Add `apps.tidy` (`go mod tidy`)                                                                                                                        | Low    | 5m     |                                |
+| 44 | Add `direnv` setup (`.envrc`)                                                                                                                          | Low    | 10m    |                                |
+| 45 | Add `meta.position` to flake apps                                                                                                                      | Low    | 10m    |                                |
+| 46 | Verify pkg.go.dev badge resolves                                                                                                                       | Low    | 5m     |                                |
+| 47 | ~~Add SSH `insteadOf` workaround doc for read-only git config~~ done — recorded in `AGENTS.md`; verified 2026-09-09 that proxy-only works without it — | Low    | 5m     |                                |
+| 49 | Add commit signing (gitsign) to CI                                                                                                                     | Low    | 15m    |                                |
+| 50 | Add `go mod verify` to CI                                                                                                                              | Low    | 5m     |                                |
 
 ---
 
@@ -311,8 +312,8 @@ add inline `~~strikethrough~~ done` markers to ~90 numbered items across 5
 files would take ~45 minutes. Is this worth doing, or is the appendix
 sufficient given that these are historical point-in-time snapshots?
 
-   **Answered — yes, and done** (12:36 session the same day; the
-   `2026-07-19_*` pair completed 2026-09-09).
+**Answered — yes, and done** (12:36 session the same day; the
+`2026-07-19_*` pair completed 2026-09-09).
 
 ### Q2: Should I start the consumer pilot ports (M19-M20) now, or wait?
 
@@ -334,10 +335,10 @@ other auth, (b) there's a GitHub Organizations setting that allows cross-repo
 read, or (c) this has never actually been tested end-to-end. I cannot verify
 this without triggering a CI run. Do you know if CI has been passing?
 
-   **Answered — no.** CI had failed on every run since project creation. The
-   `PRIVATE_REPO_TOKEN` fix landed 2026-08-08, then the whole problem was
-   dissolved by the public flip (2026-09-08): the auth-free workflow is green
-   on `487d254`.
+**Answered — no.** CI had failed on every run since project creation. The
+`PRIVATE_REPO_TOKEN` fix landed 2026-08-08, then the whole problem was
+dissolved by the public flip (2026-09-08): the auth-free workflow is green
+on `487d254`.
 
 ---
 

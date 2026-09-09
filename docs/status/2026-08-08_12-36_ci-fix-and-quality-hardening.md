@@ -234,25 +234,25 @@ be cleaner than per-line suppressions.
 
 ### Critical path (prove the value)
 
-| # | Task                                          | Impact   | Effort | Notes                                                                          |
-| - | --------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------ |
-| 1 | ~~Create `PRIVATE_REPO_TOKEN` GitHub secret~~ **OBSOLETE — superseded by the public flip (2026-09-08): CI needs no secret at all. The ghost secret should now be DELETED (TODO_LIST #2).** — | Critical | 5m     | **User action.** Until done, CI fails. PAT with Contents:Read on `go-finding`. || 2 | Pilot-port a branching-flow rule to examples/ | Critical | 90m    | Proves converter-deletion at scale. 1,871 LOC of converter code to eliminate.  |
-| 3 | Pilot-port an erraudit rule to examples/      | High     | 90m    | Same proof for error-handling domain. 1,214 LOC.                               |
-| 4 | Full migration of go-structure-linter         | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                 |
-| 5 | Write migration guide from actual pilot ports | High     | 30m    | Replace aspirational README section with real before/after LOC counts.         |
+| # | Task                                                                                                                                                                                         | Impact   | Effort | Notes                                                                          |
+| - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------ |
+| 1 | ~~Create `PRIVATE_REPO_TOKEN` GitHub secret~~ **OBSOLETE — superseded by the public flip (2026-09-08): CI needs no secret at all. The ghost secret should now be DELETED (TODO_LIST #2).** — | Critical | 5m     | **User action.** Until done, CI fails. PAT with Contents:Read on `go-finding`. |
+| 3 | Pilot-port an erraudit rule to examples/                                                                                                                                                     | High     | 90m    | Same proof for error-handling domain. 1,214 LOC.                               |
+| 4 | Full migration of go-structure-linter                                                                                                                                                        | Critical | 100m   | The pilot consumer. Already aliases `Issue = finding.Finding`.                 |
+| 5 | Write migration guide from actual pilot ports                                                                                                                                                | High     | 30m    | Replace aspirational README section with real before/after LOC counts.         |
 
 ### Quality hardening
 
-| #  | Task                                                         | Impact | Effort | Notes                                    |
-| -- | ------------------------------------------------------------ | ------ | ------ | ---------------------------------------- |
-| 6  | ~~Push CI fix and trigger a run to verify workflow YAML parses~~ done — auth-free CI green on `487d254` (2026-09-09) — | High   | 5m     | Verify end-to-end, not just code review. || 7  | Add stress test to CI (`go test -race -count=20`)            | Medium | 10m    | Single race-clean run ≠ race-free.       |
-| 8  | Add test for `collectRuleErrors` with nil elements in join   | Low    | 10m    | `errors.Join(ruleErr, nil)` edge case.   |
-| 9  | Add actionlint to CI for workflow YAML validation            | Low    | 10m    | Catches YAML errors before push.         |
-| 10 | Add `go mod verify` to CI                                    | Low    | 5m     | Supply chain integrity.                  |
-| 11 | Run fuzz tests with longer `-fuzztime` in CI (or nightly)    | Low    | 15m    | 30s is confidence; 5m is thoroughness.   |
-| 12 | ~~Decide coverage gate threshold deliberately (90% vs 95%)~~ done — decided: 90%, library-packages-only; rationale in `AGENTS.md` — | Low    | —      | Current 90% is arbitrary.                || 13 | Consider coverage artifact upload in CI                      | Low    | 10m    | For visibility on GitHub.                |
-| 14 | ~~Clean up CHANGELOG — split into versioned sections or trim~~ done — v0.2.0 (2026-09-02) and v0.3.0 (2026-09-08) cut the section down — | Low    | 15m    | `[Unreleased]` is 60+ entries.           || 15 | Add Renovate or Dependabot config                            | Low    | 15m    | Dependency hygiene.                      |
-| 16 | Review `devShells.ci` — confirm it has what CI needs         | Low    | 10m    |                                          |
+| #  | Task                                                                                                                                     | Impact | Effort | Notes                                    |
+| -- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ---------------------------------------- |
+| 6  | ~~Push CI fix and trigger a run to verify workflow YAML parses~~ done — auth-free CI green on `487d254` (2026-09-09) —                   | High   | 5m     | Verify end-to-end, not just code review. |
+| 8  | Add test for `collectRuleErrors` with nil elements in join                                                                               | Low    | 10m    | `errors.Join(ruleErr, nil)` edge case.   |
+| 9  | Add actionlint to CI for workflow YAML validation                                                                                        | Low    | 10m    | Catches YAML errors before push.         |
+| 10 | Add `go mod verify` to CI                                                                                                                | Low    | 5m     | Supply chain integrity.                  |
+| 11 | Run fuzz tests with longer `-fuzztime` in CI (or nightly)                                                                                | Low    | 15m    | 30s is confidence; 5m is thoroughness.   |
+| 12 | ~~Decide coverage gate threshold deliberately (90% vs 95%)~~ done — decided: 90%, library-packages-only; rationale in `AGENTS.md` —      | Low    | —      | Current 90% is arbitrary.                |
+| 14 | ~~Clean up CHANGELOG — split into versioned sections or trim~~ done — v0.2.0 (2026-09-02) and v0.3.0 (2026-09-08) cut the section down — | Low    | 15m    | `[Unreleased]` is 60+ entries.           |
+| 16 | Review `devShells.ci` — confirm it has what CI needs                                                                                     | Low    | 10m    |                                          |
 
 ### API surface (only after consumer feedback)
 
@@ -283,26 +283,27 @@ be cleaner than per-line suppressions.
 
 ### Documentation depth
 
-| #  | Task                                                        | Impact | Effort | Notes                                           |
-| -- | ----------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
-| 34 | Add "Registry patterns" section to README                   | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
-| 35 | ~~Verify pkg.go.dev renders testable examples correctly~~ done — examples verified rendering on pkg.go.dev (2026-09-09) — | Low    | 10m    | After publish.                                  || 36 | ~~Split CHANGELOG `[Unreleased]` into versioned sections~~ done — see row 14 — | Low    | 15m    |                                                 || 37 | Add SECURITY.md                                             | Low    | 5m     | If project accepts vulnerability reports.       |
-| 38 | Add SUPPORT.md or "Getting Help" in CONTRIBUTING            | Low    | 5m     |                                                 |
-| 39 | Add issue/PR templates under `.github/`                     | Low    | 10m    |                                                 |
+| #  | Task                                                                                                                               | Impact | Effort | Notes                                           |
+| -- | ---------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| 34 | Add "Registry patterns" section to README                                                                                          | Low    | 15m    | init-time, plugin, dynamic Deregister patterns. |
+| 35 | ~~Verify pkg.go.dev renders testable examples correctly~~ done — examples verified rendering on pkg.go.dev (2026-09-09) —          | Low    | 10m    | After publish.                                  |
+| 38 | Add SUPPORT.md or "Getting Help" in CONTRIBUTING                                                                                   | Low    | 5m     |                                                 |
+| 39 | Add issue/PR templates under `.github/`                                                                                            | Low    | 10m    |                                                 |
 | 40 | ~~Add SSH `insteadOf` workaround doc for read-only git config~~ done — recorded in `AGENTS.md`; proxy-only verified (2026-09-09) — | Low    | 5m     |                                                 |
+
 ### Tooling & ecosystem
 
-| #  | Task                                                                       | Impact | Effort | Notes                                   |
-| -- | -------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
-| 41 | Add flake `checks` derivations for test/vet/lint                           | Low    | 30m    | Only treefmt is a check today.          |
-| 42 | Add `apps.watch` (live test re-runs with `entr`)                           | Low    | 10m    |                                         |
-| 43 | Add `apps.tidy` (`go mod tidy`)                                            | Low    | 5m     |                                         |
-| 44 | Add `direnv` setup (`.envrc`)                                              | Low    | 10m    |                                         |
-| 45 | Add `meta.position` to flake apps                                          | Low    | 10m    |                                         |
-| 46 | ~~Verify pkg.go.dev badge resolves~~ done — verified: pkg.go.dev indexes v0.3.0 (2026-09-09) — | Low    | 5m     |                                         || 47 | Add pre-commit hook rejecting `replace ../`                                | Low    | 10m    |                                         |
-| 48 | Add commit signing (gitsign) to CI                                         | Low    | 15m    |                                         |
-| 49 | Generate `go.work.sum` for workspace checksum consistency                  | Low    | 2m     |                                         |
-| 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go` | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
+| #  | Task                                                                                           | Impact | Effort | Notes                                   |
+| -- | ---------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
+| 41 | Add flake `checks` derivations for test/vet/lint                                               | Low    | 30m    | Only treefmt is a check today.          |
+| 42 | Add `apps.watch` (live test re-runs with `entr`)                                               | Low    | 10m    |                                         |
+| 43 | Add `apps.tidy` (`go mod tidy`)                                                                | Low    | 5m     |                                         |
+| 44 | Add `direnv` setup (`.envrc`)                                                                  | Low    | 10m    |                                         |
+| 45 | Add `meta.position` to flake apps                                                              | Low    | 10m    |                                         |
+| 46 | ~~Verify pkg.go.dev badge resolves~~ done — verified: pkg.go.dev indexes v0.3.0 (2026-09-09) — | Low    | 5m     |                                         |
+| 48 | Add commit signing (gitsign) to CI                                                             | Low    | 15m    |                                         |
+| 49 | Generate `go.work.sum` for workspace checksum consistency                                      | Low    | 2m     |                                         |
+| 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go`                     | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
 
 ---
 

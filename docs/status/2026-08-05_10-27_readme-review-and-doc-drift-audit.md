@@ -409,4 +409,4 @@ API surface, infrastructure): all routed to ROADMAP.md as raw ideas.
 > flake check passed — re-verified 2026-09-09); item 11's lint gap is closed.
 > Still open from this report: item 16 (internal-vs-external framing — ROADMAP
 > Q2/Q3) and the consumer-adoption items (TODO_LIST #7-8).
-Section g) Q1 resolved; Q2/Q3 remain open in ROADMAP.
+> Section g) Q1 resolved; Q2/Q3 remain open in ROADMAP.

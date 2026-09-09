@@ -24,50 +24,50 @@
 
 ## Task breakdown
 
-| ID | Task | Context & acceptance criteria | Depends on |
-| -- | ---- | ----------------------------- | ---------- |
-| S1 | Run gitleaks full-history scan | `nix run nixpkgs#gitleaks detect --source . --redact -v` plus `--log-opts="all"`. Acceptance: scan completed, report saved to `reports/gitleaks.txt` (gitignored) | P0.2 (rotate if hits) |
-| S2 | Triage gitleaks findings | Every hit classified: real secret → rotate + purge decision (user); false positive → document. Acceptance: zero unclassified hits | S1 |
-| S3 | Inventory sensitive narratives in docs | grep docs/ for token-provisioning, hostnames, PAT stories (e.g. `2026-09-09_02-10` f.8). Acceptance: list with file:line | — |
-| S4 | Redact or accept | Prune/redact each S3 hit OR write a dated acceptance note in the file. Acceptance: every hit has a verdict | S3 |
-| M1 | Set GitHub metadata | `gh repo edit --description --homepage https://pkg.go.dev/github.com/larsartmann/go-linter-sdk --add-topic go,linter,static-analysis`. Acceptance: `gh repo view` shows them; closes TODO #6 | — |
-| BF1 | Read branching-flow's smallest rule + converter | Sibling `/home/lars/projects/branching-flow`. Pick the smallest rule; note its converter LOC. Acceptance: chosen rule + LOC number recorded here | — |
-| BF2 | Scaffold `examples/branching-flow-port` | Copy `examples/no-go-mod` skeleton. Acceptance: `nix run .#build` green with a stub rule | BF1 |
-| BF3 | Port RuleMeta identity | ID/Name/Description/Cat/Sev from the original rule; keep the original rule ID for suppression compatibility. Acceptance: registers without panic | BF2 |
-| BF4 | Port Run closure logic | Faithful port of the detection logic, no behavior change. Acceptance: logic lines reviewed against original | BF3 |
-| BF5 | Port finding emission | Use `RuleFunc.NewFinding` or `NewBuilder` + Confidence/FixStrategy where the original had them. Acceptance: findings match the old linter's shape | BF4 |
-| BF6 | Integration test | Extend `examples_integration_test.go` pattern: build, run against fixture, assert output/exit. Acceptance: `nix run .#test` green | BF5 |
-| BF7 | LOC comparison note | Original converter LOC vs port LOC (expected: large deletion, small addition). Acceptance: numbers written into this file + CHANGELOG draft | BF6 |
-| BF8 | Gate + docs sync | lint/vet/race/flake green; FEATURES/CHANGELOG/README consumer table updated. Acceptance: TODO #7 closed | BF7 |
-| D1 | Read go-finding v1.8/v1.9 changelogs | Upstream releases/CHANGELOG. Acceptance: breaking-change list written here | — |
-| D2 | Trial bump on scratch branch | `go get go-finding@v1.9.2 && go mod tidy`. Acceptance: compiles or diff of breakage recorded | D1 |
-| D3 | Gate the bump | Full gate on the branch. Acceptance: green, or documented failures | D2 |
-| D4 | Decide pin-vs-bump | Record decision in CHANGELOG/AGENTS; close TODO #9 either way | D3 |
-| EA1–EA6 | erraudit pilot (mirror BF1–BF6) | Sibling `/home/lars/projects/erraudit`; same acceptance criteria per step; closes TODO #8 | EA1→…→EA6 |
-| G1 | Godoc audit | Compare every exported symbol's doc on pkg.go.dev v0.3.1 vs DOMAIN_LANGUAGE truth. Acceptance: gap list with symbol names | — |
-| G2 | Godoc rewrites: Registry/Run family | Run, RunOption, ContinueOnError, Detector* adapters. Acceptance: gaps from G1 for this family closed | G1 |
-| G3 | Godoc rewrites: Rule/RuleFunc/RuleMeta/Category | Acceptance: gaps closed | G1 |
-| G4 | Godoc rewrites: errors family + examples | RuleError/RuleErrors/ErrMissingFields/ErrRuleFailed + 7 Example funcs. Acceptance: gaps closed; gate green | G1 |
-| Q1 | Test collectRuleErrors nil elements | Table test with nils inside an errors.Join. Acceptance: test added, race-clean | — |
-| Q2 | Package-level lint exclusion for integration tests | Replace per-line nolint in `*_integration_test.go` with one package comment. Acceptance: lint green, fewer nolint lines | — |
-| Q3 | Pin golangci-lint in devShell | Match CI's v2.12.x. Acceptance: devShell lint version == CI version | — |
-| Q4 | exhaustruct → exhaustruct_v5 | Only after Q3 verified. Acceptance: lint green, deprecation warning gone | Q3 |
-| Q5 | Generate go.work.sum | `go work sync` + build inside workspace. Acceptance: file exists, build green | — |
-| Q6 | actionlint in CI | Add step before test job. Acceptance: green run including a deliberately broken YAML locally | — |
-| Q7 | dependabot config | `.github/dependabot.yml` (gomod + actions, weekly). Acceptance: valid config; first check run appears | — |
-| Q8 | Benchmarks Get/Has/Deregister | 100/500/1000 rules, `-benchmem`. Acceptance: baseline numbers recorded | — |
-| Q9 | ADR draft: Register panic-vs-error | `docs/decisions/` or ROADMAP appendix; arguments both ways. Acceptance: draft exists | — |
-| Q10 | Decide + implement Register contract | Per ADR; if changed: breaking → v0.4.0 minor. Acceptance: decision recorded, code matches | Q9 |
-| Q11 | README registry patterns section | init-time, plugin, dynamic Deregister patterns. Acceptance: section merged, links checked | — |
-| Q12 | TODO_LIST numbering-gap note | One HTML comment line explaining the gap at #4 | — |
-| C1 | Stranger-test CI job | Clean dir, `go get @latest`, build hello-linter. Acceptance: green run on a PR | — |
-| C2 | HARVEST this plan into ROADMAP/TODO | Stranger-test CI + demo repo → ROADMAP; verify no new un-routed items | — |
-| C3 | Migration guide part 1 | Skeleton + migration-path expansion from README. Acceptance: draft in `docs/` | BF8, EA6 |
-| C4 | Migration guide part 2 | Real walkthrough citing BF/EA numbers. Acceptance: complete guide linked from README | C3 |
-| C5 | Demo repo decision note | Options + recommendation in ROADMAP (#38). Acceptance: decision or explicit defer | — |
-| R1 | Cut v0.4.0 (only if ratified + API movement) | Follow go-release skill exactly: green CI on exact commit → annotated tag → verify proxy/pkg.go.dev | P0.1, Q10 or next API change |
-| R2 | Post-release habit note | Add to AGENTS gotcha: after each release, check pkg.go.dev @latest + Imported-by | — |
-| R3 | Tidy-mystery resolution | Try to reproduce (same go.sum, cold cache, 1.26.5 vs 1.26.7); if unexplainable, note in AGENTS as environment-dependent | — |
+| ID      | Task                                               | Context & acceptance criteria                                                                                                                                                                | Depends on                   |
+| ------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| S1      | Run gitleaks full-history scan                     | `nix run nixpkgs#gitleaks detect --source . --redact -v` plus `--log-opts="all"`. Acceptance: scan completed, report saved to `reports/gitleaks.txt` (gitignored)                            | P0.2 (rotate if hits)        |
+| S2      | Triage gitleaks findings                           | Every hit classified: real secret → rotate + purge decision (user); false positive → document. Acceptance: zero unclassified hits                                                            | S1                           |
+| S3      | Inventory sensitive narratives in docs             | grep docs/ for token-provisioning, hostnames, PAT stories (e.g. `2026-09-09_02-10` f.8). Acceptance: list with file:line                                                                     | —                            |
+| S4      | Redact or accept                                   | Prune/redact each S3 hit OR write a dated acceptance note in the file. Acceptance: every hit has a verdict                                                                                   | S3                           |
+| M1      | Set GitHub metadata                                | `gh repo edit --description --homepage https://pkg.go.dev/github.com/larsartmann/go-linter-sdk --add-topic go,linter,static-analysis`. Acceptance: `gh repo view` shows them; closes TODO #6 | —                            |
+| BF1     | Read branching-flow's smallest rule + converter    | Sibling `/home/lars/projects/branching-flow`. Pick the smallest rule; note its converter LOC. Acceptance: chosen rule + LOC number recorded here                                             | —                            |
+| BF2     | Scaffold `examples/branching-flow-port`            | Copy `examples/no-go-mod` skeleton. Acceptance: `nix run .#build` green with a stub rule                                                                                                     | BF1                          |
+| BF3     | Port RuleMeta identity                             | ID/Name/Description/Cat/Sev from the original rule; keep the original rule ID for suppression compatibility. Acceptance: registers without panic                                             | BF2                          |
+| BF4     | Port Run closure logic                             | Faithful port of the detection logic, no behavior change. Acceptance: logic lines reviewed against original                                                                                  | BF3                          |
+| BF5     | Port finding emission                              | Use `RuleFunc.NewFinding` or `NewBuilder` + Confidence/FixStrategy where the original had them. Acceptance: findings match the old linter's shape                                            | BF4                          |
+| BF6     | Integration test                                   | Extend `examples_integration_test.go` pattern: build, run against fixture, assert output/exit. Acceptance: `nix run .#test` green                                                            | BF5                          |
+| BF7     | LOC comparison note                                | Original converter LOC vs port LOC (expected: large deletion, small addition). Acceptance: numbers written into this file + CHANGELOG draft                                                  | BF6                          |
+| BF8     | Gate + docs sync                                   | lint/vet/race/flake green; FEATURES/CHANGELOG/README consumer table updated. Acceptance: TODO #7 closed                                                                                      | BF7                          |
+| D1      | Read go-finding v1.8/v1.9 changelogs               | Upstream releases/CHANGELOG. Acceptance: breaking-change list written here                                                                                                                   | —                            |
+| D2      | Trial bump on scratch branch                       | `go get go-finding@v1.9.2 && go mod tidy`. Acceptance: compiles or diff of breakage recorded                                                                                                 | D1                           |
+| D3      | Gate the bump                                      | Full gate on the branch. Acceptance: green, or documented failures                                                                                                                           | D2                           |
+| D4      | Decide pin-vs-bump                                 | Record decision in CHANGELOG/AGENTS; close TODO #9 either way                                                                                                                                | D3                           |
+| EA1–EA6 | erraudit pilot (mirror BF1–BF6)                    | Sibling `/home/lars/projects/erraudit`; same acceptance criteria per step; closes TODO #8                                                                                                    | EA1→…→EA6                    |
+| G1      | Godoc audit                                        | Compare every exported symbol's doc on pkg.go.dev v0.3.1 vs DOMAIN_LANGUAGE truth. Acceptance: gap list with symbol names                                                                    | —                            |
+| G2      | Godoc rewrites: Registry/Run family                | Run, RunOption, ContinueOnError, Detector* adapters. Acceptance: gaps from G1 for this family closed                                                                                         | G1                           |
+| G3      | Godoc rewrites: Rule/RuleFunc/RuleMeta/Category    | Acceptance: gaps closed                                                                                                                                                                      | G1                           |
+| G4      | Godoc rewrites: errors family + examples           | RuleError/RuleErrors/ErrMissingFields/ErrRuleFailed + 7 Example funcs. Acceptance: gaps closed; gate green                                                                                   | G1                           |
+| Q1      | Test collectRuleErrors nil elements                | Table test with nils inside an errors.Join. Acceptance: test added, race-clean                                                                                                               | —                            |
+| Q2      | Package-level lint exclusion for integration tests | Replace per-line nolint in `*_integration_test.go` with one package comment. Acceptance: lint green, fewer nolint lines                                                                      | —                            |
+| Q3      | Pin golangci-lint in devShell                      | Match CI's v2.12.x. Acceptance: devShell lint version == CI version                                                                                                                          | —                            |
+| Q4      | exhaustruct → exhaustruct_v5                       | Only after Q3 verified. Acceptance: lint green, deprecation warning gone                                                                                                                     | Q3                           |
+| Q5      | Generate go.work.sum                               | `go work sync` + build inside workspace. Acceptance: file exists, build green                                                                                                                | —                            |
+| Q6      | actionlint in CI                                   | Add step before test job. Acceptance: green run including a deliberately broken YAML locally                                                                                                 | —                            |
+| Q7      | dependabot config                                  | `.github/dependabot.yml` (gomod + actions, weekly). Acceptance: valid config; first check run appears                                                                                        | —                            |
+| Q8      | Benchmarks Get/Has/Deregister                      | 100/500/1000 rules, `-benchmem`. Acceptance: baseline numbers recorded                                                                                                                       | —                            |
+| Q9      | ADR draft: Register panic-vs-error                 | `docs/decisions/` or ROADMAP appendix; arguments both ways. Acceptance: draft exists                                                                                                         | —                            |
+| Q10     | Decide + implement Register contract               | Per ADR; if changed: breaking → v0.4.0 minor. Acceptance: decision recorded, code matches                                                                                                    | Q9                           |
+| Q11     | README registry patterns section                   | init-time, plugin, dynamic Deregister patterns. Acceptance: section merged, links checked                                                                                                    | —                            |
+| Q12     | TODO_LIST numbering-gap note                       | One HTML comment line explaining the gap at #4                                                                                                                                               | —                            |
+| C1      | Stranger-test CI job                               | Clean dir, `go get @latest`, build hello-linter. Acceptance: green run on a PR                                                                                                               | —                            |
+| C2      | HARVEST this plan into ROADMAP/TODO                | Stranger-test CI + demo repo → ROADMAP; verify no new un-routed items                                                                                                                        | —                            |
+| C3      | Migration guide part 1                             | Skeleton + migration-path expansion from README. Acceptance: draft in `docs/`                                                                                                                | BF8, EA6                     |
+| C4      | Migration guide part 2                             | Real walkthrough citing BF/EA numbers. Acceptance: complete guide linked from README                                                                                                         | C3                           |
+| C5      | Demo repo decision note                            | Options + recommendation in ROADMAP (#38). Acceptance: decision or explicit defer                                                                                                            | —                            |
+| R1      | Cut v0.4.0 (only if ratified + API movement)       | Follow go-release skill exactly: green CI on exact commit → annotated tag → verify proxy/pkg.go.dev                                                                                          | P0.1, Q10 or next API change |
+| R2      | Post-release habit note                            | Add to AGENTS gotcha: after each release, check pkg.go.dev @latest + Imported-by                                                                                                             | —                            |
+| R3      | Tidy-mystery resolution                            | Try to reproduce (same go.sum, cold cache, 1.26.5 vs 1.26.7); if unexplainable, note in AGENTS as environment-dependent                                                                      | —                            |
 
 ## Execution graph
 

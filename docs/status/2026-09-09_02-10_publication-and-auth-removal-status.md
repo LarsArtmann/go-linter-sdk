@@ -12,8 +12,8 @@
 
 1. **Sequencing around an irreversible flip.** I flipped the repo to public while the four corrective edits (README, ci.yml, AGENTS.md, CHANGELOG.md) were still uncommitted. The auto-git daemon committed them only at 02:06:41 (this morning) — so for the whole window between the flip (previous session) and 02:06, the **public** repo displayed the stale "go-finding is private, set GOPRIVATE" warning and the old CI. Harm: low (following the stale instructions is wasteful, not breaking), but the sequencing was wrong: content correctness must precede an irreversible exposure flip.
 2. **CONTRIBUTING.md staleness.** It still claims "`go-finding` is resolved from VCS as a published tag (`v1.4.1` in `go.mod`)" — go.mod says v1.7.0. I read CONTRIBUTING during the session and did not fix it. Split brain, still live.
-3. **The secret itself.** I removed all *usage* of `PRIVATE_REPO_TOKEN` from ci.yml but left the secret sitting in GitHub repo settings — a now-unused credential provisioned (per old AGENTS.md lore) from the maintainer's broad `gh auth token`. Off-boarding auth means deleting/rotating the credential, not just the workflow steps.
-4. **Verification scope of the stranger test.** I proved `go-linter-sdk@v0.2.0` + `go-finding v1.6.0` resolve via proxy.golang.org. The *current* master requires go-finding **v1.7.0** — that exact version was never fetched through the public proxy in my test. If v1.7.0 had been tagged while the repo was private and the proxy cached a negative result, CI's `go mod tidy` would 410. Unverified gap; CI's next run is the real test.
+3. **The secret itself.** I removed all _usage_ of `PRIVATE_REPO_TOKEN` from ci.yml but left the secret sitting in GitHub repo settings — a now-unused credential provisioned (per old AGENTS.md lore) from the maintainer's broad `gh auth token`. Off-boarding auth means deleting/rotating the credential, not just the workflow steps.
+4. **Verification scope of the stranger test.** I proved `go-linter-sdk@v0.2.0` + `go-finding v1.6.0` resolve via proxy.golang.org. The _current_ master requires go-finding **v1.7.0** — that exact version was never fetched through the public proxy in my test. If v1.7.0 had been tagged while the repo was private and the proxy cached a negative result, CI's `go mod tidy` would 410. Unverified gap; CI's next run is the real test.
 5. **CI has never run the new workflow.** The auth-free ci.yml shipped in commit `7675912` (02:06 today); no push has triggered it yet. My YAML check was a local parse, not a workflow run.
 6. **Tagged docs are frozen wrong.** pkg.go.dev renders v0.2.0's README — which still contains the false private-dependency warning — until a new tag is cut. I flagged the stale master README but not the frozen-tag consequence.
 
@@ -21,11 +21,11 @@
 
 - **Dependency versions written in 4 places** (go.mod, README "v1.4+", CONTRIBUTING "v1.4.1", AGENTS.md) — a permanent drift machine; two of the four were wrong this session.
 - **A broad PAT sat in repo secrets** for a dependency that is now public — dead weight with real blast radius.
-- **Internal strategy documents in a public repo** (docs/status/*, docs/planning/* expose the private ecosystem map: branching-flow, erraudit, go-structure-linter + LOC metrics). Accepted deliberately per "make it public, guarantee nothing" — but it remains the single largest irreversible disclosure of this session.
+- **Internal strategy documents in a public repo** (docs/status/_, docs/planning/_ expose the private ecosystem map: branching-flow, erraudit, go-structure-linter + LOC metrics). Accepted deliberately per "make it public, guarantee nothing" — but it remains the single largest irreversible disclosure of this session.
 
 ### What could I have done better?
 
-- Commit → verify CI green → *then* flip visibility.
+- Commit → verify CI green → _then_ flip visibility.
 - Run the stranger test against the **current** go.mod dependency set (v1.7.0), not just the last tag.
 - Delete the unused secret in the same operation that removed its usage.
 - Verify the pkg.go.dev claim instead of asserting an expectation.
@@ -42,22 +42,22 @@ No. Two statements were expectations presented as expectations, not verified fac
 
 ## a) FULLY DONE
 
-| Item | Evidence |
-| --- | --- |
-| Publication readiness audit (visibility, deps, license, history secret scan) | `gh repo view` ×3, `git log --all` filename + token-pattern scans — all clean |
-| README stale private-dependency warning removed | commit `7675912`, README.md −2 lines |
-| CI private-auth scaffolding removed (3 auth steps, `GOPRIVATE` env, 10-line secret header comment) | ci.yml −19 lines, zero `secrets.` refs remain, YAML parses valid |
-| AGENTS.md corrected (public facts, go-finding v1.6.0→v1.7.0, token lore replaced) | commit `7675912` |
-| CHANGELOG "Unreleased" entry documenting the flip | commit `7675912` |
-| Repo flipped to public | `gh repo edit --visibility public` → confirmed `PUBLIC` |
+| Item                                                                                                                           | Evidence                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Publication readiness audit (visibility, deps, license, history secret scan)                                                   | `gh repo view` ×3, `git log --all` filename + token-pattern scans — all clean         |
+| README stale private-dependency warning removed                                                                                | commit `7675912`, README.md −2 lines                                                  |
+| CI private-auth scaffolding removed (3 auth steps, `GOPRIVATE` env, 10-line secret header comment)                             | ci.yml −19 lines, zero `secrets.` refs remain, YAML parses valid                      |
+| AGENTS.md corrected (public facts, go-finding v1.6.0→v1.7.0, token lore replaced)                                              | commit `7675912`                                                                      |
+| CHANGELOG "Unreleased" entry documenting the flip                                                                              | commit `7675912`                                                                      |
+| Repo flipped to public                                                                                                         | `gh repo edit --visibility public` → confirmed `PUBLIC`                               |
 | End-to-end stranger test (fresh module, `GOPROXY=proxy.golang.org` only, no auth): `go get go-linter-sdk@v0.2.0` + build + run | resolved go-finding v1.6.0 + go-error-family v0.10.0; program printed expected output |
-| Local build + full test suite green after all edits | `GOEXPERIMENT=jsonv2 go build ./... && go test ./... -count=1` → ok |
-| Temp verification module cleaned up | `trash /tmp/pubtest` (no `rm`) |
-| All four edits committed (auto-git daemon, 02:06:41) | `7675912`, working tree clean before this report |
+| Local build + full test suite green after all edits                                                                            | `GOEXPERIMENT=jsonv2 go build ./... && go test ./... -count=1` → ok                   |
+| Temp verification module cleaned up                                                                                            | `trash /tmp/pubtest` (no `rm`)                                                        |
+| All four edits committed (auto-git daemon, 02:06:41)                                                                           | `7675912`, working tree clean before this report                                      |
 
 ## b) PARTIALLY DONE
 
-1. ~~**The publication itself.** Source-side is complete and committed; the *verification* side is not: no CI run on the auth-free workflow, no pkg.go.dev confirmation, no goreportcard badge check.~~ done (verified 2026-09-09): CI green end-to-end on `487d254`; pkg.go.dev indexes v0.3.0; goreportcard checked — service sunset, badge removed from README
+1. ~~**The publication itself.** Source-side is complete and committed; the _verification_ side is not: no CI run on the auth-free workflow, no pkg.go.dev confirmation, no goreportcard badge check.~~ done (verified 2026-09-09): CI green end-to-end on `487d254`; pkg.go.dev indexes v0.3.0; goreportcard checked — service sunset, badge removed from README
 2. ~~**Public consumption proof.** Proven for v0.2.0's dependency set (go-finding v1.6.0); not proven for master's go-finding v1.7.0.~~ done (2026-09-09): proxy-only `go mod download` of the master dep set succeeds, and the green CI run compiles v1.7.0 end-to-end
 3. **Auth off-boarding.** Usage removed; the credential itself still exists in repo settings.
 4. **"Guarantee nothing" stance.** It exists as an instruction to me, but is not yet encoded anywhere public (no as-is line in README beyond MIT, no SUPPORT.md). ← done in part — recorded in `AGENTS.md` (2026-09-09); the public statement awaits the support-posture decision (ROADMAP Q6)
@@ -78,7 +78,7 @@ No. Two statements were expectations presented as expectations, not verified fac
 
 Nothing catastrophic: no broken code, no failed tests, no leaked secrets, no destructive operations.
 
-One genuine process fuck-up, honestly owned: **the visibility flip preceded the commit.** An irreversible public exposure was executed while the corrective content existed only in my working tree, relying on the daemon's timing. The public repo showed false install instructions for the flip-to-commit window (hours). Lesson encoded in section (e): irreversible flips come *last*, after content is committed and CI-verified.
+One genuine process fuck-up, honestly owned: **the visibility flip preceded the commit.** An irreversible public exposure was executed while the corrective content existed only in my working tree, relying on the daemon's timing. The public repo showed false install instructions for the flip-to-commit window (hours). Lesson encoded in section (e): irreversible flips come _last_, after content is committed and CI-verified.
 
 Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in settings, unused since `7675912`). Not leaked — just stale privilege that should not outlive its purpose.
 
@@ -93,6 +93,7 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 ## f) NEXT: 50 items (brainstorm for docs-health HARVEST — most belong in TODO_LIST/ROADMAP, sorted by impact)
 
 **Verify the publication (highest impact, this week):**
+
 1. ~~Push the next commit (this report) and watch CI run the auth-free workflow end-to-end.~~ done — green on `487d254` (1m11s)
 2. ~~Verify go-finding v1.7.0 + go-error-family v0.10.0 resolve via proxy.golang.org (master's dep set).~~ done — proxy-only `go mod download` + `go mod verify` pass (2026-09-09)
 3. ~~Confirm pkg.go.dev lists go-linter-sdk@v0.2.0; request indexing if absent.~~ done — v0.3.0 is indexed and current
@@ -158,7 +159,7 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 
 1. **Secret off-boarding:** May I delete `PRIVATE_REPO_TOKEN` from the repo settings now (`gh secret delete`), and do you want the broader source PAT rotated? Deleting a credential is destructive and account-touching — I won't do it without your go-ahead.
 2. **Support posture:** Should the public repo accept issues/PRs from strangers (triaged by you, still no guarantees), or run read-only/mirror with the tracker disabled? This determines SECURITY.md/SUPPORT.md wording, templates, and branch-protection setup.
-3. **Flip policy:** For future irreversible operations (visibility, deletions, releases), do you accept an explicit pre-flight commit so content is verified *before* the flip — or should I always wait for the daemon and accept the exposure window? The "never commit without your say-so" rule is what produced this session's gap.
+3. **Flip policy:** For future irreversible operations (visibility, deletions, releases), do you accept an explicit pre-flight commit so content is verified _before_ the flip — or should I always wait for the daemon and accept the exposure window? The "never commit without your say-so" rule is what produced this session's gap.
 
 ---
 

@@ -4,8 +4,7 @@
 
 Do **not** open a public issue for a security problem.
 
-Please report privately via [GitHub security advisories](
-https://github.com/LarsArtmann/go-linter-sdk/security/advisories/new)
+Please report privately via [GitHub security advisories](https://github.com/LarsArtmann/go-linter-sdk/security/advisories/new)
 ("Report a vulnerability"). Include a description, reproduction steps, and
 affected versions if known.
 
