@@ -158,6 +158,46 @@ errors into `*RuleError`.
 
 - **Lives at:** `registry.go`
 
+## Borrowed vocabulary (go-finding v1.7.0)
+
+The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
+directly; the SDK never translates them. Definitions below mirror the pinned
+v1.7.0 source (module cache), not newer tags.
+
+- **Finding** — one detected issue: identity (`ID`, `Rule`, `ToolName`),
+  location (`Position`), `Message`, `Severity`, plus optional `Category`,
+  `Confidence`, `FixStrategy`, `GroupID`, and suppression metadata. Built via
+  `finding.NewBuilder(...)` (validating) rather than struct literals.
+- **Report** — the aggregated result of a run: `ToolInfo` plus deduplicated
+  findings. `Registry.Run` returns one; `ExitCodeFromReport` consumes one.
+- **Severity** — impact of a finding: `info` < `warning` < `error` <
+  `critical`. A rule declares its default severity in `RuleMeta.Sev`; it can
+  still emit per-finding severities that differ.
+- **Confidence** — how sure the rule is that this specific finding is real:
+  `ConfidenceNone` (0.0), `ConfidenceLow` (0.25), `ConfidenceMedium` (0.5),
+  `ConfidenceHigh` (0.75), `ConfidenceFull` (1.0). Per-finding, via
+  `Builder.WithConfidence` — the SDK deliberately has no rule-level default.
+- **FixStrategy** — what remediation exists for a finding: `none`,
+  `suggest` (human-readable hint only), `direct` (mechanically applicable),
+  `ai` (reserved; pipeline triage currently treats it as `suggest`).
+  `HasFix()` asks "any fix?"; `IsAutoFixable()` asks "can the machine apply
+  it?" (strict subset: `direct` only). Per-finding, via
+  `Builder.WithFixStrategy`.
+- **GroupID** — optional branded string linking findings that belong to one
+  logical issue (e.g. a clone group: N findings, one root cause).
+  `Report.GroupFindings()` collapses them for triage. Rules set it via
+  `Builder.WithGroupID`; findings without one are ungrouped.
+- **Detector** — the ecosystem's execution interface (`Detect(ctx)`,
+  named). The SDK's two adapters (`DetectorFromRegistry`,
+  `DetectorsFromRegistry`) exist purely to present rules as detectors.
+
+**Fix outcomes and rollback are NOT SDK concepts.** Applying `direct` fixes,
+recording per-finding fix outcomes, and scoped rollback belong to the
+`go-finding/pipeline` module's FixEngine — a separate module this SDK does
+not import. The SDK's contract ends at declaring `FixStrategy`; consumers
+that want detect → fix → verify loops adopt the pipeline themselves via
+`DetectorsFromRegistry`.
+
 ## Relationships
 
 ```
