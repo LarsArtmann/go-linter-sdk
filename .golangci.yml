@@ -146,9 +146,6 @@ linters:
         - fmt.Println
         - (*strings.Builder).WriteString
         - (*bytes.Buffer).WriteString
-    exhaustruct_v5:
-      exclude:
-        - os/exec.Cmd
     funlen:
       lines: 120
       statements: 80
