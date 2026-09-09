@@ -13,7 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Nothing yet.
+- Repository is now public. With `go-finding` and `go-error-family` public as
+  well, plain `go get` needs no authentication; the README's private-dependency
+  warning and CI's `GOPRIVATE`/token scaffolding were removed.
 
 ### Fixed
 

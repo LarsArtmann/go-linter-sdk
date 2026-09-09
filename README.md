@@ -45,8 +45,6 @@ go get github.com/larsartmann/go-linter-sdk
 
 Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.4+.
 
-> **Private dependency.** `go-finding` is a private repository. Set `GOPRIVATE=github.com/larsartmann/*` and authenticate to GitHub (token or SSH) before `go get`, otherwise the module proxy returns 404. CI uses `GITHUB_TOKEN`; local dev uses `GOPRIVATE` plus an SSH `insteadOf` rewrite.
-
 ---
 
 ## Quick Start
