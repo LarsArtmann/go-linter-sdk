@@ -32,9 +32,7 @@
 
 ### Dependency hygiene
 
-| # | Task                                                            | Impact | Effort | Status | Evidence                                                                                                                                                  |
-| - | --------------------------------------------------------------- | ------ | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9 | Evaluate `go-finding` v1.9.2 bump (`v1.7.0` pinned in `go.mod`) | Low    | 20m    | TODO   | v1.8.0 and v1.9.2 tags exist upstream (module cache, 2026-09-09); changelogs unreviewed, possible breaking changes. Review, then bump or pin consciously. |
+None open. (`go-finding` pinned at `v1.9.2` — bumped 2026-09-09, gate green.)
 
 ---
 

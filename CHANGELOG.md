@@ -11,15 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
+### Changed
+
+- **Dependency:** `go-finding` bumped from `v1.7.0` to `v1.9.2` (transitives:
+  `golang.org/x/mod` v0.41.0, `x/sync` v0.23.0, `x/sys` v0.48.0). Full gate
+  green post-bump (build, test, race, vet, golangci-lint, `nix flake check`).
+  No API changes required in this SDK.
+- `dprint.json` re-added as a standalone formatter config (not wired into
+  treefmt, preserving hermetic `nix flake check`).
+
 ### Removed
 
 - The unused `PRIVATE_REPO_TOKEN` GitHub Actions secret (post-`v0.3.1` repo
   operation; `ci.yml` has had zero `secrets.` references since `7675912`).
   Rotate the underlying PAT if it served no other repo.
-
-### Fixed
-
-- Nothing yet.
 
 ## [0.3.1] - 2026-09-09
 
