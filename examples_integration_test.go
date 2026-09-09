@@ -89,7 +89,71 @@ func TestExampleMinimalLinter_MissingReadme(t *testing.T) {
 	}
 }
 
-// No-go-mod tests.
+// Naked-return-guard tests.
+func TestExampleNakedReturnGuard_CleanCode(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/naked-return-guard")
+
+	dir := t.TempDir()
+	src := "package a\n\nfunc ok() (n int) {\n\tn = 1\n\treturn n\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0, got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
+func TestExampleNakedReturnGuard_NakedReturnInLongFunction(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/naked-return-guard")
+
+	dir := t.TempDir()
+	// 12-line body (bodyLen = end - start = 12 > 10) with a naked return.
+	src := "package a\n\nfunc bad() (n int, err error) {\n\tn = 1\n\tx := 2\n\ty := 3\n\tz := 4\n\ta := 5\n\tb := 6\n\tc := 7\n\td := 8\n\te := 9\n\tif n > 0 {\n\t\treturn\n\t}\n\treturn n, nil\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 1 {
+		t.Errorf("expected exit 1, got %d", code)
+	}
+
+	if !strings.Contains(stdout, "naked return in bad() (14 lines)") {
+		t.Errorf("expected finding in stdout, got %q", stdout)
+	}
+}
+
+func TestExampleNakedReturnGuard_SkipsTestFiles(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/naked-return-guard")
+
+	dir := t.TempDir()
+	src := "package a\n\nfunc bad() (n int) {\n\treturn\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "a_test.go"), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0 (test files skipped), got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
 func TestExampleNoGoMod_CleanDir(t *testing.T) {
 	t.Parallel()
 

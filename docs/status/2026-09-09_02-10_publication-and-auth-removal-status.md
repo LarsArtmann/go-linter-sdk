@@ -172,3 +172,21 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 - Stranger test in `/tmp/pubtest`: `go mod init` + `GOPROXY=https://proxy.golang.org,direct GOPRIVATE= go get github.com/larsartmann/go-linter-sdk@v0.2.0` → resolved v1.6.0/v0.10.0; `go run .` → correct output.
 - Post-daemon-commit: `grep secrets. ci.yml` → none; Python yaml.safe_load → valid.
 - `git show --stat 7675912` → exactly the 4 intended files, −34/+12.
+
+---
+
+## Addendum 2026-09-09 — S4 sensitive-narrative acceptance verdict (plan task S3/S4)
+
+Full-repo sweep (`rg` over `docs/`, README, CONTRIBUTING, SECURITY, SUPPORT) for
+token-provisioning narratives, hostnames, and PAT stories found ~40 hits — all
+historical process narratives in point-in-time status reports (this file
+included), **zero credential values**. Corroborated by a gitleaks v8
+full-history scan (109 commits, 0 findings, `reports/GITLEAKS_TRIAGE.txt`).
+
+**Verdict: ACCEPT all hits, redact nothing.** Rationale: no secret material
+exists or existed in history; the narratives describe the remediation itself
+(deleting `PRIVATE_REPO_TOKEN`), which is public record by design of the open
+docs policy. The one sensitive *fact* — that the old secret derived from the
+maintainer's broad `gh auth token` — remains actionable only with account
+access, which this repo does not confer. PAT rotation stays with the
+maintainer (AGENTS.md, user decisions 2026-09-09).
