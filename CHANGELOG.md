@@ -9,7 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **`examples/naked-return-guard`: pilot port of `branching-flow`'s
+  `nakedreturn` rule.** Validates the converter-deletion claim for the
+  analyzer family: the original ships analyzer.go (106 LOC) + a Detection
+  type (17 LOC) + a `DetectionsToFindings` converter (33 LOC) on top of
+  shared astutil infrastructure; the port is one self-contained `RuleFunc`
+  (195 LOC including docs and main) emitting `finding.Finding` directly.
+  Detection logic is a faithful port (naked `return` in functions >10 lines
+  with named results; test files and vendor trees skipped); the original
+  rule ID `NAKED_RETURN_GUARD`, severity, confidence (0.85), suggestion, and
+  metadata keys are preserved for suppression/output compatibility. Covered
+  by three integration tests (clean code, long-function detection, test-file
+  skip).
 
 ### Changed
 

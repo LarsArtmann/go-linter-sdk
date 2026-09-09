@@ -27,7 +27,6 @@
 
 | # | Task                                          | Impact   | Effort | Status | Evidence                                                                                                                                                        |
 | - | --------------------------------------------- | -------- | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7 | Pilot-port a branching-flow rule to examples/ | Critical | 90m    | TODO   | Proves converter-deletion at scale. Sibling repo at `/home/lars/projects/branching-flow` (1,871 LOC of converter code). Pareto plan M19; #1 value-proving task. |
 | 8 | Pilot-port an erraudit rule to examples/      | High     | 90m    | TODO   | Same proof for the error-handling domain. Sibling repo at `/home/lars/projects/erraudit` (1,214 LOC). Pareto plan M20.                                          |
 
 ### Dependency hygiene
