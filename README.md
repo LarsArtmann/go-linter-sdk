@@ -210,6 +210,45 @@ DetectorsFromRegistry (pipeline): Split → [Detector: Rule 1 | Rule 2 | Rule N]
 
 ---
 
+## Registry patterns
+
+Three registration patterns cover every consumer seen so far:
+
+**1. Init-time (the common case).** All rules registered at startup; duplicates
+or bad metadata crash loudly, which is what you want for first-party rules:
+
+```go
+registry := linter.NewRegistry(linter.WithToolName("my-linter"))
+registry.Register(myRule)      // panics on duplicate ID / missing identity fields
+registry.Register(optInRule())
+```
+
+**2. Plugin / opt-in rules.** Noisy or experimental rules stay disabled by
+default and are enabled by name via [FilterRules](#api):
+
+```go
+rules := linter.FilterRules(allRules, enableSet, disableSet)
+for _, r := range rules {
+    registry.Register(r)
+}
+```
+
+**3. Dynamic Deregister.** A long-running host (LSP server, watch mode) can
+remove rules at runtime; `Deregister(id)` is safe to call concurrently with
+`Run` (runs take a snapshot of the rule list). `Has(id)` / `Get(id)` answer
+lookup questions by stable ID:
+
+```go
+if registry.Has("my-rule") {
+    registry.Deregister("my-rule")
+}
+```
+
+For the reasoning behind Register's panic-on-duplicate contract, see
+[docs/decisions/2026-09-09_register-panic-vs-error.md](docs/decisions/2026-09-09_register-panic-vs-error.md).
+
+---
+
 ## API
 
 ### Types
@@ -260,6 +299,8 @@ DetectorsFromRegistry (pipeline): Split → [Detector: Rule 1 | Rule 2 | Rule N]
 ---
 
 ## Migration path
+
+**Full walkthrough with measured numbers: [docs/migration-guide.md](docs/migration-guide.md).**
 
 Existing linters migrate **incrementally** — one rule at a time:
 

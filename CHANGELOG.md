@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`docs/migration-guide.md`:** full consumer walkthrough (add dependency →
+  port one rule → wire execution/exit codes → what to delete), with the
+  measured pilot-port LOC table and common pitfalls (workspace tidy
+  contamination, ID preservation). Linked from the README Migration path
+  section.
+- **Registry patterns section in README:** init-time, plugin/opt-in
+  (`FilterRules`), and dynamic `Deregister` patterns, with the Register
+  panic-contract reasoning documented in
+  `docs/decisions/2026-09-09_register-panic-vs-error.md` (ADR: keep panics;
+  decision recorded, no API change).
+- **`bench_test.go`:** benchmarks for `Registry.Get`/`Has`/`Deregister` at
+  100/500/1000 rules; baseline recorded in `reports/benchmarks-baseline.txt`.
+- **CI:** `actionlint` job (workflow YAML linting, v1.7.12) and a
+  `stranger-test` job (clean directory, proxy-only, `go get @latest`, build
+  and run a hello-linter) — simulates exactly what pkg.go.dev users get.
+- **`.github/dependabot.yml`:** weekly gomod + github-actions update checks.
+- Nil-element coverage for `RuleErrors`: `errors.Join` output containing nil
+  children is handled and now explicitly tested (race-clean).
+- gitleaks full-history scan artifacts: 109 commits scanned, 0 findings;
+  sensitive-docs sweep of `docs/` accepted with a dated verdict addendum
+  (no credential values in history).
 - **`examples/naked-return-guard`: pilot port of `branching-flow`'s
   `nakedreturn` rule.** Validates the converter-deletion claim for the
   analyzer family: the original ships analyzer.go (106 LOC) + a Detection

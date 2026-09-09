@@ -145,10 +145,21 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
      daemon commits but never pushes; pushing manually at end-of-session is
      now a mandatory step. (Option (c), daemon-pushes-on-green-CI, stays off
      the table while branch protection might ever be enabled.)
-- **Auto-git daemon manages commits.**** The daemon commits automatically with
+- **Auto-git daemon manages commits.** The daemon commits automatically with
   generated messages (sometimes low-quality). Do not rewrite history to fix
   them — `CHANGELOG.md` is the narrative of record. Focus on keeping the
   CHANGELOG accurate rather than the `git log` pretty.
+- **Post-release habit (do this every release).** After tagging: verify
+  pkg.go.dev renders `@latest` (frozen README!) and check the "Imported by"
+  count to see adoption. pkg.go.dev indexes on proxy activity — a `go get` of
+  the new tag triggers it.
+- **NEVER run `go mod tidy` / `go work sync` with a `go.work` workspace
+  active** (resolved 2026-09-09 — this is the R3 tidy-mystery root cause).
+  Workspace mode pulls sibling repos' test dependencies (ginkgo/gomega from
+  go-finding) into this repo's `go.mod`, so CI's tidy check fails on an
+  otherwise-identical go.sum — explaining the "green on `487d254`, red later"
+  contradiction. Always tidy with `GOWORK=off go mod tidy` (or outside the
+  workspace dir). Recorded in docs/migration-guide.md pitfalls too.
 
 ## Consumers (Planned)
 

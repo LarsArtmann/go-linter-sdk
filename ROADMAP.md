@@ -98,6 +98,13 @@ decisions, not tasks — they need an answer before work can proceed.
 - **Q3 — Library-only, or eventual CLI?** If the SDK stays library-only, the
   flake's `self` arg is genuinely unused and `self`-based versioning is not
   needed. A future `cmd/` binary would flip both. (session 3)
+- **Q7 — Dedicated demo repository?** A separate `go-linter-sdk-demo` repo
+  would prove the stranger experience (fresh `go get`, no LarsArtmann git
+  config) even more strongly than the in-CI stranger-test job added
+  2026-09-09 — at the cost of a second repo to keep on the latest release.
+  **Recommendation: defer.** The CI stranger-test job covers the critical path
+  (clean dir + proxy-only resolve + build + run); a demo repo earns its keep
+  once there are external users asking for one. (2026-09-09, plan task C5)
 
 ## Resolved questions
 

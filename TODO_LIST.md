@@ -15,13 +15,15 @@
 
 ## Open work
 
+<!-- Numbering gap at #1, #2, #4: those items were completed and removed
+     (1: v0.3.1 release, 2: secret deletion, 4: dprint decision). Numbers are
+     never reused — historical reports reference them. -->
+
 ### Publication (repo went public 2026-09-08)
 
-| # | Task                                                                                          | Impact | Effort | Status | Evidence                                                                                                                            |
-| - | --------------------------------------------------------------------------------------------- | ------ | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 3 | Review `docs/status/`, `docs/planning/`, `docs/feedback/` for sensitive ops detail            | Medium | 30m    | TODO   | `docs/status/2026-09-09_02-10` f.8 — token-provisioning narratives are world-visible since 2026-09-08. Prune or consciously accept. |
-| 5 | gitleaks deep scan over full history (broad + entropy patterns)                               | Medium | 15m    | TODO   | `docs/status/2026-09-09_02-10` f.7 — the pre-flip scan used only two hand-rolled regexes.                                           |
-| 6 | GitHub metadata: description, topics (go, linter, static-analysis), homepage → pkg.go.dev URL | Low    | 5m     | TODO   | `docs/status/2026-09-09_02-10` f.11/f.19.                                                                                           |
+None open. (2026-09-09: gitleaks full-history scan clean + sensitive-docs
+sweep accepted with dated verdict; GitHub metadata set — description, topics
+`go`/`linter`/`static-analysis`, homepage → pkg.go.dev.)
 
 ### Consumer adoption (the reason this SDK exists)
 
