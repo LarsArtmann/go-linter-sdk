@@ -12,7 +12,8 @@ and lint commands run inside the Nix dev shell so that the experimental
 `GOEXPERIMENT=jsonv2` flag is set consistently — `go-finding` (a transitive
 dependency) uses `encoding/json/v2`, which fails to compile without it.
 
-`go-finding` is resolved from VCS as a published tag (`v1.4.1` in `go.mod`).
+`go-finding` is resolved from the public module proxy as a published tag (see
+`go.mod` for the pinned version — do not duplicate version numbers in prose).
 No local `replace` directive and no sibling checkout are needed. For local
 cross-repo development against an uncommitted `go-finding`, add a temporary
 `go.work` or `replace` line — neither is committed.
@@ -67,7 +68,7 @@ sets it for you — never run plain `go build`/`go test` outside the dev shell.
 4. Update `CHANGELOG.md` under the `[Unreleased]` section.
 5. Submit a pull request describing the change and its motivation.
 
-## Reporting Issues
+## Examples directory
 
 The `examples/` directory contains standalone CLI programs that demonstrate
 the SDK's usage. Each example is a `package main` in its own subdirectory

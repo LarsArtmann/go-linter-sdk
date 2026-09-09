@@ -14,7 +14,6 @@ consumers building real linters on top of the SDK.
 Raw ideas:
 
 - A `Filter` type for severity/category-based finding filtering
-- Severity-tiered exit codes (`ExitCodeFromReport` is binary today)
 - `NewRegistryFromRules(rules []Rule) *Registry` constructor for pre-built slices
 - `Category.All()` — return all built-in category values
 - A typed `RuleSet` wrapper around `[]Rule` for consumers that don't want a
@@ -44,18 +43,19 @@ Raw ideas:
 
 ### 3. Publication & distribution
 
-`go-finding` v1.4.1 is a real published tag resolved via VCS auth (`GOPRIVATE`).
-There is no local `replace` directive. The package is externally resolvable
-(modulo private-repo authentication).
+The repo and both dependencies (`go-finding`, `go-error-family`) are public
+(since 2026-09-08): `go get` needs no authentication, CI is auth-free, and
+pkg.go.dev indexes the module (v0.3.0) with docs, examples, and the full API
+surface. Dependency versions live only in `go.mod` — prose never duplicates
+them.
 
 Raw ideas:
 
-- Verify whether the pkg.go.dev badge resolves now that `go-finding` v1.4.1 is
-  published; if not, audit what blocks publication
-- pkg.go.dev publication readiness: audit the README's claimed API surface
-  against the actual exported symbols
-- A `go.work` workspace to formalize sibling-checkout development against an
-  uncommitted `go-finding` (neither workspace nor replace is committed)
+- Cut the next tag promptly after public-facing doc fixes — pkg.go.dev freezes
+  the tagged README, so a stale tag keeps showing stale instructions (v0.3.0
+  still renders the pre-flip "private dependency" warning there)
+- Codify the stranger test (fresh module, proxy-only `go get` + build + run)
+  as a CI job so importability regressions surface before a tag
 - `self`-based flake versioning (matching `go-finding`'s
   `version = self.rev or self.dirtyRev or "dev"`) — only if a binary emerges;
   today the SDK is library-only and `self` is unused
@@ -98,6 +98,10 @@ decisions, not tasks — they need an answer before work can proceed.
 - **Q3 — Library-only, or eventual CLI?** If the SDK stays library-only, the
   flake's `self` arg is genuinely unused and `self`-based versioning is not
   needed. A future `cmd/` binary would flip both. (session 3)
+- **Q6 — What is the support posture of the public repo?** Accept issues/PRs
+  from strangers (triaged, no guarantees), or run read-only? Determines
+  SECURITY.md / SUPPORT.md wording, issue templates, and branch/tag
+  protection. (session 2026-09-09)
 
 ## Resolved questions
 

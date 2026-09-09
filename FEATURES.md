@@ -14,9 +14,10 @@
 | ⚪ `PLANNED`              | Designed or documented but **not yet implemented** in code.  |
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
-> delivers it AND confirm it works. Verified 2026-08-08: `nix run .#lint`
-> (0 issues), `nix run .#test-race` (clean, 98.2% coverage), `nix flake check`
-> (all checks passed).
+> delivers it AND confirm it works. Verified 2026-09-09: `nix run .#lint`
+> (0 issues), `nix run .#test-race` (clean), `nix flake check` (all checks
+> passed), library coverage 98.2%, proxy-only `go mod download` +
+> `go mod verify` green, CI green on `487d254`.
 >
 > **One-home rule:** this file tracks only what EXISTS in code today.
 > Not-yet-built capabilities live in `ROADMAP.md` until they graduate to
@@ -61,14 +62,15 @@
 | BuildFlow config                               | 🟢 `FULLY_FUNCTIONAL` | `.buildflow.yml`; BuildFlow passes 35/36 (1 skipped by config = gitleaks); fresh-clone verified                                                          |
 | `reports/` durable on fresh clone              | 🟢 `FULLY_FUNCTIONAL` | `.gitignore` (`reports/.gitkeep` exception); **verified** via `git clone` + `nix develop --command buildflow` (35/36, test-coverage step passes)         |
 | Coverage output path                           | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` `coverage`/`clean` apps write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` + BuildFlow `test-coverage`                       |
-| GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos), lint, fmt check, govulncheck, nix flake check; resolves `go-finding` v1.6.0 via VCS auth (`GOPRIVATE` + `PRIVATE_REPO_TOKEN`); green on `c09055a` (v0.2.0) |
+| GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos, race + coverage), lint, fmt check, govulncheck, nix flake check; auth-free since the repo went public (resolves `go-finding` from the public module proxy; no `GOPRIVATE`, no secrets); `go mod tidy` drift check + library-only coverage gate ≥90%; green on `487d254` |
 | Registry benchmarks + concurrent stress test   | 🟢 `FULLY_FUNCTIONAL` | `registry_test.go` — `Benchmark*` for `Register`/`All`/`Run` + `TestRegistry_ConcurrentReadWrite` exercising the `RWMutex` under `-race`                 |
+| `dprint.json` formatter config                 | 🟡 `PARTIALLY_FUNCTIONAL` | Formats md/json/yaml/dockerfile; tracked since `4f4aee0` but not wired into `flake.nix`, CI, or BuildFlow — orphan config (TODO_LIST #4)            |
 
 ## Documentation
 
 | Feature                               | Status                | Notes                                                                                                                                                                                                                              |
 | ------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: status callout, why, install, quick start, usage, API table (complete), confidence/fixstrategy tables, data-flow diagram, execution-paths mermaid + ASCII fallback, migration path, examples pointer, private-dep note |
+| `README.md`                           | 🟢 `FULLY_FUNCTIONAL` | Sales page: status callout, why, install, quick start, usage, API table (complete), confidence/fixstrategy tables, data-flow + execution-paths diagrams (mermaid + ASCII fallback), migration path, examples pointer |
 | `AGENTS.md`                           | 🟢 `FULLY_FUNCTIONAL` | GOEXPERIMENT requirement, build commands, architecture, error-wrapping pattern                                                                                                                                                     |
 | `CONTRIBUTING.md`                     | 🟢 `FULLY_FUNCTIONAL` | Nix + GOEXPERIMENT-aware PR checklist                                                                                                                                                                                              |
 | `CHANGELOG.md`                        | 🟢 `FULLY_FUNCTIONAL` | Keep a Changelog format; `[Unreleased]`                                                                                                                                                                                            |

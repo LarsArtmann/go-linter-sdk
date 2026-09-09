@@ -5,7 +5,6 @@
 Every Go linter reinvents the same scaffolding — a rule interface, a registry, and a converter that bridges the linter's own issue type to the ecosystem's finding type. `go-linter-sdk` standardizes the first two and **eliminates the third**: rules emit `finding.Finding` directly, so there is no converter layer to maintain. A linter that adopts it ships a `rules.go` and a `main.go` one-liner; the registry, detector adapters, error attribution, and exit codes are shared.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/larsartmann/go-linter-sdk.svg)](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)
-[![Go Report Card](https://goreportcard.com/badge/github.com/larsartmann/go-linter-sdk)](https://goreportcard.com/report/github.com/larsartmann/go-linter-sdk)
 [![CI](https://github.com/larsartmann/go-linter-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/larsartmann/go-linter-sdk/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -35,6 +34,8 @@ The third row is the killer. When a linter's own issue type predates the ecosyst
 
 `go-structure-linter` got it rightest by aliasing `Issue = finding.Finding` — no converter at all. **`go-linter-sdk` codifies that pattern.** A rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, so there is no intermediate type to convert.
 
+> The three linters in the table above are LarsArtmann-internal repositories; they are cited as evidence, not as installable consumers.
+
 ---
 
 ## Installation
@@ -43,7 +44,7 @@ The third row is the killer. When a linter's own issue type predates the ecosyst
 go get github.com/larsartmann/go-linter-sdk
 ```
 
-Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) v1.4+.
+Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) (see `go.mod` for the pinned version).
 
 ---
 
@@ -51,7 +52,7 @@ Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) 
 
 Three steps from zero to a running linter:
 
-1. **Install** — `go get github.com/larsartmann/go-linter-sdk` (requires Go 1.26+ and `go-finding` v1.4+)
+1. **Install** — `go get github.com/larsartmann/go-linter-sdk` (requires Go 1.26+ and a recent `go-finding`; see `go.mod`)
 2. **Define rules** — write `linter.RuleFunc{Meta: ..., Run: ...}` that emits `finding.Finding` directly
 3. **Run** — `registry.Run(ctx, dir)` + `linter.ExitCodeFromReport(report)`
 
@@ -294,4 +295,4 @@ Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is p
 
 ## License
 
-MIT — see [LarsArtmann/template-LICENSE](https://github.com/LarsArtmann/template-LICENSE).
+MIT — see [LICENSE](LICENSE).

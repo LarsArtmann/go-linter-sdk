@@ -86,7 +86,10 @@ Core types in package `linter`:
   A one-off tidy on a fresh machine may still need `GIT_CONFIG_COUNT=1
 GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
 GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
-  and a command must fetch over VCS instead of the proxy.
+  and a command must fetch over VCS instead of the proxy. (Verified
+  2026-09-09: proxy-only `go mod download` + `go mod verify` succeed with no
+  auth at all — the workaround is only needed when deliberately bypassing
+  the proxy.)
 - **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
   setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.26"`
   resolved 1.26.5 on macos while `go.mod` required 1.26.7 (`go: go.mod
@@ -98,8 +101,20 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   never attribute (`./...` totals 83.3%; the library alone is 98.2%). CI runs
   `go list ./... | grep -v /examples/ | xargs go test ...` — don't "fix" this
   back to `./...`.
-- **Released versions: v0.2.0 (2026-09-02).** Tag releases only when CI is
-  green on the exact commit; the v0.1.0 → v0.2.0 delta was all-additive.
+- **Released versions: v0.3.0 (2026-09-08).** Tag releases only when CI is
+  green on the exact commit — v0.3.0 was pushed before its CI run finished
+  and that run failed in 7s; master was green again by `487d254`. Cutting the
+  next tag is time-sensitive: pkg.go.dev freezes the tagged README, so it
+  still renders v0.3.0's pre-flip "private dependency" instructions until a
+  new tag ships.
+- **`dprint.json` is tracked but unwired.** It formats md/json/yaml/dockerfile,
+  but neither `flake.nix` (treefmt = Go + Nix only), CI, nor BuildFlow invokes
+  it. Wire it in or drop it (TODO_LIST #4) — until then `nix fmt` does NOT
+  format markdown.
+- **Public repo, "no guarantees" stance (since 2026-09-08).** Anything
+  committed is world-visible (including `docs/status` and `docs/planning`).
+  Support posture for strangers is an open question (ROADMAP Q6); the default
+  stance is "public as-is".
 - **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
   `FEATURES.md` tracks only capabilities that have code today
   (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built

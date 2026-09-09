@@ -21,6 +21,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
+### Documentation
+
+- Backfilled the missing `[0.3.0]` section (the tag existed since 2026-09-08
+  with no changelog entry).
+- Full docs-health pass (2026-09-09): every remaining unannotated item in the
+  `docs/status/` and `docs/planning/` reports resolved inline;
+  `2026-07-27_14-38` archived; `TODO_LIST.md` rebuilt (obsolete
+  `PRIVATE_REPO_TOKEN`-creation item removed, publication work harvested);
+  `ROADMAP.md` Theme 3 rewritten for the public repo; `FEATURES.md` CI/README
+  rows corrected and re-verified.
+- Removed the dead Go Report Card badge from the README — the service has
+  been sunset.
+- `CONTRIBUTING.md` de-drifted: version references now point at `go.mod`
+  instead of duplicating them, and the duplicated Reporting Issues / Examples
+  sections were merged back into one each.
+- `AGENTS.md`: released-versions gotcha updated to v0.3.0, `dprint.json`
+  orphant-config note added, proxy-only resolution verified.
+
+## [0.3.0] - 2026-09-08
+
+### Changed
+
+- **Dependency:** `go-finding` bumped from `v1.6.0` to `v1.7.0` — consumes
+  GroupID finding groups, per-finding fix outcomes, and the per-file rollback
+  default. The SDK uses the core finding package only; no call sites were
+  affected.
+- Documentation synced: stale `v1.4.1` references updated and the v0.2.0
+  release lessons (CI token secret, `GOTOOLCHAIN` override, library-only
+  coverage gate) recorded in `AGENTS.md`.
+
+> Process note: the `v0.3.0` tag was pushed before its CI run finished; that
+> run failed in 7s (logs expired) and master was green again by `487d254`.
+> Future tags go out only after the exact commit's CI is green.
+
 ## [0.2.0] - 2026-09-02
 
 All changes are additive — zero removals, zero signature breaks.
