@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CI golangci-lint bumped `v2.12.2` → `v2.13.2`** to match the nixpkgs
+  devShell version (one source of truth), and `exhaustruct` migrated to its
+  replacement `exhaustruct_v5` (deprecated since v2.13.0); three nolint
+  directives updated accordingly.
+- `RuleFunc.Check` godoc now references `errors.AsType` (Go 1.26 generic),
+  matching the errors-family convention.
 - **Dependency:** `go-finding` bumped from `v1.7.0` to `v1.9.2` (transitives:
   `golang.org/x/mod` v0.41.0, `x/sync` v0.23.0, `x/sys` v0.48.0). Full gate
   green post-bump (build, test, race, vet, golangci-lint, `nix flake check`).

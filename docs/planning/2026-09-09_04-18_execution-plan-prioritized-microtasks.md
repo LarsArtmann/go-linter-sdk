@@ -1,7 +1,7 @@
 # Execution Plan — Prioritized Micro-Tasks (≤ 12 min each)
 
 **Written:** 2026-09-09 04:18 CEST · **Source snapshot:** `docs/status/2026-09-09_04-18_docs-health-followups-v0.3.1-release-support-posture.md` (section f)
-**Status:** This file is the **canonical** breakdown. `TODO_LIST.md` holds the coarse items; this file expands them into independently executable steps. Do not duplicate this table elsewhere.
+**Status:** ✅ **EXECUTED 2026-09-09.** All tasks complete except: **Q2 won't-do** (package-level nolint empirically unsupported by golangci-lint v2 — per-line directives stay), **Q10 decided-keep** (ADR: Register keeps panicking; no API movement), **R1 stays gated** (no real API change; v0.4.0 waits per AGENTS user decisions), **C5 deferred** (ROADMAP Q7 with recommendation). Evidence and narrative: `CHANGELOG.md` `[Unreleased]`; the R3 tidy mystery was solved (go.work contamination — see AGENTS).
 
 ## Context
 
