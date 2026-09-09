@@ -98,14 +98,17 @@ decisions, not tasks — they need an answer before work can proceed.
 - **Q3 — Library-only, or eventual CLI?** If the SDK stays library-only, the
   flake's `self` arg is genuinely unused and `self`-based versioning is not
   needed. A future `cmd/` binary would flip both. (session 3)
-- **Q6 — What is the support posture of the public repo?** Accept issues/PRs
-  from strangers (triaged, no guarantees), or run read-only? Determines
-  SECURITY.md / SUPPORT.md wording, issue templates, and branch/tag
-  protection. (session 2026-09-09)
 
 ## Resolved questions
 
 Decisions made in prior sessions, kept for context. These no longer block work.
+
+- **Q6 — What is the support posture of the public repo?** **Decided
+  2026-09-09: open.** Issues and PRs from strangers are accepted,
+  best-effort triage, no guarantees. `SUPPORT.md`, `SECURITY.md`, and issue
+  templates reflect this. Branch protection is deliberately NOT enabled:
+  the auto-commit daemon pushes directly to master, and required-status
+  checks would wedge it.
 
 - **Q1 — Is `go-finding` a real published tag?** **Yes.** `go-finding v1.4.1`
   is a real published tag, confirmed in `go.mod` (`require

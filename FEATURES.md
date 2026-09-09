@@ -64,7 +64,6 @@
 | Coverage output path                           | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` `coverage`/`clean` apps write `reports/coverage.out`; aligns with AGENTS.md + `.gitignore` + BuildFlow `test-coverage`                       |
 | GitHub Actions CI                              | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/ci.yml` — test (ubuntu+macos, race + coverage), lint, fmt check, govulncheck, nix flake check; auth-free since the repo went public (resolves `go-finding` from the public module proxy; no `GOPRIVATE`, no secrets); `go mod tidy` drift check + library-only coverage gate ≥90%; green on `487d254` |
 | Registry benchmarks + concurrent stress test   | 🟢 `FULLY_FUNCTIONAL` | `registry_test.go` — `Benchmark*` for `Register`/`All`/`Run` + `TestRegistry_ConcurrentReadWrite` exercising the `RWMutex` under `-race`                 |
-| `dprint.json` formatter config                 | 🟡 `PARTIALLY_FUNCTIONAL` | Formats md/json/yaml/dockerfile; tracked since `4f4aee0` but not wired into `flake.nix`, CI, or BuildFlow — orphan config (TODO_LIST #4)            |
 
 ## Documentation
 

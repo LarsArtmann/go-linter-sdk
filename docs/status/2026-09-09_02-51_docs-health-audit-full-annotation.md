@@ -138,11 +138,11 @@
 
 | # | Task | Impact | Effort | Status |
 | - | ---- | ------ | ------ | ------ |
-| 33 | DOMAIN_LANGUAGE pass against go-finding v1.7.0 concepts (GroupID, fix outcomes, rollback) | Medium | 30m | TODO |
-| 34 | Normalize my lead-phrase strikethroughs (16-19, 10-32) to full-line — or accept the style | Low | 15m | TODO |
-| 35 | Audit `examples/` doc comments for staleness | Low | 15m | TODO |
+| 33 | ~~DOMAIN_LANGUAGE pass against go-finding v1.7.0 concepts (GroupID, fix outcomes, rollback)~~ done — borrowed-vocabulary section added, 2026-09-09 | Medium | 30m | done |
+| 34 | ~~Normalize my lead-phrase strikethroughs (16-19, 10-32) to full-line — or accept the style~~ done — 16-19 normalized, 10-32 was already full-line (stray `**` fixed), ✅-style tables accepted, 2026-09-09 | Low | 15m | done |
+| 35 | ~~Audit `examples/` doc comments for staleness~~ done — verified current, zero edits needed, 2026-09-09 | Low | 15m | done |
 | 36 | Verify pkg.go.dev renders the corrected README + examples after v0.4.0 | Low | 5m | TODO |
-| 37 | Local env cleanup: drop global `GOPRIVATE` + SSH `insteadOf` (unneeded post-public) | Low | 5m | TODO |
+| 37 | ~~Local env cleanup: drop global `GOPRIVATE` + SSH `insteadOf` (unneeded post-public)~~ won't do — kept deliberately: private siblings need VCS auth, no per-module `GOPRIVATE` exists; harmless here (2026-09-09) | Low | 5m | done |
 | 38 | Consider a tiny public demo linter repo (consumer table currently advertises invisible repos) | Low | — | ROADMAP idea |
 
 ## g) Questions I cannot figure out myself

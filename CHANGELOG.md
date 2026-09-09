@@ -11,15 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
+### Fixed
+
+- Nothing yet.
+
+## [0.3.1] - 2026-09-09
+
+Docs-and-policy release: zero Go API changes since `v0.3.0`. Exists so
+pkg.go.dev stops rendering v0.3.0's frozen README, which still carries the
+pre-public-flip "private dependency" install instructions.
+
+### Added
+
+- Support posture (open, best-effort, no SLAs): `SUPPORT.md`, `SECURITY.md`
+  (private advisories for vulnerabilities), bug/feature issue templates,
+  and a README "Support & security" section. Resolves ROADMAP Q6.
+- `docs/DOMAIN_LANGUAGE.md`: borrowed-vocabulary section defining the
+  `go-finding` v1.7.0 output types the SDK passes through (`Finding`,
+  `Report`, `Severity`, `Confidence`, `FixStrategy`, `GroupID`, `Detector`),
+  with the boundary note that fix outcomes and rollback belong to the
+  `go-finding/pipeline` FixEngine — a module this SDK deliberately does not
+  import.
+
 ### Changed
 
 - Repository is now public. With `go-finding` and `go-error-family` public as
   well, plain `go get` needs no authentication; the README's private-dependency
   warning and CI's `GOPRIVATE`/token scaffolding were removed.
-
-### Fixed
-
-- Nothing yet.
 
 ### Documentation
 
@@ -38,6 +56,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sections were merged back into one each.
 - `AGENTS.md`: released-versions gotcha updated to v0.3.0, `dprint.json`
   orphant-config note added, proxy-only resolution verified.
+- Docs-health follow-up (2026-09-09): lead-phrase strikethroughs in
+  `2026-07-30_16-19` normalized to full-line (matching the file's canonical
+  style); pre-existing `✅` table markers kept as-is (consistent within each
+  file, each carries its own evidence).
+- `examples/` doc comments audited against the code — verified current, no
+  changes needed.
+
+### Removed
+
+- `dprint.json` orphan config. It was template residue (dockerfile plugin and
+  helm/charts excludes for files this repo does not have) and was never wired
+  into `flake.nix`, CI, or BuildFlow. Wiring it hermetically is possible only
+  by vendoring its wasm plugins — disproportionate for a repo whose code
+  formatting is already enforced by treefmt (gofumpt/goimports/golines/nixfmt).
+  Markdown remains hand-formatted under the docs-health process.
 
 ## [0.3.0] - 2026-09-08
 

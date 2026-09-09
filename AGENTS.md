@@ -86,7 +86,12 @@ Core types in package `linter`:
   A one-off tidy on a fresh machine may still need `GIT_CONFIG_COUNT=1
 GIT_CONFIG_KEY_0="url.git@github.com:.insteadOf"
 GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
-  and a command must fetch over VCS instead of the proxy. (Verified
+  and a command must fetch over VCS instead of the proxy. The global
+  `GOPRIVATE=github.com/larsartmann/*` + SSH `insteadOf` setup deliberately
+  STAYS (decided 2026-09-09): the still-private sibling repos
+  (`branching-flow`, `erraudit`) need VCS auth, Go has no per-module
+  `GOPRIVATE`, and this repo resolves fine regardless (proxy works when
+  `GOPRIVATE` is empty; SSH works when it is not). (Verified
   2026-09-09: proxy-only `go mod download` + `go mod verify` succeed with no
   auth at all — the workaround is only needed when deliberately bypassing
   the proxy.)
@@ -107,10 +112,12 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   next tag is time-sensitive: pkg.go.dev freezes the tagged README, so it
   still renders v0.3.0's pre-flip "private dependency" instructions until a
   new tag ships.
-- **`dprint.json` is tracked but unwired.** It formats md/json/yaml/dockerfile,
-  but neither `flake.nix` (treefmt = Go + Nix only), CI, nor BuildFlow invokes
-  it. Wire it in or drop it (TODO_LIST #4) — until then `nix fmt` does NOT
-  format markdown.
+- **`dprint.json` was removed (2026-09-09) — do not re-add casually.** It was
+  orphan template residue; wiring it into treefmt would fetch wasm plugins
+  from the network at runtime and break hermetic `nix flake check` (only
+  vendored plugins would work). `nix fmt` covers Go + Nix; markdown is
+  hand-formatted under the docs-health process — that is a decision, not a
+  gap.
 - **Public repo, "no guarantees" stance (since 2026-09-08).** Anything
   committed is world-visible (including `docs/status` and `docs/planning`).
   Support posture for strangers is an open question (ROADMAP Q6); the default

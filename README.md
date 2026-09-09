@@ -293,6 +293,12 @@ No external consumers yet.
 
 Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`) but no production linter has fully migrated yet.
 
+## Support & security
+
+Open repository: issues and PRs from anyone are welcome, maintained
+best-effort with no SLAs — see [SUPPORT.md](SUPPORT.md). Vulnerabilities go
+through private advisories, never public issues — see [SECURITY.md](SECURITY.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
