@@ -114,8 +114,10 @@ will pass.
 
 ### TODO_LIST (3 items)
 
-1. **Create `PRIVATE_REPO_TOKEN` GitHub secret** — Critical, 5m. Until done,
-   CI will fail.
+1. ~~**Create `PRIVATE_REPO_TOKEN` GitHub secret** — Critical, 5m. Until done,
+   CI will fail.~~ **OBSOLETE — the repos went public 2026-09-08; CI is
+   auth-free and green on `487d254`. The ghost secret should now be DELETED
+   (TODO_LIST #2, blocked on maintainer go-ahead).**
 2. **Pilot-port a branching-flow rule** — Critical, 90m. Proves the SDK's
    core value proposition.
 3. **Pilot-port an erraudit rule** — High, 90m.

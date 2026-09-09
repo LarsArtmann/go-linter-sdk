@@ -57,17 +57,17 @@ No. Two statements were expectations presented as expectations, not verified fac
 
 ## b) PARTIALLY DONE
 
-1. **The publication itself.** Source-side is complete and committed; the *verification* side is not: no CI run on the auth-free workflow, no pkg.go.dev confirmation, no goreportcard badge check.
-2. **Public consumption proof.** Proven for v0.2.0's dependency set (go-finding v1.6.0); not proven for master's go-finding v1.7.0.
+1. ~~**The publication itself.** Source-side is complete and committed; the *verification* side is not: no CI run on the auth-free workflow, no pkg.go.dev confirmation, no goreportcard badge check.~~ done (verified 2026-09-09): CI green end-to-end on `487d254`; pkg.go.dev indexes v0.3.0; goreportcard checked — service sunset, badge removed from README
+2. ~~**Public consumption proof.** Proven for v0.2.0's dependency set (go-finding v1.6.0); not proven for master's go-finding v1.7.0.~~ done (2026-09-09): proxy-only `go mod download` of the master dep set succeeds, and the green CI run compiles v1.7.0 end-to-end
 3. **Auth off-boarding.** Usage removed; the credential itself still exists in repo settings.
-4. **"Guarantee nothing" stance.** It exists as an instruction to me, but is not yet encoded anywhere public (no as-is line in README beyond MIT, no SUPPORT.md).
+4. **"Guarantee nothing" stance.** It exists as an instruction to me, but is not yet encoded anywhere public (no as-is line in README beyond MIT, no SUPPORT.md). ← done in part — recorded in `AGENTS.md` (2026-09-09); the public statement awaits the support-posture decision (ROADMAP Q6)
 
 ## c) NOT STARTED
 
 - Delete/rotate `PRIVATE_REPO_TOKEN` (and review the broad PAT it came from).
-- CONTRIBUTING.md v1.4.1 → v1.7.0 fix.
+- ~~CONTRIBUTING.md v1.4.1 → v1.7.0 fix.~~ done — version references now point at `go.mod` (2026-09-09)
 - Next tag (v0.3.0) so corrected docs render on pkg.go.dev.
-- pkg.go.dev / goreportcard / CI-badge verification.
+- ~~pkg.go.dev / goreportcard / CI-badge verification.~~ done (2026-09-09): pkg.go.dev v0.3.0 confirmed; goreportcard sunset (badge removed); CI badge green on `487d254`
 - GitHub metadata: description, topics, homepage.
 - Branch protection, tag protection, issue-tracker posture decision.
 - SECURITY.md / SUPPORT.md / explicit no-guarantee statement.
@@ -93,16 +93,16 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 ## f) NEXT: 50 items (brainstorm for docs-health HARVEST — most belong in TODO_LIST/ROADMAP, sorted by impact)
 
 **Verify the publication (highest impact, this week):**
-1. Push the next commit (this report) and watch CI run the auth-free workflow end-to-end.
-2. Verify go-finding v1.7.0 + go-error-family v0.10.0 resolve via proxy.golang.org (master's dep set).
-3. Confirm pkg.go.dev lists go-linter-sdk@v0.2.0; request indexing if absent.
-4. Confirm goreportcard badge resolves with an acceptable grade.
+1. ~~Push the next commit (this report) and watch CI run the auth-free workflow end-to-end.~~ done — green on `487d254` (1m11s)
+2. ~~Verify go-finding v1.7.0 + go-error-family v0.10.0 resolve via proxy.golang.org (master's dep set).~~ done — proxy-only `go mod download` + `go mod verify` pass (2026-09-09)
+3. ~~Confirm pkg.go.dev lists go-linter-sdk@v0.2.0; request indexing if absent.~~ done — v0.3.0 is indexed and current
+4. ~~Confirm goreportcard badge resolves with an acceptable grade.~~ done-with-twist — the service has been **sunset**; the dead badge was removed from the README (2026-09-09)
 5. Delete `PRIVATE_REPO_TOKEN` from repo settings.
 6. Rotate/review the source PAT (old notes say it was the maintainer's full `gh auth token`).
 7. gitleaks deep scan over full history (broad + entropy patterns).
 8. Review docs/status, docs/planning, docs/feedback for genuinely sensitive ops details (token provisioning narratives); prune or consciously accept.
-9. Fix CONTRIBUTING.md "v1.4.1 in go.mod" → drop the version, point at go.mod.
-10. Cut v0.3.0 so pkg.go.dev renders corrected install docs.
+9. ~~Fix CONTRIBUTING.md "v1.4.1 in go.mod" → drop the version, point at go.mod.~~ done (2026-09-09)
+10. ~~Cut v0.3.0 so pkg.go.dev renders corrected install docs.~~ done-but-insufficient — v0.3.0 was cut 2026-09-08 yet **predates** the corrected README (`7675912`); pkg.go.dev still shows the false private-dep warning. A NEW tag (v0.4.0) is required — TODO_LIST #1
 
 **Public-repo hygiene:**
 11. GitHub description + topics (go, linter, static-analysis).
@@ -117,22 +117,22 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 20. Dependabot config for Go updates.
 21. Reconsider macos CI matrix cost.
 22. actionlint (or equivalent) in CI for workflow validation.
-23. Confirm .gitignore covers go.work and reports/ artifacts (no leaks in public listing).
+23. ~~Confirm .gitignore covers go.work and reports/ artifacts (no leaks in public listing).~~ done — verified: `go.work` ignored, `reports/*` ignored except `.gitkeep` (2026-09-09)
 24. Annotate future release tags (annotated, not lightweight).
 
 **Docs coherence:**
-25. Kill version duplication across README/CONTRIBUTING/AGENTS (reference go.mod).
+25. ~~Kill version duplication across README/CONTRIBUTING/AGENTS (reference go.mod).~~ done — CONTRIBUTING + README now reference `go.mod`; AGENTS keeps only the deliberate v1.7.0 pin (2026-09-09)
 26. Add the explicit no-guarantee line to README.
-27. Re-test the AGENTS.md `GIT_CONFIG_COUNT` tidy workaround — likely a ghost now that the proxy suffices; delete if dead.
-28. Prune remaining GOPRIVATE/local-git lore from AGENTS.md if proxy-only dev is verified.
-29. Verify all README links work on public GitHub (examples paths, badges).
+27. ~~Re-test the AGENTS.md `GIT_CONFIG_COUNT` tidy workaround — likely a ghost now that the proxy suffices; delete if dead.~~ done — proxy-only resolution verified; the note now carries the verification and its narrow remaining use case (2026-09-09)
+28. ~~Prune remaining GOPRIVATE/local-git lore from AGENTS.md if proxy-only dev is verified.~~ done — AGENTS is already clean of GOPRIVATE lore; re-verified 2026-09-09
+29. ~~Verify all README links work on public GitHub (examples paths, badges).~~ done — links resolve; the one dead badge (goreportcard) was removed (2026-09-09)
 30. Clarify Go toolchain story for consumers (go.mod 1.26.7 + GOTOOLCHAIN auto-download).
-31. Note in README that the consumer-table repos are private (avoid stranger confusion).
+31. ~~Note in README that the consumer-table repos are private (avoid stranger confusion).~~ done — note added under the LOC table (2026-09-09)
 32. godoc quality pass on exported symbols (pkg.go.dev is the first impression now).
-33. Record the "public with no guarantees" decision in AGENTS.md so future sessions keep the stance.
-34. Run `nix flake check` / treefmt over the md files edited this session.
-35. Run full `nix run .#lint` + `.#vet` (session only ran build+test).
-36. Add a dated release entry for the public flip when cutting v0.3.0 (currently only in Unreleased).
+33. ~~Record the "public with no guarantees" decision in AGENTS.md so future sessions keep the stance.~~ done (2026-09-09)
+34. ~~Run `nix flake check` / treefmt over the md files edited this session.~~ done — `nix flake check` all checks passed (2026-09-09)
+35. ~~Run full `nix run .#lint` + `.#vet` (session only ran build+test).~~ done — 0 issues / clean (2026-09-09)
+36. ~~Add a dated release entry for the public flip when cutting v0.3.0 (currently only in Unreleased).~~ done — the flip postdates v0.3.0, so it correctly lives in `[Unreleased]`; the missing `[0.3.0]` section was backfilled (2026-09-09)
 
 **Ecosystem / strategic:**
 37. Migrate go-structure-linter pilot to the SDK — first real consumer, the entire value prop is still unproven in production.
@@ -149,9 +149,9 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 
 **Cleanup:**
 46. Local env: drop global `GOPRIVATE` + SSH `insteadOf` rewrite (unneeded post-public).
-47. Decide retention for old docs/status snapshots (annotate per docs-health, or archive).
-48. Confirm CI badge in README shows green publicly after next run.
-49. Ensure no coverage/BuildFlow artifacts are committed (reports/ exception audit).
+47. ~~Decide retention for old docs/status snapshots (annotate per docs-health, or archive).~~ done — every report annotated inline; `2026-07-27_14-38` archived to `docs/status/archived/` (2026-09-09)
+48. ~~Confirm CI badge in README shows green publicly after next run.~~ done — latest run on `487d254` is green
+49. ~~Ensure no coverage/BuildFlow artifacts are committed (reports/ exception audit).~~ done — working tree clean; only `reports/.gitkeep` is tracked
 50. Optional: GoReleaser or release workflow for future tags (currently manual per AGENTS.md).
 
 ## g) Questions I cannot figure out myself
