@@ -13,9 +13,10 @@ consumer provides the rules. There is no converter layer — rules emit
 `finding.Finding` directly.
 
 The SDK depends on [`go-finding`](https://github.com/larsartmann/go-finding)
-for the output types (`Finding`, `Report`, `Severity`, `Detector`) and nothing
-else. This is deliberate: any tool in the ecosystem can adopt the SDK without
-coupling to a specific runner or framework.
+for the output types (`Finding`, `Report`, `Severity`, `Detector`, plus the
+per-finding `Confidence` / `FixStrategy` / `GroupID` vocabulary — see below)
+and nothing else. This is deliberate: any tool in the ecosystem can adopt the
+SDK without coupling to a specific runner or framework.
 
 ## Terms
 
