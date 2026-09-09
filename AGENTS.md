@@ -49,7 +49,8 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.7.0** (public repo) — resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- **`go-finding` v1.9.2** (public repo; bumped from v1.7.0 on 2026-09-09, gate
+  green: build/test/lint/vet/flake-check). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
 - Go 1.26.7 (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions
@@ -116,9 +117,9 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
     commit the result before pushing.
   - pkg.go.dev freezes the tagged README; v0.3.1 exists mostly to refresh it
     (docs-only releases are fine for that — PATCH version).
-- **`dprint.json` was removed (2026-09-09) — do not re-add casually.** It was
-  orphan template residue; wiring it into treefmt would fetch wasm plugins
-  from the network at runtime and break hermetic `nix flake check` (only
+- **`dprint.json` re-exists (re-added 2026-09-09) but is NOT wired into treefmt.**
+  It is a standalone formatter config; wiring it into treefmt would fetch wasm
+  plugins from the network at runtime and break hermetic `nix flake check` (only
   vendored plugins would work). `nix fmt` covers Go + Nix; markdown is
   hand-formatted under the docs-health process — that is a decision, not a
   gap.
@@ -134,7 +135,17 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   capabilities live exclusively in `ROADMAP.md` until they graduate to
   `TODO_LIST.md`. This kills the FEATURES↔ROADMAP PLANNED split-brain that
   recurred across sessions 2-5.
-- **Auto-git daemon manages commits.** The daemon commits automatically with
+- **User decisions recorded 2026-09-09 (P0 of the 47-task plan):**
+  1. **Version label: v0.3.1 stands.** No v0.4.0 until real Go API movement
+     (e.g. a Register contract change); adjacent tags would confuse `@latest`.
+  2. **PAT rotation: user-owned.** The `PRIVATE_REPO_TOKEN` Actions secret is
+     deleted; whether the underlying token still lives in the GitHub account
+     and is used elsewhere is only knowable by the user — rotate at will.
+  3. **Daemon push policy: (b) — the assistant pushes at session end.** The
+     daemon commits but never pushes; pushing manually at end-of-session is
+     now a mandatory step. (Option (c), daemon-pushes-on-green-CI, stays off
+     the table while branch protection might ever be enabled.)
+- **Auto-git daemon manages commits.**** The daemon commits automatically with
   generated messages (sometimes low-quality). Do not rewrite history to fix
   them — `CHANGELOG.md` is the narrative of record. Focus on keeping the
   CHANGELOG accurate rather than the `git log` pretty.
