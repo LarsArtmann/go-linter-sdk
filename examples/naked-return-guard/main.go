@@ -84,13 +84,13 @@ func checkNakedReturns(dir string) ([]finding.Finding, error) {
 
 	fset := token.NewFileSet()
 
-	if walkErr := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+	if walkErr := filepath.WalkDir(dir, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if d.IsDir() {
-			if d.Name() == "vendor" && path != dir {
+		if entry.IsDir() {
+			if entry.Name() == "vendor" && path != dir {
 				return filepath.SkipAll
 			}
 

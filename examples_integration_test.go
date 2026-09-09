@@ -96,6 +96,7 @@ func TestExampleNakedReturnGuard_CleanCode(t *testing.T) {
 	bin := buildExample(t, "./examples/naked-return-guard")
 
 	dir := t.TempDir()
+
 	src := "package a\n\nfunc ok() (n int) {\n\tn = 1\n\treturn n\n}\n"
 	if err := os.WriteFile(filepath.Join(dir, "a.go"), []byte(src), 0o600); err != nil {
 		t.Fatal(err)
@@ -139,6 +140,7 @@ func TestExampleNakedReturnGuard_SkipsTestFiles(t *testing.T) {
 	bin := buildExample(t, "./examples/naked-return-guard")
 
 	dir := t.TempDir()
+
 	src := "package a\n\nfunc bad() (n int) {\n\treturn\n}\n"
 	if err := os.WriteFile(filepath.Join(dir, "a_test.go"), []byte(src), 0o600); err != nil {
 		t.Fatal(err)
@@ -154,6 +156,7 @@ func TestExampleNakedReturnGuard_SkipsTestFiles(t *testing.T) {
 	}
 }
 
+// No-go-mod tests.
 func TestExampleNoGoMod_CleanDir(t *testing.T) {
 	t.Parallel()
 
