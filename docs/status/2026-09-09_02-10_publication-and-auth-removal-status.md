@@ -186,7 +186,7 @@ full-history scan (109 commits, 0 findings, `reports/GITLEAKS_TRIAGE.txt`).
 **Verdict: ACCEPT all hits, redact nothing.** Rationale: no secret material
 exists or existed in history; the narratives describe the remediation itself
 (deleting `PRIVATE_REPO_TOKEN`), which is public record by design of the open
-docs policy. The one sensitive *fact* — that the old secret derived from the
+docs policy. The one sensitive _fact_ — that the old secret derived from the
 maintainer's broad `gh auth token` — remains actionable only with account
 access, which this repo does not confer. PAT rotation stays with the
 maintainer (AGENTS.md, user decisions 2026-09-09).

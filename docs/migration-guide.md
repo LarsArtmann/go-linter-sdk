@@ -93,11 +93,11 @@ rules are ported — the entire converter package.
 
 **Measured on the pilot ports (2026-09-09):**
 
-| Linter          | Rule deleted                          | Original LOC                          | Port LOC                        |
-| --------------- | ------------------------------------- | ------------------------------------- | ------------------------------- |
-| go-structure-linter | `NoGoModRule`                    | ~40 + LinterRule base + types.Project | 82 (complete standalone CLI)    |
-| branching-flow  | `nakedreturn` (`NAKED_RETURN_GUARD`)  | 156 (analyzer + Detection + converter) + shared astutil deps | 195 (complete standalone CLI, docs included) |
-| erraudit        | `oops_redundant_guard`                | 308 (detection core 206 + go/analysis autofixer 102) + violation bridge | ~350 (complete standalone CLI incl. detection + docs) |
+| Linter              | Rule deleted                         | Original LOC                                                            | Port LOC                                              |
+| ------------------- | ------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------- |
+| go-structure-linter | `NoGoModRule`                        | ~40 + LinterRule base + types.Project                                   | 82 (complete standalone CLI)                          |
+| branching-flow      | `nakedreturn` (`NAKED_RETURN_GUARD`) | 156 (analyzer + Detection + converter) + shared astutil deps            | 195 (complete standalone CLI, docs included)          |
+| erraudit            | `oops_redundant_guard`               | 308 (detection core 206 + go/analysis autofixer 102) + violation bridge | ~350 (complete standalone CLI incl. detection + docs) |
 
 The port LOC numbers include `main.go` wiring that the originals don't count
 (registry, report printing, exit codes) — infrastructure the SDK now provides
