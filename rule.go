@@ -229,7 +229,8 @@ func (RuleFunc) IsEnabledByDefault() bool { return true }
 
 // Check implements Rule. If Run returns an error, it is wrapped into a
 // *RuleError carrying the rule's stable ID, so callers of Registry.Run and
-// DetectorFromRegistry can identify which rule failed via errors.As.
+// DetectorFromRegistry can identify which rule failed via errors.AsType
+// (see [RuleError]).
 func (r RuleFunc) Check(ctx context.Context, dir string) ([]finding.Finding, error) {
 	findings, err := r.Run(ctx, dir)
 	if err != nil {

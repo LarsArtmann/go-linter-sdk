@@ -21,6 +21,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   metadata keys are preserved for suppression/output compatibility. Covered
   by three integration tests (clean code, long-function detection, test-file
   skip).
+- **`examples/oops-redundant-guard`: pilot port of `erraudit`'s
+  `oops_redundant_guard` rule.** Validates the converter-deletion claim for
+  the error-handling domain: the original ships the `oopspattern` detection
+  core (206 LOC), a `go/analysis` autofixer (102 LOC), the violation-detector
+  path in `internal/ast`, and a Violation-to-finding bridge; the port is one
+  self-contained `RuleFunc` (about 350 LOC including docs and main) emitting
+  `finding.Finding` directly. Detection logic is a faithful port (redundant
+  `if err != nil { return oops.Wrap(err) }` + `return nil` guards); the rule
+  ID `oops_redundant_guard`, severity (warning), confidence (0.85), message,
+  and suggestion text are preserved. Covered by three integration tests
+  (clean code, detection, if/else not flagged).
 
 ### Changed
 

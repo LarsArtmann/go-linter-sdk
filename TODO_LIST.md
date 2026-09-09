@@ -25,9 +25,9 @@
 
 ### Consumer adoption (the reason this SDK exists)
 
-| # | Task                                          | Impact   | Effort | Status | Evidence                                                                                                                                                        |
-| - | --------------------------------------------- | -------- | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 8 | Pilot-port an erraudit rule to examples/      | High     | 90m    | TODO   | Same proof for the error-handling domain. Sibling repo at `/home/lars/projects/erraudit` (1,214 LOC). Pareto plan M20.                                          |
+None open. (Both pilot ports landed 2026-09-09: `examples/naked-return-guard`
+from `branching-flow`, `examples/oops-redundant-guard` from `erraudit`. Full
+migrations are the consumers' work now — see `docs/migration-guide.md`.)
 
 ### Dependency hygiene
 

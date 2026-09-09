@@ -140,6 +140,23 @@ func TestRuleErrors_JoinedMixed(t *testing.T) {
 	}
 }
 
+func TestRuleErrors_JoinedWithNilElements(t *testing.T) {
+	t.Parallel()
+
+	ruleErr := linter.NewRuleError("rule-nil", errors.New("fail"))
+	joined := errors.Join(nil, ruleErr, nil)
+
+	result := linter.RuleErrors(joined)
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 rule error (nil join elements skipped), got %d", len(result))
+	}
+
+	if result[0].RuleID != "rule-nil" {
+		t.Errorf("expected rule-nil, got %q", result[0].RuleID)
+	}
+}
+
 func TestRuleErrors_Nil(t *testing.T) {
 	t.Parallel()
 

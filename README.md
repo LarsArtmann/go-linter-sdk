@@ -280,6 +280,7 @@ Example consumers in this repo:
 - `examples/minimal-linter` — minimal linter proving the Rule → `finding.Finding` path
 - `examples/no-go-mod` — pilot port of `go-structure-linter`'s `NoGoModRule`
 - `examples/naked-return-guard` — pilot port of `branching-flow`'s `nakedreturn` rule (156 LOC of analyzer + Detection type + converter became one self-contained `RuleFunc`)
+- `examples/oops-redundant-guard` — pilot port of `erraudit`'s `oops_redundant_guard` rule (detection core + go/analysis autofixer + violation bridge became one self-contained `RuleFunc`)
 
 Planned adoption targets:
 
@@ -292,7 +293,7 @@ No external consumers yet.
 
 ## Status
 
-Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`) and `examples/naked-return-guard` (a pilot port of `branching-flow`'s `nakedreturn` rule), but no production linter has fully migrated yet.
+Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`), `examples/naked-return-guard` (a pilot port of `branching-flow`'s `nakedreturn` rule), and `examples/oops-redundant-guard` (a pilot port of `erraudit`'s `oops_redundant_guard` rule), but no production linter has fully migrated yet.
 
 ## Support & security
 
