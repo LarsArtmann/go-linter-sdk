@@ -127,13 +127,13 @@ The updated example uses `ID: "no-fmt-println"` and `Name: "no-fmt-println"` —
 
 ### Design improvements identified but NOT implemented
 
-5. ~~**`Registry.Run` failure policy is still fail-fast.**~~ done — `ContinueOnError()` shipped (v0.2.0)
-6. ~~**No `Registry.Get(id)` / `Registry.Has(id)` helpers.**~~ done — shipped (v0.2.0)
-7. ~~**No `Registry.Deregister(id)`.**~~ done — shipped (v0.2.0)
-8. ~~**`RuleMeta.Validate()` is still not implemented.**~~ done — shipped (v0.2.0, all four identity fields)
-9. ~~**No examples in `examples/` directory.**~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
-10. ~~**No `ExampleRegistry_Run` / `ExampleDetectorsFromRegistry` testable examples.**~~ done — 7 `Example*` functions in `example_test.go`
-11. ~~**The `ireturn` allow-list approach is growing.**~~ **Stable — two entries (`finding.Detector`, `Rule`); kept, revisit only on consumer request.**
+5. ~~**`Registry.Run` failure policy is still fail-fast.** The ROADMAP (Theme 6) asks whether to continue and return partial results. `DetectorsFromRegistry` solves this for the pipeline path (the pipeline has `GracefulDegradation`), but `Registry.Run` still stops on the first rule error. This is now a sharper gap: the pipeline path degrades gracefully, the standalone path doesn't.~~ done — `ContinueOnError()` shipped (v0.2.0)
+6. ~~**No `Registry.Get(id)` / `Registry.Has(id)` helpers.** With `ID()` now the canonical key, consumers will want to look up rules by ID. ROADMAP Theme 1 already lists this.~~ done — shipped (v0.2.0)
+7. ~~**No `Registry.Deregister(id)`.** Same reasoning.~~ done — shipped (v0.2.0)
+8. ~~**`RuleMeta.Validate()` is still not implemented.** Empty-ID panics at registration (done this session), but there's no validation for empty Name, empty Description, or empty Category. ROADMAP Theme 1.~~ done — shipped (v0.2.0, all four identity fields)
+9. ~~**No examples in `examples/` directory.** The README promises a pattern but there's no runnable example. ROADMAP Theme 2.~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
+10. ~~**No `ExampleRegistry_Run` / `ExampleDetectorsFromRegistry` testable examples.** ROADMAP Theme 5.~~ done — 7 `Example*` functions in `example_test.go`
+11. ~~**The `ireturn` allow-list approach is growing.** We now allow `finding.Detector` and `Rule`. Each new interface-returning function needs an allow-list entry. Consider whether `ireturn` is pulling its weight or just creating maintenance overhead.~~ **Stable — two entries (`finding.Detector`, `Rule`); kept, revisit only on consumer request.**
 
 ### Architecture observations from the feedback analysis
 
