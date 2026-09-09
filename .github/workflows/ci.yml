@@ -36,6 +36,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Lint workflow files
+        uses: actionlint/actionlint@3ada0bbc1ab4e6fcb8108eddb9f948ce4c5ec813 # v1.7.7
+        with:
+          version: ${{ github.event_name == 'push' && 'v1.7.7' || 'v1.7.7' }}
+
   test:
     strategy:
       fail-fast: false

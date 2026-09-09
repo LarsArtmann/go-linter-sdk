@@ -35,7 +35,7 @@ func WithToolName(name string) RegistryOption {
 //
 //	r := linter.NewRegistry(linter.WithToolName("my-linter"))
 func NewRegistry(opts ...RegistryOption) *Registry {
-	r := &Registry{ //nolint:exhaustruct // toolName is set via options
+	r := &Registry{ //nolint:exhaustruct_v5 // toolName is set via options
 		mu:    sync.RWMutex{},
 		rules: []Rule{},
 	}
