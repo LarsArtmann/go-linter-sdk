@@ -131,3 +131,62 @@ jobs:
       - name: Check flake evaluates (treefmt derivation)
         run: nix flake check --no-build
     timeout-minutes: 15
+
+  # Simulates a stranger consuming the published module: clean directory, no
+  # VCS access, module proxy only, latest tagged version. Verifies what pkg.go.dev
+  # users actually get. Note: `@latest` resolves the newest TAG, so this lags
+  # master by design — it tests the published artifact, not the working tree.
+  stranger-test:
+    runs-on: ubuntu-latest
+    env:
+      GOPROXY: https://proxy.golang.org,direct
+      GOPRIVATE: ""
+    steps:
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.26"
+      - name: Consume the latest published version from a clean directory
+        run: |
+          mkdir -p /tmp/stranger && cd /tmp/stranger
+          go mod init stranger-test
+          go get github.com/larsartmann/go-linter-sdk@latest
+          cat > main.go <<'GOEOF'
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+          	"os"
+
+          	"github.com/larsartmann/go-finding"
+          	"github.com/larsartmann/go-linter-sdk"
+          )
+
+          func main() {
+          	registry := linter.NewRegistry(linter.WithToolName("hello-linter"))
+          	registry.Register(linter.RuleFunc{
+          		Meta: linter.RuleMeta{
+          			ID:          "hello",
+          			Name:        "hello rule",
+          			Description: "always reports",
+          			Cat:         linter.CategoryStyle,
+          			Sev:         finding.SeverityInfo,
+          		},
+          		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+          			return []finding.Finding{
+          				finding.NewBuilder("hello", "hello-linter", "hello from the SDK", finding.SeverityInfo,
+          					finding.Pos(finding.FilePath("."), 1, 0)).MustBuild(),
+          			}, nil
+          		},
+          	})
+          	report, err := registry.Run(context.Background(), ".")
+          	if err != nil {
+          		os.Exit(2)
+          	}
+          	fmt.Println(len(report.ActiveFindings()), "finding(s)")
+          }
+          GOEOF
+          go mod tidy
+          go build .
+          ./stranger-test
+    timeout-minutes: 15
