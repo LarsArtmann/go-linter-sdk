@@ -85,3 +85,4 @@
 | -------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `examples/minimal-linter/` | 🟢 `FULLY_FUNCTIONAL` | Minimal consumer linter proving the full Rule → `finding.Finding` → `Registry.Run` → `ExitCodeFromReport` path                      |
 | `examples/no-go-mod/`      | 🟢 `FULLY_FUNCTIONAL` | Pilot port of `go-structure-linter`'s `NoGoModRule`; validates the converter-deletion claim (rule emits `finding.Finding` directly) |
+| `examples/naked-return-guard/` | 🟢 `FULLY_FUNCTIONAL` | Pilot port of `branching-flow`'s `nakedreturn` rule; validates the analyzer-family claim: 156 LOC (analyzer + Detection type + converter) became a single self-contained `RuleFunc` |
