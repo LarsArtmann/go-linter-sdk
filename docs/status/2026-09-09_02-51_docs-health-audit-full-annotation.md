@@ -141,15 +141,15 @@
 | 33 | ~~DOMAIN_LANGUAGE pass against go-finding v1.7.0 concepts (GroupID, fix outcomes, rollback)~~ done — borrowed-vocabulary section added, 2026-09-09 | Medium | 30m | done |
 | 34 | ~~Normalize my lead-phrase strikethroughs (16-19, 10-32) to full-line — or accept the style~~ done — 16-19 normalized, 10-32 was already full-line (stray `**` fixed), ✅-style tables accepted, 2026-09-09 | Low | 15m | done |
 | 35 | ~~Audit `examples/` doc comments for staleness~~ done — verified current, zero edits needed, 2026-09-09 | Low | 15m | done |
-| 36 | Verify pkg.go.dev renders the corrected README + examples after v0.4.0 | Low | 5m | TODO |
+| 36 | Verify pkg.go.dev renders the corrected README + examples after v0.4.0 | Low | 5m | TODO — v0.3.1 tagged 2026-09-09; pkg.go.dev indexing pending |
 | 37 | ~~Local env cleanup: drop global `GOPRIVATE` + SSH `insteadOf` (unneeded post-public)~~ won't do — kept deliberately: private siblings need VCS auth, no per-module `GOPRIVATE` exists; harmless here (2026-09-09) | Low | 5m | done |
 | 38 | Consider a tiny public demo linter repo (consumer table currently advertises invisible repos) | Low | — | ROADMAP idea |
 
 ## g) Questions I cannot figure out myself
 
-1. **May I delete the `PRIVATE_REPO_TOKEN` secret from repo settings (`gh secret delete`), and do you want the broader source PAT rotated?** Deleting a credential is destructive and account-touching — I will not do it without your explicit go-ahead (2026-09-09 §g.1 asked the same).
-2. **Should I cut v0.4.0 now?** The delta since v0.3.0 is docs + CHANGELOG only, but pkg.go.dev is showing false install instructions to strangers *right now*, so speed matters. Per the AGENTS rule I'd wait for a green CI run on the exact post-daemon commit before tagging — say the word and I'll prepare the release (annotated tag, like v0.3.0).
-3. **What is the support posture for strangers — open issues/PRs with "no guarantees", or read-only?** This single decision unblocks SECURITY.md, SUPPORT.md, issue/PR templates, and branch protection (ROADMAP Q6), and settles whether the README needs a public as-is/no-guarantee line.
+1. ~~**May I delete the `PRIVATE_REPO_TOKEN` secret from repo settings (`gh secret delete`), and do you want the broader source PAT rotated?** Deleting a credential is destructive and account-touching — I will not do it without your explicit go-ahead (2026-09-09 §g.1 asked the same).~~ **Answered 2026-09-09: yes — deleted via `gh secret delete` (repo secret list now empty). PAT rotation remains with the maintainer.**
+2. ~~**Should I cut v0.4.0 now?** The delta since v0.3.0 is docs + CHANGELOG only, but pkg.go.dev is showing false install instructions to strangers *right now*, so speed matters. Per the AGENTS rule I'd wait for a green CI run on the exact post-daemon commit before tagging — say the word and I'll prepare the release (annotated tag, like v0.3.0).~~ **Answered 2026-09-09: yes — cut as `v0.3.1` (PATCH: zero Go API changes; v0.4.0 would overstate it) on `88bf9fa` after green CI; proxy indexed; GitHub release created.**
+3. ~~**What is the support posture for strangers — open issues/PRs with "no guarantees", or read-only?** This single decision unblocks SECURITY.md, SUPPORT.md, issue/PR templates, and branch protection (ROADMAP Q6), and settles whether the README needs a public as-is/no-guarantee line.~~ **Answered 2026-09-09: open, best-effort, no SLAs — `SUPPORT.md`, `SECURITY.md`, issue templates, README section added (shipped in v0.3.1); branch protection deliberately OFF (auto-commit daemon pushes direct to master).**
 
 ---
 

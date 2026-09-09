@@ -106,22 +106,28 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   never attribute (`./...` totals 83.3%; the library alone is 98.2%). CI runs
   `go list ./... | grep -v /examples/ | xargs go test ...` — don't "fix" this
   back to `./...`.
-- **Released versions: v0.3.0 (2026-09-08).** Tag releases only when CI is
-  green on the exact commit — v0.3.0 was pushed before its CI run finished
-  and that run failed in 7s; master was green again by `487d254`. Cutting the
-  next tag is time-sensitive: pkg.go.dev freezes the tagged README, so it
-  still renders v0.3.0's pre-flip "private dependency" instructions until a
-  new tag ships.
+- **Released versions: v0.3.0 (2026-09-08), v0.3.1 (2026-09-09).** Tag only
+  when CI is green on the exact commit — v0.3.0 was pushed before its CI run
+  finished (failed in 7s); v0.3.1 waited for green on `88bf9fa` first.
+  - **A commit whose CI never went green can carry a stale `go.sum`:** the
+    v1.7.0 bump commit's 7s-red CI meant its `go.sum` was never validated by
+    the tidy check; the next push failed on "Check go.mod is tidy". After ANY
+    dependency change, run `GOEXPERIMENT=jsonv2 go mod tidy` locally and
+    commit the result before pushing.
+  - pkg.go.dev freezes the tagged README; v0.3.1 exists mostly to refresh it
+    (docs-only releases are fine for that — PATCH version).
 - **`dprint.json` was removed (2026-09-09) — do not re-add casually.** It was
   orphan template residue; wiring it into treefmt would fetch wasm plugins
   from the network at runtime and break hermetic `nix flake check` (only
   vendored plugins would work). `nix fmt` covers Go + Nix; markdown is
   hand-formatted under the docs-health process — that is a decision, not a
   gap.
-- **Public repo, "no guarantees" stance (since 2026-09-08).** Anything
+- **Public repo, open support posture (decided 2026-09-09).** Anything
   committed is world-visible (including `docs/status` and `docs/planning`).
-  Support posture for strangers is an open question (ROADMAP Q6); the default
-  stance is "public as-is".
+  Issues/PRs from strangers are accepted, best-effort, no SLAs — `SUPPORT.md`
+  and `SECURITY.md` (private advisories) are the policy docs. Branch
+  protection is deliberately OFF: the auto-commit daemon pushes directly to
+  master, and required-status checks would wedge it.
 - **Doc one-home rule: FEATURES = what exists, ROADMAP = what's next.**
   `FEATURES.md` tracks only capabilities that have code today
   (`FULLY_FUNCTIONAL` / `PARTIALLY_FUNCTIONAL` / `BROKEN`). Not-yet-built

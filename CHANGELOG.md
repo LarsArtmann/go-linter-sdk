@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
+### Removed
+
+- The unused `PRIVATE_REPO_TOKEN` GitHub Actions secret (post-`v0.3.1` repo
+  operation; `ci.yml` has had zero `secrets.` references since `7675912`).
+  Rotate the underlying PAT if it served no other repo.
+
 ### Fixed
 
 - Nothing yet.
