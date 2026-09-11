@@ -68,3 +68,4 @@ go.work.sum
 !reports/
 reports/*
 !reports/.gitkeep
+/naked-return-guard
