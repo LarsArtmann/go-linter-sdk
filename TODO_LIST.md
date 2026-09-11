@@ -33,7 +33,7 @@ migrations are the consumers' work now — see `docs/migration-guide.md`.)
 
 ### Dependency hygiene
 
-None open. (`go-finding` pinned at `v1.9.2` — bumped 2026-09-09, gate green.)
+None open. (`go-finding` pinned at `v1.10.0` — bumped 2026-09-11, gate green.)
 
 ---
 

@@ -159,11 +159,12 @@ errors into `*RuleError`.
 
 - **Lives at:** `registry.go`
 
-## Borrowed vocabulary (go-finding v1.7.0)
+## Borrowed vocabulary (go-finding v1.10.0)
 
 The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
 directly; the SDK never translates them. Definitions below mirror the pinned
-v1.7.0 source (module cache), not newer tags.
+v1.10.0 source (module cache), not newer tags. (v1.9.x and v1.10.0 made no
+core-module vocabulary changes since v1.7.0.)
 
 - **Finding** — one detected issue: identity (`ID`, `Rule`, `ToolName`),
   location (`Position`), `Message`, `Severity`, plus optional `Category`,

@@ -49,8 +49,18 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.9.2** (public repo; bumped from v1.7.0 on 2026-09-09, gate
-  green: build/test/lint/vet/flake-check). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- **`go-finding` v1.10.0** (public repo; bumped from v1.9.2 on 2026-09-11, gate
+  green: build/test/race/lint/vet/flake-check; v1.10.0 has no core-module code
+  changes — it only adds the `toolsdk` sub-module, which this SDK does not
+  import). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- **go-finding is a multi-module repo; its sub-modules are irrelevant to this
+  SDK's go.mod.** The repo ships root `github.com/larsartmann/go-finding` plus
+  independently tagged sub-modules `toolsdk`, `pipeline`, `analysis`,
+  `cmd/go-finding`. Sub-modules release in lockstep and are tagged
+  `<subdir>/vX.Y.Z` (e.g. `toolsdk/v1.10.0` — toolsdk's FIRST tag, because the
+  sub-module was born in the v1.10.0 release). This SDK imports only the root
+  module, so `go get github.com/larsartmann/go-finding@latest` is always the
+  complete bump.
 - Go 1.26.7 (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions

@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependency:** `go-finding` bumped from `v1.9.2` to `v1.10.0` (2026-09-11).
+  v1.10.0 contains no core-module code changes — its only addition is the new
+  `toolsdk` sub-module (BuildFlow provider plugin contract), which this SDK
+  does not import. Full gate green post-bump (build, test, race, vet,
+  golangci-lint, `nix flake check`). No API changes required in this SDK.
 - **CI golangci-lint bumped `v2.12.2` → `v2.13.2`** to match the nixpkgs
   devShell version (one source of truth), and `exhaustruct` migrated to its
   replacement `exhaustruct_v5` (deprecated since v2.13.0); three nolint
@@ -74,6 +79,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The unused `PRIVATE_REPO_TOKEN` GitHub Actions secret (post-`v0.3.1` repo
   operation; `ci.yml` has had zero `secrets.` references since `7675912`).
   Rotate the underlying PAT if it served no other repo.
+
+### Fixed
+
+- **flake.nix `outputs` re-declares `self`** in the `inputs@{ ... }`
+  destructure (regressed during a later flake rewrite; Nix 2.34.8 strict
+  `@`-pattern checking made every `nix run .#*` / `nix flake check` fail with
+  "function 'outputs' called with unexpected argument 'self'"). Restored to
+  match the documented gotcha and the `go-finding` reference flake.
 
 ## [0.3.1] - 2026-09-09
 
