@@ -43,8 +43,8 @@ type Category string
 //
 //	const CategoryAPI Category = "api" // your domain category
 const (
-	CategoryDesign        Category = "design"        // design smells (coupling, cohesion)
-	CategoryStructure     Category = "structure"     // file/package layout
+	CategoryDesign        Category = "design"    // design smells (coupling, cohesion)
+	CategoryStructure     Category = "structure" // file/package layout
 	CategoryErrorHandling Category = "error-handling"
 	CategoryCorrectness   Category = "correctness"
 	CategoryNaming        Category = "naming"        // naming conventions
