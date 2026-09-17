@@ -16,6 +16,7 @@
 
   outputs =
     inputs@{
+      self,
       nixpkgs,
       flake-parts,
       treefmt-nix,

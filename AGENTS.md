@@ -69,8 +69,12 @@ Core types in package `linter`:
   `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict argument checking on
   `@`-patterns, so omitting `self` breaks BuildFlow with
   `function 'outputs' called with unexpected argument 'self'`. Keep `self,`
-  first in the destructure (the sibling `go-finding` flake is the reference;
-  fixed here in `c13366c`).
+  first in the destructure (the sibling `go-finding` flake is the reference).
+  **This fix has regressed twice**: applied in `c13366c` and again in `59e3cd4`,
+  then the auto-commit daemon clobbered it once more in `802ff0a` (2026-09-11,
+  stale flake.nix absorbed alongside a legit go-finding bump) and it was
+  restored 2026-09-17. If any `nix` eval fails with that error, check the
+  destructure first before suspecting inputs or the lockfile.
 - **`reports/` must exist for BuildFlow's `test-coverage` step.** It is kept
   durable via `reports/.gitkeep` plus a `.gitignore` exception
   (`!reports/`, `reports/*`, `!reports/.gitkeep`) — don't remove the marker.
