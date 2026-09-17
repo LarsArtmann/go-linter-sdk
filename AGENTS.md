@@ -149,6 +149,15 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   capabilities live exclusively in `ROADMAP.md` until they graduate to
   `TODO_LIST.md`. This kills the FEATURES↔ROADMAP PLANNED split-brain that
   recurred across sessions 2-5.
+- **Layering vs sibling libs (decided 2026-09-17).** The SDK deliberately does
+  NOT depend on `cmdguard` (CLI framework) or `go-output` (renderer): it is a
+  library that stops at findings/report/exit codes, and its single-dep policy
+  (`go-finding` only) would be destroyed by cmdguard's transitive cobra/fang/
+  lipgloss/samber-do/koanf tree. The intended stack for consumer linters:
+  rules (this SDK) → report (go-finding) → CLI shell (cmdguard) → rendering
+  (go-output). The README's "Companion libraries" section recommends cmdguard
+  and go-output to end users; keep that section accurate if the siblings'
+  import paths change.
 - **User decisions recorded 2026-09-09 (P0 of the 47-task plan):**
   1. **Version label: v0.3.1 stands.** No v0.4.0 until real Go API movement
      (e.g. a Register contract change); adjacent tags would confuse `@latest`.
