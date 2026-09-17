@@ -35,30 +35,30 @@
 
 10. ROADMAP Q3 ("Library-only, or eventual CLI?") is still open; my README section implicitly takes the library-only side. The decision should be made explicit and dated.
 11. README's minimal example (and likely examples/minimal-linter) ignores the error from `registry.Run` (`report, _ :=`) — bad example hygiene; consumers copy examples verbatim.
-12. No runnable example shows report *output* (PrettyJSON/SARIF/go-output table) — the companion story would land harder with one.
+12. No runnable example shows report _output_ (PrettyJSON/SARIF/go-output table) — the companion story would land harder with one.
 
 ---
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-| - | ---- | -------- |
+| # | Item                                                      | Evidence                                                |
+| - | --------------------------------------------------------- | ------------------------------------------------------- |
 | 1 | Architecture answer: why no go-output/cmdguard dependency | Layering + go.mod single-dep policy, file:line evidence |
-| 2 | README "Companion libraries" section | README.md:51-61, committed in `aed16a8` |
-| 3 | AGENTS.md layering-decision record | Gotchas section, committed in `aed16a8` |
+| 2 | README "Companion libraries" section                      | README.md:51-61, committed in `aed16a8`                 |
+| 3 | AGENTS.md layering-decision record                        | Gotchas section, committed in `aed16a8`                 |
 | 4 | go-finding serialization surface verified before claiming | `report.ToSARIF()` at go-finding/doc.go:57; json.go API |
-| 5 | Table alignment fix | Pending diff 5+/5− (uncommitted) |
-| 6 | Skill loading discipline (how-to-golang, status-report) | Both loaded before task execution |
+| 5 | Table alignment fix                                       | Pending diff 5+/5− (uncommitted)                        |
+| 6 | Skill loading discipline (how-to-golang, status-report)   | Both loaded before task execution                       |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Gap |
-| - | ---- | --- |
-| 1 | pkg.go.dev visibility of new section | Content done; frozen until next tag |
-| 2 | Companion-stack discoverability | README only; migration guide + examples not wired |
-| 3 | Session documentation | This report completes it |
-| 4 | CHANGELOG narrative | Daemon carries the commit; no CHANGELOG line yet |
-| 5 | Table-alignment fix committed | Done locally, awaiting daemon/manual commit |
+| # | Item                                 | Gap                                               |
+| - | ------------------------------------ | ------------------------------------------------- |
+| 1 | pkg.go.dev visibility of new section | Content done; frozen until next tag               |
+| 2 | Companion-stack discoverability      | README only; migration guide + examples not wired |
+| 3 | Session documentation                | This report completes it                          |
+| 4 | CHANGELOG narrative                  | Daemon carries the commit; no CHANGELOG line yet  |
+| 5 | Table-alignment fix committed        | Done locally, awaiting daemon/manual commit       |
 
 ## c) NOT STARTED (touched zero times this session)
 
@@ -86,6 +86,7 @@
 ## f) Up to 50 things to get done next (brainstorm — ROADMAP fuel, not commitments)
 
 **Immediate session follow-ups**
+
 1. Push `master` at session end (daemon commits, never pushes — policy (b)).
 2. Commit/land the pending README table-alignment diff (daemon will pick it up).
 3. Get user clarification on the non-mine `flake.nix +1` in `1a7d7c8`.
@@ -145,4 +146,4 @@
 
 ---
 
-*Point-in-time snapshot — will go stale. Annotate, don't rewrite.*
+_Point-in-time snapshot — will go stale. Annotate, don't rewrite._
