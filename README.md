@@ -52,11 +52,11 @@ Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) 
 
 `go-linter-sdk` is deliberately a library: it stops at emitting findings, building the report, and mapping it to an exit code. It ships no CLI framework and no formatters, so your binary stays free to choose them. These sibling libraries cover the layers above it:
 
-| Layer                                            | Library                                                                                  |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Findings model, report, JSON/SARIF serialization | [`go-finding`](https://github.com/larsartmann/go-finding) (already a dependency)          |
-| Report rendering (tables, Markdown, 16 formats)  | [`go-output`](https://github.com/larsartmann/go-output)                                   |
-| CLI shell (type-safe flags, DI, graceful shutdown, exit codes) | [`cmdguard/v4`](https://github.com/larsartmann/cmdguard)                    |
+| Layer                                                  | Library                                                                                 |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Findings model, report, JSON/SARIF serialization       | [`go-finding`](https://github.com/larsartmann/go-finding) (already a dependency)         |
+| Report rendering (tables, Markdown, 16 formats)        | [`go-output`](https://github.com/larsartmann/go-output)                                  |
+| CLI shell (flags, DI, graceful shutdown, exit codes)   | [`cmdguard/v4`](https://github.com/larsartmann/cmdguard)                                 |
 
 A typical linter binary combines all three: rules from `go-linter-sdk`, `registry.Run` for the report, cmdguard for flags and lifecycle, and go-output — or go-finding's built-in `report.PrettyJSON()` / `report.ToSARIF()` — for output.
 
