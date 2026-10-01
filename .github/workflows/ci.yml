@@ -27,9 +27,9 @@ env:
   # Required: go-finding uses encoding/json/v2 (Go experiment).
   GOEXPERIMENT: jsonv2
   # Pin the exact patch: setup-go's version manifest lags go.dev by hours,
-  # so go-version "1.26" can resolve to an older patch than go.mod requires.
+  # so go-version "1.27" can resolve to an older patch than go.mod requires.
   # With GOTOOLCHAIN set, Go downloads the exact toolchain regardless.
-  GOTOOLCHAIN: go1.26.7
+  GOTOOLCHAIN: go1.27.0
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,28 +58,28 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       # setup-go injects GOTOOLCHAIN=local via GITHUB_ENV, which overrides
       # the workflow-level env; only a step-level env wins that race.
       - run: go build ./...
         env:
-          GOTOOLCHAIN: go1.26.7
+          GOTOOLCHAIN: go1.27.0
       - run: go vet ./...
         env:
-          GOTOOLCHAIN: go1.26.7
+          GOTOOLCHAIN: go1.27.0
       - name: Check go.mod is tidy
         run: |
           go mod tidy
           git diff --exit-code go.mod go.sum
         env:
-          GOTOOLCHAIN: go1.26.7
+          GOTOOLCHAIN: go1.27.0
       # Coverage measures the library only: examples/ are exercised via
       # exec.Command from integration tests, so their statements never
       # attribute and would dilute the total below the gate.
       - name: Run tests with coverage (library packages)
         run: go list ./... | grep -v /examples/ | xargs go test -race -count=1 -coverprofile=coverage.out -covermode=atomic
         env:
-          GOTOOLCHAIN: go1.26.7
+          GOTOOLCHAIN: go1.27.0
       - name: Check coverage threshold
         run: |
           total=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | tr -d '%')
@@ -89,7 +89,7 @@ jobs:
             exit 1
           fi
         env:
-          GOTOOLCHAIN: go1.26.7
+          GOTOOLCHAIN: go1.27.0
     timeout-minutes: 15
 
   lint:
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           version: v2.13.2
@@ -113,7 +113,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - name: Run govulncheck
@@ -146,7 +146,7 @@ jobs:
     steps:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       - name: Consume the latest published version from a clean directory
         run: |
           mkdir -p /tmp/stranger && cd /tmp/stranger
