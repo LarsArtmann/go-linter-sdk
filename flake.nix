@@ -15,9 +15,11 @@
 
   outputs =
     inputs@{
+      self,
       nixpkgs,
       flake-parts,
       treefmt-nix,
+      ...
     }:
     let
       inherit (nixpkgs) lib;
