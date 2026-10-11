@@ -132,6 +132,25 @@ jobs:
         run: govulncheck ./...
     timeout-minutes: 15
 
+  # Shared-runner hardware is noisy, so this job records rather than asserts:
+  # regressions are judged manually against reports/benchmarks-baseline.txt
+  # (see scripts/bump-checklist.sh), not gated here.
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27"
+      - name: Run registry benchmarks
+        run: go test -bench . -benchmem -benchtime=1000x -run '^$' . | tee benchmark-results.txt
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: benchmark-results
+          path: benchmark-results.txt
+    timeout-minutes: 15
+
   nix:
     runs-on: ubuntu-latest
     steps:

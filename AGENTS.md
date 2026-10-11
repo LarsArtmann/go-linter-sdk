@@ -198,6 +198,14 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   generated messages (sometimes low-quality). Do not rewrite history to fix
   them — `CHANGELOG.md` is the narrative of record. Focus on keeping the
   CHANGELOG accurate rather than the `git log` pretty.
+- **This checkout is shared; parallel sessions are real.** (2026-10-11: a
+  multiedit was rejected with "file has been modified since it was last read"
+  because another Crush session rewrote AGENTS.md mid-edit.) Before the first
+  edit of a session, run `git log --oneline -5` and treat rapid daemon commits
+  as a live-session signal; before editing any file you read more than a few
+  minutes ago, re-read it. Never force a clobber over an unexpected change —
+  investigate it on its merits. A local `go.work` appearing or disappearing
+  between commands is another session's doing, not corruption.
 - **Post-release habit (do this every release).** After tagging: verify
   pkg.go.dev renders `@latest` (frozen README!) and check the "Imported by"
   count to see adoption. pkg.go.dev indexes on proxy activity — a `go get` of
@@ -239,6 +247,7 @@ importers):
 | `BuildFlow/execution` | Direct dependency in the orchestrator.      |
 
 The SDK's pilot rules were ported from `go-structure-linter`, `branching-flow`,
-and `erraudit`. Whether any consumer has **deleted its converter package** (the
-SDK's whole reason to exist) is not yet verified — that is the real migration
-metric, distinct from "does anyone import it".
+and `erraudit`. Converter deletion is **verified at the source level
+(2026-10-11)**: no consumer retains a custom Issue/Violation converter layer
+(4 MIGRATED, 2 PARTIAL with documented deliberate adapters). Per-repo evidence,
+verdicts, and the refresh procedure: `docs/ADOPTION.md`.

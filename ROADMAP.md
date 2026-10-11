@@ -26,23 +26,22 @@ Raw ideas:
 
 ### 2. Consumer adoption (the reason this SDK exists)
 
-The SDK exists to delete converter code: `branching-flow` (1,871 LOC) and
-`erraudit` (1,214 LOC) each maintain a bridge package purely because their
-native domain types predate `finding.Finding`. Pilot ports of rules from both
-(plus `go-structure-linter`) now live in `examples/`, and six internal repos
-import the SDK. The claim is still unproven at scale: adoption and
-converter-deletion are different facts, and none has been verified to have
-deleted its converter package.
+The SDK exists to delete converter code. The core claim is now **verified at
+the source level (2026-10-11)**: all six internal consumers import the SDK,
+none retains a custom Issue/Violation converter layer — one deleted its
+violation hierarchy (~4,737 LOC), three were born native, two keep documented
+deliberate adapters. Per-repo evidence and the refresh procedure live in
+`docs/ADOPTION.md`.
 
 Raw ideas:
 
-- Verify whether any consumer actually deleted its converter package (the real
-  migration metric)
-- Full migration of `go-structure-linter` to `go-linter-sdk` (it already
-  aliases `Issue = finding.Finding`)
+- Full migration of `go-structure-linter` to native `linter.RuleFunc` rules
+  (its rule-level adapter is permanent by its own ADR-003; this idea is about
+  going further than that ADR wants)
 - Spread the SDK to the ~31 repos still on older `go-finding` releases
 - A `cmd/` directory with a production CLI binary wrapping the registry
-  (`--enable`/`--disable` flag parsing, `--format` text/JSON/SARIF)
+  (`--enable`/`--disable` flag parsing, `--format` text/JSON/SARIF) — see the
+  resolved Q3 for why this is parked
 
 ### 3. Publication & distribution
 
@@ -57,8 +56,6 @@ Raw ideas:
 - Cut the next tag promptly after public-facing doc fixes — pkg.go.dev freezes
   the tagged README, so a stale tag keeps showing stale instructions (v0.3.0
   still renders the pre-flip "private dependency" warning there)
-- Codify the stranger test (fresh module, proxy-only `go get` + build + run)
-  as a CI job so importability regressions surface before a tag
 - `self`-based flake versioning (matching `go-finding`'s
   `version = self.rev or self.dirtyRev or "dev"`) — only if a binary emerges;
   today the SDK is library-only and `self` is unused
@@ -71,8 +68,6 @@ the nix integration and add automated dependency management.
 
 Raw ideas:
 
-- Flake `checks` derivations for `go test`, `go vet`, and `golangci-lint` (only
-  treefmt is a check derivation today)
 - Additional nix apps: `watch` (live test re-runs), `tidy` (`go mod tidy`),
   `deps-update`
 - `direnv` setup and/or pre-commit hooks (`pre-commit-hooks.nix`)
@@ -94,13 +89,19 @@ Unresolved questions routed from the status reports. These are blockers for
 decisions, not tasks — they need an answer before work can proceed.
 
 - **Q2 — Should the package live at the repo root or under a sub-path?**
-  `go-structure-linter` flags root-level package files (`registry.go`,
-  `rule.go`, `errors.go`) and suggests `internal/`. For an importable library
-  SDK the root import path `github.com/larsartmann/go-linter-sdk` may be
-  intentional; moving would change it. (session 3)
-- **Q3 — Library-only, or eventual CLI?** If the SDK stays library-only, the
-  flake's `self` arg is genuinely unused and `self`-based versioning is not
-  needed. A future `cmd/` binary would flip both. (session 3)
+  **Decided 2026-10-11: root stays.** The import path
+  `github.com/larsartmann/go-linter-sdk` IS the product for a library SDK;
+  moving to `internal/` would break every consumer for zero benefit. The
+  `go-structure-linter` file-layout suggestion is accepted as a permanent
+  warning, not a defect. (session 3, resolved by the adoption-verification
+  session)
+- **Q3 — Library-only, or eventual CLI?** **Decided 2026-10-11: library-only
+  stands.** The SDK deliberately stops at findings/report/exit codes; the CLI
+  shell for consumer linters is `cmdguard`'s job (layering decision recorded in
+  AGENTS.md, 2026-09-17). A `cmd/` here would duplicate that and drag a
+  cobra-class dependency tree into a single-dep library. The flake's `self`
+  argument stays unused and `self`-based versioning stays unneeded. (session
+  3, resolved by the adoption-verification session)
 - **Q7 — Dedicated demo repository?** A separate `go-linter-sdk-demo` repo
   would prove the stranger experience (fresh `go get`, no LarsArtmann git
   config) even more strongly than the in-CI stranger-test job added
@@ -121,10 +122,10 @@ Decisions made in prior sessions, kept for context. These no longer block work.
   checks would wedge it.
 
 - **Q1 — Is `go-finding` a real published tag?** **Yes.** The dependency is a
-  real published tag, confirmed in `go.mod`
-  (`require github.com/larsartmann/go-finding v1.14.0`). There is no local
-  `replace` directive. Consumers and CI both fetch it from the module proxy.
-  (resolved session 8; version refreshed 2026-10-11)
+  real published tag, confirmed by the `require` entry in `go.mod` (version:
+  see `go.mod` — prose does not duplicate it). There is no local `replace`
+  directive. Consumers and CI both fetch it from the module proxy.
+  (resolved session 8; wording made drift-proof 2026-10-11)
 - **Q4 — Was the `flake.lock` bump that exposed the missing-`self` bug
   intentional?** Moot. The fix (declaring `self` in the `outputs` destructure)
   is permanent and verified across all sibling repos. The root cause was Nix
