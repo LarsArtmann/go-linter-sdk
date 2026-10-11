@@ -4,8 +4,6 @@ on:
   push:
     branches: [master]
     paths-ignore:
-      - "**/*.md"
-      - docs/**
       - LICENSE
       - .gitignore
       - "**/*.svg"
@@ -13,8 +11,6 @@ on:
   pull_request:
     branches: [master]
     paths-ignore:
-      - "**/*.md"
-      - docs/**
       - LICENSE
       - .gitignore
       - "**/*.svg"
@@ -34,6 +30,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The doc-drift guard must run on doc-only commits, which is why
+  # paths-ignore above no longer excludes markdown: prose that duplicates
+  # go.mod versions is exactly what rots (2026-10-11 drift incident).
+  doc-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check living docs against go.mod
+        run: scripts/check-doc-versions.sh
+    timeout-minutes: 5
+
   actionlint:
     runs-on: ubuntu-latest
     steps:

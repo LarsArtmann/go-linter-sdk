@@ -62,11 +62,16 @@ errfam_ver="$(awk '$2 == "github.com/larsartmann/go-error-family" {print $3; exi
 allowed_versions() {
 	git tag -l
 	echo "$finding_ver"
-	[ -n "$errfam_ver" ] && echo "$errfam_ver"
-	return 0
+	if [ -n "$errfam_ver" ]; then
+		echo "$errfam_ver"
+	fi
 }
 
 allowed="$(allowed_versions)"
+
+# Third-party TOOL versions legitimately live in docs (dependabot keeps the
+# workflow pins fresh); a line naming one of these tools may pin its version.
+tool_line='golangci-lint|actionlint|govulncheck|treefmt|dprint|gofumpt'
 
 # Rule 1 + 2 over living prose.
 for doc in "${LIVING_DOCS[@]}"; do
@@ -76,19 +81,18 @@ for doc in "${LIVING_DOCS[@]}"; do
 		text="${line#*:}"
 		case "$text" in *docguard:allow*) continue ;; esac
 		for ver in $(printf '%s\n' "$text" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || true); do
+			if printf '%s' "$text" | grep -qE "$tool_line"; then
+				continue
+			fi
 			if ! printf '%s\n' "$allowed" | grep -qxF "$ver"; then
 				die "$doc:$lnum hardcodes $ver, which is neither a go.mod dependency ($finding_ver${errfam_ver:+, $errfam_ver}) nor a repo tag. Point at go.mod or update the reference."
 			fi
 		done
-		for golit in $(printf '%s\n' "$text" | grep -oE '(go1?[- ])?[0-9]+\.[0-9]+\.[0-9]+|go 1\.[0-9]+|Go 1\.[0-9]+' || true); do
-			case "$golit" in
-			go1* | *go\ 1* | *Go\ 1*)
-				minor="$(printf '%s' "$golit" | grep -oE '1\.[0-9]+' | head -1 | cut -d. -f2)"
-				[ "$minor" = "$go_minor" ] || die "$doc:$lnum pins Go $golit but go.mod requires go $go_major.$go_minor. Update the reference or move it to a dated status report."
-				;;
-			esac
-		done
-	done < <(grep -nE 'v[0-9]+\.[0-9]+\.[0-9]+|go1?[0-9]*\.?[0-9]*\.[0-9]+|[Gg]o 1\.[0-9]+' "$doc" || true)
+		while IFS= read -r golit; do
+			minor="$(printf '%s\n' "$golit" | { grep -oE '1\.[0-9]+' || true; } | head -1 | cut -d. -f2)"
+			[ "$minor" = "$go_minor" ] || die "$doc:$lnum pins Go '$golit' but go.mod requires go $go_major.$go_minor. Update the reference or move it to a dated status report."
+		done < <(printf '%s\n' "$text" | grep -oE 'go1\.[0-9]+(\.[0-9]+)?|[Gg]o 1\.[0-9]+(\.[0-9]+)?' || true)
+	done < <(grep -nE 'v[0-9]+\.[0-9]+\.[0-9]+|go1\.[0-9]+|[Gg]o 1\.[0-9]+' "$doc" || true)
 done
 
 # Rule 3: toolchain pins must agree with go.mod's minor.
