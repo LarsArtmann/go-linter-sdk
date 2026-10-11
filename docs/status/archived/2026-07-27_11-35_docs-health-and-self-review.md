@@ -1,5 +1,7 @@
 # Status Report — go-linter-sdk (Session 4)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-27 11:35 CEST
 **Scope:** Docs-health + update-old-docs pass on the `2026-07-2*` reports, followed by a brutal self-review of that same work
 **Commits this session (auto-committed by git daemon):** `bd47ffb` (FEATURES + CHANGELOG + flake coverage fix), `4691f35` (TODO_LIST + ROADMAP), `fbd18ed` (AGENTS.md gotchas + ROADMAP/TODO trim), `3c4b1fd` (status-report annotation), `8b7911a` (CHANGELOG citation correction)

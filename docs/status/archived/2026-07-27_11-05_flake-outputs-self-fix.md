@@ -1,5 +1,7 @@
 # Status Report — go-linter-sdk (Session 3)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-27 11:05 CEST
 **Scope:** Fixing BuildFlow failure: `function 'outputs' called with unexpected argument 'self'`
 **Commits this session:** `21b7b36` (flake.lock), `c13366c` (flake.nix fix) — both auto-committed by git daemon

@@ -1,5 +1,7 @@
 # Status Report: Continuation — CI Fix, Quality Hardening, Docs Health
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-08 13:00 CEST
 **Session scope:** Continued the Pareto plan execution past M1-M13 into the
 "quality hardening" and "docs health" tiers (status report items f.6-f.17,

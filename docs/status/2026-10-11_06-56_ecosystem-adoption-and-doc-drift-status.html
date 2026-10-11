@@ -259,6 +259,21 @@
             three-Go-version, zero-to-six-consumer gap. This report inventories
             the gap and the work to close it.
           </p>
+          <p class="hero-subtitle">
+            <strong>Update, same day (execution session, ~09:00):</strong> the
+            open items below are closed. The <code>GOEXPERIMENT</code> cleanup
+            completed (the experiment is default-on in Go 1.27; the flag and
+            the stale <code>goexperiment.*</code> build tags are gone repo-wide
+            and a build regression guard is in place via the flake's hermetic
+            checks). Converter deletion is now <strong>verified at the source
+            level in all six consumers</strong> (4 MIGRATED, 2 documented
+            PARTIAL) — see <code>docs/ADOPTION.md</code>. Doc drift is guarded
+            structurally: <code>scripts/check-doc-versions.sh</code> runs as a
+            CI job and a flake check, and living docs point at
+            <code>go.mod</code> instead of duplicating versions. Benchmarks
+            improved 20&#8211;30% vs the 2026-09-09 baseline. Version pointers
+            in this report are historical snapshots, not current state.
+          </p>
         </div>
 
         <nav class="toc">

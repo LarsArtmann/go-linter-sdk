@@ -1,5 +1,7 @@
 # Status Report — go-linter-sdk (Session 2)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-19 02:03 CEST
 **Scope:** Session following commit `18ccbd5` — reacting to the `go-structure-linter --fix` output and closing ecosystem-parity gaps
 **Commits this session:** `6838158` — "Add ecosystem project files and harden the lint/build surface" (12 files, +709/-25, **unpushed** — 1 ahead of `origin/master`)

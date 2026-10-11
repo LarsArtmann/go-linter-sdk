@@ -1,5 +1,7 @@
 # Status Report: Docs-Health Audit — ROADMAP Rebuild, CHANGELOG Restructure, Status Report Annotation
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-08 10:45 CEST
 **Session goal:** Execute a full docs-health pass (BUILD + HARVEST + VERIFY + ANNOTATE) on all living docs, then annotate the two `2026-08-05` status reports.
 **Outcome:** 7 files modified (ROADMAP, DOMAIN_LANGUAGE, FEATURES, TODO_LIST, CHANGELOG, 2 status reports). 31 tests pass, 96.8% coverage. Build clean.

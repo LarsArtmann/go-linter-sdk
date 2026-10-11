@@ -1,5 +1,7 @@
 # Status Report — Docs-Health Follow-Ups, v0.3.1 Release, Open Support Posture
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Written:** 2026-09-09 04:18 CEST · **Scope:** this session only (baseline `487d254` → `1af122a`, tag `v0.3.1`)
 **Repo state:** master ahead 1 of origin (daemon-committed `1af122a`; pushed with this report). CI green on `88bf9fa` (the tagged commit). Docs-only commits after `88bf9fa` produce no CI runs by design (`ci.yml` `paths-ignore`).
 **Companion plan:** `docs/planning/2026-09-09_04-18_execution-plan-prioritized-microtasks.md` (canonical micro-task breakdown + execution graph).

@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0] - 2026-10-11
+
+First release on the Go 1.27 toolchain. Consumers should read the toolchain
+entry under Changed before bumping: the minimum Go version rises from 1.26 to
+1.27. No exported Go API of this SDK changed; every consumer-observed type
+still comes from `go-finding` (now v1.14.0). The 0.x MINOR (not PATCH) signals
+the raised toolchain floor. All six known consumers already run Go 1.27, so
+the practical breakage surface is empty (verified 2026-10-11,
+`docs/ADOPTION.md`).
 
 ### Added
 
@@ -56,6 +64,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`SECURITY.md` completed** with "Supported Versions" and "Security
   Practices" sections plus a response-time commitment, clearing the
   `securitymd` BuildFlow gate.
+- **Doc-drift guard** (`scripts/check-doc-versions.sh` + CI `doc-drift` job +
+  flake `doc-versions` check): fails when a living doc hardcodes a dependency
+  version that is neither `go.mod`'s nor a repo tag, or when the Go pins in
+  `flake.nix` / `ci.yml` / `.golangci.yml` fall out of lockstep with `go.mod`.
+  Living docs now point at `go.mod` instead of duplicating versions — the
+  mechanism behind the 2026-10-11 six-doc drift incident.
+- **Adoption proof and doc** (`docs/ADOPTION.md`): converter deletion verified
+  at source level in all six consumers (4 MIGRATED, 2 PARTIAL with documented
+  deliberate adapters; one deleted a ~4,737-LOC violation hierarchy). Includes
+  the refresh procedure and the ecosystem version-distribution snapshot.
+- **Flake `checks`** derivations for `go test`, `go vet`, `golangci-lint`, and
+  the doc guard (previously only treefmt) — `nix flake check` now runs the
+  same gates CI does, hermetically vendored.
+- **Adoption smoke test**: the CI stranger-test job now exercises the
+  consumer-facing helpers real linters use (`Registry.Run`,
+  `ExitCodeByConfidence`, `DetectorFromRegistry`), not just a compile.
+- **`scripts/bump-checklist.sh`**: encodes the dependency-bump checklist
+  (build/vet/test/race/lint/tidy-drift/doc-guard) that kept getting skipped.
+- **CI benchmark job**: records `BenchmarkRegistry_*` results as a workflow
+  artifact each push (comparison vs `reports/benchmarks-baseline.txt` stays
+  manual — shared runners are too noisy to gate on).
 
 ### Changed
 
@@ -80,6 +109,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   every CI go step pins `GOTOOLCHAIN: go1.27.0`. `goimports` in treefmt is
   pinned to the same toolchain so the network-less `nix flake check` sandbox
   never tries to auto-download Go.
+- **CI lint toolchain:** golangci-lint action bumped `v2.13.2` → `v2.14.0` —
+  the first release built with Go 1.27; older binaries cannot decode Go 1.27
+  stdlib export data (`export data version 5 is greater than maximum
+  supported version 4`), which is what turned CI red on 2026-10-11. The stale
+  `goexperiment.*` build tags (`arenas`, `goroutineleakprofile`,
+  `runtimesecret`, `simd`) were removed from `.golangci.yml` at the same time,
+  so lint sees exactly what `go build` sees.
 - **`GOEXPERIMENT=jsonv2` dropped everywhere.** Go 1.27 promotes
   `encoding/json/v2` and `jsontext` to standard packages, so the experiment flag
   in `flake.nix` (both devShells and all eight apps), `.buildflow.yml`,

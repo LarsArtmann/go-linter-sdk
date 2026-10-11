@@ -1,5 +1,7 @@
 # Status Report: go.mod Replace Directive Removal & Real Version Pinning
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-30 16:08 CEST\
 **Session scope:** Single session — fixing `go-finding` dependency from zero pseudo-version + local `replace` to real published `v1.4.1` tag resolved from VCS.\
 **Format override:** User requested `.md` (skill default is HTML). Honored per skill spec.

@@ -1,5 +1,7 @@
 # Status Report: Continuation — CI Fix, Quality Hardening, Self-Critique
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-08 12:36 CEST
 **Session scope:** Continued past the prior session's M1-M13 Pareto execution
 into quality-hardening, CI fixes, docs-health inline annotations, and

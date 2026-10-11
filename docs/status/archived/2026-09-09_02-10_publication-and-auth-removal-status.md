@@ -1,5 +1,7 @@
 # Status Report — Repo Publication & Auth Removal
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Generated:** 2026-09-09 02:10 CEST
 **Session scope:** evaluate public vs. private → make repo public with "no guarantees" stance → remove dead private-dependency scaffolding.
 **Format note:** written as Markdown per explicit user instruction (status-report skill default is styled HTML — user override wins).

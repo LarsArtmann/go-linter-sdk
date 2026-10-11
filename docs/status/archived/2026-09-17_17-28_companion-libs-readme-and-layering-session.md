@@ -1,5 +1,7 @@
 # Status Report — 2026-09-17 17:28 CEST
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Session scope:** Companion-library documentation session (go-output / cmdguard layering question, README + AGENTS.md updates).
 **Constraint honored:** No new research; everything below comes from this session's own tool calls and files read (README.md, AGENTS.md, ROADMAP.md, go.mod, go-finding API surface, sibling repo READMEs).
 

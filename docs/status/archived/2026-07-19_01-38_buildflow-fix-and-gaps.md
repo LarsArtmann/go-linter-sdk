@@ -1,5 +1,7 @@
 # Status Report — go-linter-sdk
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-19 01:38 CEST
 **Scope:** Single-session audit of the buildflow failure fix and its aftermath
 **Commit:** `18ccbd5` — "Make the SDK buildable and lint-clean under the ecosystem's jsonv2 experiment"

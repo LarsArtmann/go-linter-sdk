@@ -1,5 +1,7 @@
 # Status Report: Feedback-Driven API Evolution (Session 7)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 > **Date:** 2026-07-30 16:19
 > **Trigger:** User asked to deeply review `docs/feedback/new/2026-07-30_cqrs-lint-adoption-analysis.md`
 > **Outcome:** Wrote decision appendix, implemented 3 API changes, updated 6 docs, introduced stale line references

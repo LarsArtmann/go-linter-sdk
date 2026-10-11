@@ -1,5 +1,7 @@
 # Status Report: Documentation Cleanup & Remaining Debt (Session 8)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 > **Date:** 2026-07-30 16:39
 > **Trigger:** User asked for a brutally honest self-review: "What did you forget? What could you have done better?"
 > **Session scope:** Fix stale line references, README example, feedback doc processing note, CONTRIBUTING drift, TODO_LIST rebuild, ROADMAP/CHANGELOG consistency

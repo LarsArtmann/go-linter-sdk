@@ -1,5 +1,7 @@
 # Status Report — 47-Task Plan Execution, Self-Review
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Written:** 2026-09-09 05:23 CEST · **Scope:** this session only (baseline `6d0d6c1` → HEAD `4c07d9a`, all pushed)
 **Trigger:** "GET SHIT DONE — the WHOLE TODO LIST" — execution of `docs/planning/2026-09-09_04-18_execution-plan-prioritized-microtasks.md` (all 47 tasks), followed by this mandated self-review.
 **Format note:** user explicitly demanded `.md` at `docs/status/`; the status-report/brutal-self-review skills default to styled HTML — user instruction wins (same override as the previous session, flagged again here).

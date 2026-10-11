@@ -41,6 +41,22 @@ A repository counts as a consumer when its `go.mod` requires
 rules, detectors, or exit-code helpers). Version numbers live in each
 repository's `go.mod`.
 
+## Metrics
+
+Tracked snapshots; update alongside the refresh procedure.
+
+**2026-10-11:**
+
+- Direct consumers (go.mod `require` + code import): **6** (table above).
+- Ecosystem `go-finding` version distribution: of 95 `go.mod` files referencing
+  `go-finding` across `~/projects` — 60 on the current release, 31 one minor
+  behind, 4 scattered on older minors. The SDK itself tracks the current
+  release (see `go.mod`).
+- pkg.go.dev "Imported by" for this module: **3** public importers shown
+  (`cmdguard/lint`, `go-humanize-linter`, `samber-linter/internal/driver`) —
+  the rest of the adoption is private or unindexed; the go.mod scan is the
+  more complete signal.
+
 ## Refresh procedure
 
 1. For each row above: `grep -rn "go-linter-sdk" <repo> --include="go.mod"`.

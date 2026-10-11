@@ -1,5 +1,7 @@
 # Status Report: Full Docs-Health Audit — Verify, Harvest, Living-Doc Fixes, Mass Annotation, Archive
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-09-09 02:51 CEST
 **Session scope:** Execute the docs-health skill as a full AUDIT (BUILD + HARVEST + VERIFY + ANNOTATE) over all `**/2026-0*` files and the seven living docs; archive fully-done annotated files.
 **Commits this session (auto-git daemon):** `f6d4913`, `7eee05d`, `80db844`, `250a4e9`, `28e4954` — all daemon-heuristic messages; content verified via gate + greps.

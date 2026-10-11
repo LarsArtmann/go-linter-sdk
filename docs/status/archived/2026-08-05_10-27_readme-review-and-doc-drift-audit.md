@@ -1,5 +1,7 @@
 # Status Report: README Review & Doc-Drift Audit
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-05 10:27 CEST
 **Session scope:** Evaluate README quality, identify the real problem the project solves, improve the README, audit what was missed.
 

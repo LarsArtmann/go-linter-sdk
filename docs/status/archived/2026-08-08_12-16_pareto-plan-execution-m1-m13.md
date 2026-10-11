@@ -1,5 +1,7 @@
 # Status Report: Pareto Plan Execution — M1 through M13
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-08 12:16 CEST
 **Session scope:** Execute the 1% + 4% + 20% tiers of the Pareto plan
 (`docs/planning/2026-08-08_10-55_pareto-execution-plan.md`).

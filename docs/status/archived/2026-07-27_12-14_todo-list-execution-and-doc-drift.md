@@ -1,5 +1,7 @@
 # Status Report — go-linter-sdk (Session 5)
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-07-27 12:14 CEST
 **Scope:** Execute the entire `TODO_LIST.md` — 11 items across High/Med/Low impact
 **Commits this session (auto-committed by git daemon):** `b369bba`, `b7e5bf4`,

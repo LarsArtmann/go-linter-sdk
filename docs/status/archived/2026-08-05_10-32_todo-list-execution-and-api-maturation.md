@@ -1,5 +1,7 @@
 # Status Report: TODO_LIST.md Execution — API Maturation, Examples, Docs
 
+> **Archived 2026-10-11:** superseded snapshot. Current work: `TODO_LIST.md`. Narrative of record: `CHANGELOG.md`.
+
 **Date:** 2026-08-05 10:32
 **Session goal:** Execute all 10 items in `TODO_LIST.md`
 **Outcome:** All 10 items implemented, verified, documented. 31 tests pass, 96.8% coverage, 0 lint issues.
