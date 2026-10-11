@@ -369,6 +369,22 @@
           </p>
         </div>
 
+        <div class="card card-warning">
+          <h4>Go 1.27 removed the GOEXPERIMENT requirement — mid-flight</h4>
+          <p>
+            The repo has long required <code>GOEXPERIMENT=jsonv2</code> on every
+            Go command. Verified 2026-10-11: <code>encoding/json/v2</code> is on
+            by default in Go 1.27, so plain <code>go build</code> /
+            <code>go test</code> work with no override — and
+            <code>GOEXPERIMENT=none</code> now <em>breaks</em> the build by
+            disabling the toolchain's default experiment set. A concurrent
+            cleanup is stripping the obsolete scaffolding from the flake, CI,
+            the golangci config, the examples, and the docs; this session's
+            review corrected <code>AGENTS.md</code>, <code>FEATURES.md</code>,
+            and the migration guide to match the verified behaviour.
+          </p>
+        </div>
+
         <h2 id="done"><span class="num">02</span>a) FULLY DONE</h2>
         <p>Verifiably complete, with evidence from this session's gate run.</p>
         <div class="strengths">

@@ -117,9 +117,8 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
 - **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
   setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.27"`
   can resolve an older patch than `go.mod` requires (`go: go.mod requires go
-  >= 1.27`). Only a STEP-level `env:` takes precedence over the `GITHUB_ENV`
-  injection — every go step in `ci.yml` pins `GOTOOLCHAIN: go1.27.0` so Go
-  downloads the exact patch.
+  > = 1.27`). Only a STEP-level`env:`takes precedence over the`GITHUB_ENV`injection — every go step in`ci.yml`pins`GOTOOLCHAIN: go1.27.0` so Go
+  > downloads the exact patch.
 - **The coverage gate measures library packages only.** `examples/` are
   exercised via `exec.Command` from integration tests, so their statements
   never attribute (`./...` totals 44.3%; the library alone is 98.7%). CI runs
@@ -194,14 +193,14 @@ Six direct consumers at `v0.3.1` (verified 2026-10-11 via `go.mod` grep plus a
 project-dependency-graph scan of `~/projects`; roughly 60 further indirect
 importers):
 
-| Consumer              | Notes                                        |
-| --------------------- | -------------------------------------------- |
-| `go-structure-linter` | The original pilot target.                   |
-| `samber-linter`       | Linter built on the SDK.                     |
-| `go-humanize-linter`  | Linter built on the SDK.                     |
-| `cmdguard/lint`       | The CLI-framework sibling's lint submodule.  |
-| `project-meta/linter` | Meta tooling consumer.                       |
-| `BuildFlow/execution` | Direct dependency in the orchestrator.       |
+| Consumer              | Notes                                       |
+| --------------------- | ------------------------------------------- |
+| `go-structure-linter` | The original pilot target.                  |
+| `samber-linter`       | Linter built on the SDK.                    |
+| `go-humanize-linter`  | Linter built on the SDK.                    |
+| `cmdguard/lint`       | The CLI-framework sibling's lint submodule. |
+| `project-meta/linter` | Meta tooling consumer.                      |
+| `BuildFlow/execution` | Direct dependency in the orchestrator.      |
 
 The SDK's pilot rules were ported from `go-structure-linter`, `branching-flow`,
 and `erraudit`. Whether any consumer has **deleted its converter package** (the
