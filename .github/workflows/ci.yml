@@ -99,7 +99,10 @@ jobs:
           go-version: "1.27"
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.13.2
+          # v2.14.0 is the first release built with Go 1.27; older binaries
+          # cannot decode Go 1.27 stdlib export data ("export data version 5
+          # is greater than maximum supported version 4").
+          version: v2.14.0
           args: --timeout=5m
       - name: Check formatting
         run: golangci-lint fmt --diff ./...
