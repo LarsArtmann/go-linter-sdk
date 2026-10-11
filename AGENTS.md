@@ -2,16 +2,20 @@
 
 Shared scaffolding for LarsArtmann Go linters (`Rule` interface, registry, detector adapter, exit codes). Eliminates the per-linter converter layer by codifying the `go-structure-linter` pattern: rules emit `finding.Finding` directly.
 
-## Critical: GOEXPERIMENT=jsonv2 REQUIRED
+## Go 1.27 and `encoding/json/v2`
 
-This package depends on `go-finding`, which uses `encoding/json/v2` and `encoding/json/jsontext` (Go's experimental JSON v2). **Every `go` command must run with `GOEXPERIMENT=jsonv2`** or the build fails with `build constraints exclude all Go files`.
+`go-finding` uses `encoding/json/v2` and `encoding/json/jsontext`. As of Go 1.27
+the `encoding/json/v2` experiment is **on by default**, so plain `go build` /
+`go test` work with no environment override. Never set `GOEXPERIMENT=none` — it
+disables the toolchain's default experiment set and the build fails with
+`build constraints exclude all Go files`. (Historic: on Go ≤ 1.26 every command
+needed `GOEXPERIMENT=jsonv2`; that scaffolding was removed 2026-10-11.)
 
-| How                   | Command                                                               |
-| --------------------- | --------------------------------------------------------------------- |
-| Nix app (recommended) | `nix run .#test`, `nix run .#build`, `nix run .#lint`                 |
-| Dev shell             | `nix develop` (sets GOEXPERIMENT automatically), then `go test ./...` |
-| Inline                | `GOEXPERIMENT=jsonv2 go test ./...`                                   |
-| BuildFlow             | `nix develop` then `buildflow` (or `GOEXPERIMENT=jsonv2 buildflow`)   |
+| How                   | Command                                               |
+| --------------------- | ----------------------------------------------------- |
+| Nix app (recommended) | `nix run .#test`, `nix run .#build`, `nix run .#lint` |
+| Dev shell             | `nix develop`, then `go test ./...`                   |
+| Inline                | `go test ./...`                                       |
 
 ## Build Commands
 
@@ -59,7 +63,7 @@ Core types in package `linter`:
   `v1.13.1` patch (verified against the module proxy 2026-10-11). This SDK
   imports only the root module, so `go get github.com/larsartmann/go-finding@latest`
   is always the complete bump.
-- Go 1.27 (uses `encoding/json/v2` experiment).
+- Go 1.27 (`encoding/json/v2` is on by default; no `GOEXPERIMENT` needed).
 
 ## Gotchas & conventions
 
@@ -78,9 +82,10 @@ Core types in package `linter`:
   durable via `reports/.gitkeep` plus a `.gitignore` exception
   (`!reports/`, `reports/*`, `!reports/.gitkeep`) — don't remove the marker.
   The `coverage` flake app writes `reports/coverage.out`.
-- **`.golangci.yml` carries the `goexperiment.jsonv2` build tag.** Without it
-  golangci-lint can't compile `go-finding`'s transitive `encoding/json/v2`
-  imports and silently falls back to defaults. The `lint` app auto-discovers it.
+- **`.golangci.yml` no longer needs the `goexperiment.jsonv2` build tag.**
+  Removed 2026-10-11: Go 1.27 enables the `encoding/json/v2` experiment by
+  default, so golangci-lint compiles `go-finding`'s transitive imports without
+  it. Setting `GOEXPERIMENT=none` reintroduces the failure.
 - **Tests are black-box (`package linter_test`), not white-box.** This was a
   deliberate decision to satisfy `testpackage` natively (no suppression) and
   test the real consumer contract. Test factories (`makeRule`, `failingRule`)
@@ -126,7 +131,7 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   - **A commit whose CI never went green can carry a stale `go.sum`:** the
     v1.7.0 bump commit's 7s-red CI meant its `go.sum` was never validated by
     the tidy check; the next push failed on "Check go.mod is tidy". After ANY
-    dependency change, run `GOEXPERIMENT=jsonv2 go mod tidy` locally and
+    dependency change, run `go mod tidy` locally and
     commit the result before pushing.
   - pkg.go.dev freezes the tagged README; v0.3.1 exists mostly to refresh it
     (docs-only releases are fine for that — PATCH version).

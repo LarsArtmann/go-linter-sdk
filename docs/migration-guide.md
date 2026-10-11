@@ -15,9 +15,10 @@ directly; there is nothing left to convert.
 
 ## Before you start
 
-- Go 1.27+ and `GOEXPERIMENT=jsonv2` (the SDK depends on go-finding, which uses
-  `encoding/json/v2`). In a Nix project, copy the flake apps pattern
-  (`nix run .#test|lint|build`) from this repo.
+- Go 1.27+ (the SDK depends on go-finding, which uses `encoding/json/v2` —
+  on by default in Go 1.27, so no `GOEXPERIMENT` override is needed). In a Nix
+  project, copy the flake apps pattern (`nix run .#test|lint|build`) from this
+  repo.
 - Inventory your rules and, for each, note: rule ID (must be preserved —
   suppressions in the wild reference it), severity, confidence, message
   template, and suggestion text.
@@ -25,7 +26,7 @@ directly; there is nothing left to convert.
 ## Step 1 — add the dependency
 
 ```bash
-GOEXPERIMENT=jsonv2 go get github.com/larsartmann/go-linter-sdk@latest
+go get github.com/larsartmann/go-linter-sdk@latest
 ```
 
 ## Step 2 — port ONE rule (pilot)

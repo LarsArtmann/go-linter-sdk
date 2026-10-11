@@ -8,9 +8,8 @@ This project is part of the LarsArtmann Go ecosystem and follows the same
 toolchain conventions as its sibling [`go-finding`](https://github.com/larsartmann/go-finding).
 
 **You need [Nix](https://nixos.org/) with flakes enabled.** All build, test,
-and lint commands run inside the Nix dev shell so that the experimental
-`GOEXPERIMENT=jsonv2` flag is set consistently — `go-finding` (a transitive
-dependency) uses `encoding/json/v2`, which fails to compile without it.
+and lint commands run inside the Nix dev shell, which pins the Go 1.27
+toolchain the module requires (see `go.mod` for the exact floor).
 
 `go-finding` is resolved from the public module proxy as a published tag (see
 `go.mod` for the pinned version — do not duplicate version numbers in prose).
@@ -20,7 +19,7 @@ cross-repo development against an uncommitted `go-finding`, add a temporary
 
 ## Development Setup
 
-Enter the dev shell — this sets `GOEXPERIMENT=jsonv2` and makes the `reports/`
+Enter the dev shell — it pins the Go toolchain and makes the `reports/`
 directory buildflow expects:
 
 ```sh
@@ -52,14 +51,6 @@ To run the full BuildFlow suite (mirrors CI):
 nix develop --command buildflow
 ```
 
-## Why `GOEXPERIMENT=jsonv2` is mandatory
-
-`go-finding` imports `encoding/json/v2` and `encoding/json/jsontext`, which the
-Go toolchain gates behind the `jsonv2` experiment. Without the flag, every
-build, test, and lint in this repo fails with
-"build constraints exclude all Go files in encoding/json/jsontext". The flake
-sets it for you — never run plain `go build`/`go test` outside the dev shell.
-
 ## How to Contribute
 
 1. Fork the repository and create a feature branch.
@@ -84,7 +75,7 @@ Conventions:
 - Each example should have integration tests in `examples_integration_test.go`
   (root package) that build the binary, run it on clean/dirty temp dirs, and
   assert exit codes.
-- Run examples with `GOEXPERIMENT=jsonv2 go run ./examples/<name> [dir]`.
+- Run examples with `go run ./examples/<name> [dir]`.
 
 ## Reporting Issues
 
