@@ -114,7 +114,7 @@ rule's `Check` returns an error, it is wrapped exactly once into a
 
 The companion `ErrRuleFailed` sentinel lets callers check "did any rule fail?"
 without caring which. Use `errors.Is(err, ErrRuleFailed)` for the boolean
-check; use `errors.AsType[*RuleError](err)` (Go 1.26+) to recover the rule ID.
+check; use `errors.AsType[*RuleError](err)` (Go 1.26+) docguard:allow (when the API was introduced, not a pin) to recover the rule ID.
 
 - **Lives at:** `errors.go` — `type RuleError` (var `ErrRuleFailed`)
 - **No double-wrapping:** `wrapRuleError` (`registry.go`) passes through if
@@ -159,12 +159,13 @@ errors into `*RuleError`.
 
 - **Lives at:** `registry.go`
 
-## Borrowed vocabulary (go-finding v1.14.0)
+## Borrowed vocabulary (go-finding)
 
 The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
 directly; the SDK never translates them. Definitions below mirror the pinned
-v1.14.0 source (module cache). Core vocabulary has grown since v1.7.0: v1.14.0
-adds typed fix edits (`Finding.Edits` / `TextEdit`) and
+source in the module cache (version: see `go.mod`). The vocabulary keeps
+growing across releases: recent releases add typed fix edits
+(`Finding.Edits` / `TextEdit`) and
 `Report.SkippedModules` (nested `go.mod` boundaries the tool did not analyze).
 
 - **Finding** — one detected issue: identity (`ID`, `Rule`, `ToolName`),

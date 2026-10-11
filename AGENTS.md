@@ -53,14 +53,19 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.14.0** (public repo; bumped v1.10.0 → v1.14.0 through
-  2026-10, gate green: build/test/race/lint/vet/flake-check). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- **`go-finding`** (public repo; the pinned version lives in `go.mod` — the
+  single source of truth; don't duplicate it here, and the doc-drift guard
+  `scripts/check-doc-versions.sh` enforces that). Bumped repeatedly through
+  2026-10, each bump gate green: build/test/race/lint/vet/flake-check. Resolved
+  as a real published tag (no local `replace` directive); consumers and CI both
+  fetch it from the module proxy. For local cross-repo dev against an
+  uncommitted sibling checkout, add a temporary `go.work` (workspace) or a
+  `replace ../go-finding` line — neither is committed.
 - **go-finding is a multi-module repo; its sub-modules are irrelevant to this
   SDK's go.mod.** The repo ships root `github.com/larsartmann/go-finding` plus
   tagged sub-modules `toolsdk`, `pipeline`, `analysis`, `cmd/go-finding`. The
-  sub-modules are versioned **independently, not in lockstep**: `toolsdk`
-  reached `v1.15.0` while the root is at `v1.14.0`, and it carries its own
-  `v1.13.1` patch (verified against the module proxy 2026-10-11). This SDK
+  sub-modules are versioned **independently, not in lockstep**: their tags can
+  lead or lag the root release (check the module proxy for current tags). This SDK
   imports only the root module, so `go get github.com/larsartmann/go-finding@latest`
   is always the complete bump.
 - Go 1.27 (`encoding/json/v2` is on by default; no `GOEXPERIMENT` needed).
@@ -102,7 +107,7 @@ Core types in package `linter`:
   reach — if one is added, use an `export_test.go` shim rather than reverting
   to white-box.
 - **Error matching: `errors.AsType` for types, `errors.Is` for sentinels.**
-  `registry.go` uses `errors.AsType[*RuleError]` (Go 1.26 generic); `errors.Is`
+  `registry.go` uses `errors.AsType[*RuleError]` (Go 1.26 generic) docguard:allow (when the API was introduced, not a pin); `errors.Is`
   is correct for the `ErrRuleFailed` sentinel. Do not "migrate" `errors.Is`
   calls — see the `hierarchical-errors` skill for the decision tree.
 - **Everything is public; CI needs no auth.** The repo went public 2026-09-08,
@@ -136,9 +141,9 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   when CI is green on the exact commit — v0.3.0 was pushed before its CI run
   finished (failed in 7s); v0.3.1 waited for green on `88bf9fa` first.
   - **A commit whose CI never went green can carry a stale `go.sum`:** the
-    v1.7.0 bump commit's 7s-red CI meant its `go.sum` was never validated by
-    the tidy check; the next push failed on "Check go.mod is tidy". After ANY
-    dependency change, run `go mod tidy` locally and
+    v1.7.0 bump commit's 7s-red CI meant its `go.sum` was never validated by docguard:allow (historical incident; the version is history, not a pin)
+    the tidy check; the next push failed on "Check go.mod is tidy".
+    After ANY dependency change, run `go mod tidy` locally and
     commit the result before pushing.
   - pkg.go.dev freezes the tagged README; v0.3.1 exists mostly to refresh it
     (docs-only releases are fine for that — PATCH version).
@@ -170,8 +175,9 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   and go-output to end users; keep that section accurate if the siblings'
   import paths change.
 - **User decisions recorded 2026-09-09 (P0 of the 47-task plan):**
-  1. **Version label: v0.3.1 stands.** No v0.4.0 until real Go API movement
-     (e.g. a Register contract change); adjacent tags would confuse `@latest`.
+  1. **Version label: v0.3.1 stands.** No next-minor bump until real Go API
+     movement (e.g. a Register contract change); adjacent tags would confuse
+     `@latest`.
   2. **PAT rotation: user-owned.** The `PRIVATE_REPO_TOKEN` Actions secret is
      deleted; whether the underlying token still lives in the GitHub account
      and is used elsewhere is only knowable by the user — rotate at will.

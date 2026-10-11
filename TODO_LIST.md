@@ -53,8 +53,8 @@ sweep accepted with dated verdict; GitHub metadata set — description, topics
 
 ### Dependency hygiene
 
-- **#15 — Re-run benchmarks** after the v1.10.0 → v1.14.0 bump window against
-  `reports/benchmarks-baseline.txt` (forgotten in the v1.10.0 session).
+- **#15 — Re-run benchmarks** after the recent dependency-bump window against
+  `reports/benchmarks-baseline.txt` (forgotten in an earlier bump session).
   Impact: Medium.
 - **#16 — Sweep dependabot PRs** (`gh pr list`); close any superseded by the
   manual bumps. Impact: Low.
@@ -67,8 +67,8 @@ sweep accepted with dated verdict; GitHub metadata set — description, topics
   `GOWORK=off` tidy + benchmark + changelog) so bumps stop landing undocumented.
   Impact: Medium.
 
-Current dependency state (verified 2026-10-11): `go-finding` v1.14.0 (latest
-root release), `go-error-family` v0.11.0, Go 1.27.
+Current dependency state: see `go.mod` — the single source of truth, enforced
+by the doc-drift guard (`scripts/check-doc-versions.sh`, CI job `doc-drift`).
 
 ---
 
