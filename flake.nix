@@ -43,6 +43,35 @@
         let
           goPkg = pkgs.go_1_27;
 
+          # gitTracked excludes gitignored files (go.work, go.work.sum,
+          # reports/ contents), so workspace mode can never leak into the
+          # hermetic build the way it can in the developer's shell.
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.gitTracked ./.;
+          };
+
+          # The vendored dependency graph is fetched through vendorHash and
+          # shared by every Go check. buildGoModule's Go must match goPkg,
+          # or the vendor output hash differs (see go-finding flake note).
+          mkCheckModule =
+            {
+              doCheck ? true,
+            }:
+            (pkgs.buildGoModule.override { go = goPkg; }) {
+              inherit src;
+              pname = "go-linter-sdk";
+              version = "dev";
+              vendorHash = "sha256-oK66kB5PJEC1z0iDpNkqG1KAJFe2qkAlhknRGBVyj0M=";
+              inherit doCheck;
+            };
+
+          installTouch = ''
+            runHook preInstall
+            touch $out
+            runHook postInstall
+          '';
+
           mkApp = name: description: script: {
             type = "app";
             program = "${
@@ -113,6 +142,53 @@
               goPkg
               pkgs.golangci-lint
             ];
+          };
+
+          checks = {
+            # go build + go test ./... in the network-less sandbox.
+            go-test = mkCheckModule { };
+
+            go-vet = (mkCheckModule { doCheck = false; }).overrideAttrs (_: {
+              pname = "go-linter-sdk-vet";
+              buildPhase = ''
+                runHook preBuild
+                go vet ./...
+                runHook postBuild
+              '';
+              inherit installTouch;
+            });
+
+            go-lint = (mkCheckModule { doCheck = false; }).overrideAttrs (_: {
+              pname = "go-linter-sdk-lint";
+              nativeBuildInputs = [ pkgs.golangci-lint ];
+              buildPhase = ''
+                runHook preBuild
+                golangci-lint run ./...
+                runHook postBuild
+              '';
+              inherit installTouch;
+            });
+
+            # The doc-drift guard (see scripts/check-doc-versions.sh). Needs a
+            # git repo because the script anchors on `git rev-parse`.
+            doc-versions = pkgs.runCommand "doc-versions-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.git
+                  pkgs.bash
+                ];
+              }
+              ''
+                export HOME=$TMPDIR
+                cp -r ${src} repo
+                cd repo
+                chmod -R u+w .
+                git init -q .
+                git add -A
+                git -c user.name=check -c user.email=check@local commit -qm init
+                ${pkgs.bash}/bin/bash scripts/check-doc-versions.sh
+                touch $out
+              '';
           };
 
           apps = {
