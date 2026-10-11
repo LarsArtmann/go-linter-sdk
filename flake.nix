@@ -41,7 +41,7 @@
           ...
         }:
         let
-          goPkg = pkgs.go_1_26;
+          goPkg = pkgs.go_1_27;
 
           mkApp = name: description: script: {
             type = "app";
@@ -76,7 +76,14 @@
             projectRootFile = "go.mod";
             programs = {
               gofumpt.enable = true;
-              goimports.enable = true;
+              # goimports shells out to `go` at runtime; unless it sees a Go at
+              # least as new as go.mod's floor, the toolchain auto-switch tries
+              # to download a newer Go and fails in the network-less check
+              # sandbox. Pin it to the same toolchain as the rest of the flake.
+              goimports = {
+                enable = true;
+                package = pkgs.gotools.override { go = goPkg; };
+              };
               golines = {
                 enable = true;
                 maxLength = 120;
