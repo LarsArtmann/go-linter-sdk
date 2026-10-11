@@ -69,6 +69,13 @@ allowed_versions() {
 
 allowed="$(allowed_versions)"
 
+# Release-history degradation: when the checkout has no git tags (flake sandbox,
+# shallow CI clones), references to this repo's own v0.x.y release namespace
+# cannot be validated against tags; the dependency-drift checks stay strict.
+# CI's doc-drift job checks out full history (fetch-depth: 0), so it validates
+# release refs strictly.
+tags_present="$(git tag -l | head -1)"
+
 # Third-party TOOL versions legitimately live in docs (dependabot keeps the
 # workflow pins fresh); a line naming one of these tools may pin its version.
 tool_line='golangci-lint|actionlint|govulncheck|treefmt|dprint|gofumpt'
@@ -84,9 +91,17 @@ for doc in "${LIVING_DOCS[@]}"; do
 			if printf '%s' "$text" | grep -qE "$tool_line"; then
 				continue
 			fi
-			if ! printf '%s\n' "$allowed" | grep -qxF "$ver"; then
-				die "$doc:$lnum hardcodes $ver, which is neither a go.mod dependency ($finding_ver${errfam_ver:+, $errfam_ver}) nor a repo tag. Point at go.mod or update the reference."
+			if printf '%s\n' "$allowed" | grep -qxF "$ver"; then
+				continue
 			fi
+			case "$ver" in
+			v0.*)
+				if [ -z "$tags_present" ]; then
+					continue
+				fi
+				;;
+			esac
+			die "$doc:$lnum hardcodes $ver, which is neither a go.mod dependency ($finding_ver${errfam_ver:+, $errfam_ver}) nor a repo tag. Point at go.mod or update the reference."
 		done
 		while IFS= read -r golit; do
 			minor="$(printf '%s\n' "$golit" | { grep -oE '1\.[0-9]+' || true; } | head -1 | cut -d. -f2)"

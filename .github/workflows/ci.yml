@@ -37,6 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history so `git tag -l` sees the release tags the guard
+          # allowlists; a shallow clone would make it skip release-ref checks.
+          fetch-depth: 0
       - name: Check living docs against go.mod
         run: scripts/check-doc-versions.sh
     timeout-minutes: 5

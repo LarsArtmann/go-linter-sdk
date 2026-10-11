@@ -160,7 +160,18 @@
 
             go-lint = (mkCheckModule { doCheck = false; }).overrideAttrs (_: {
               pname = "go-linter-sdk-lint";
-              nativeBuildInputs = [ pkgs.golangci-lint ];
+              nativeBuildInputs = [
+                pkgs.golangci-lint
+                goPkg
+              ];
+              preBuild = ''
+                # golangci-lint and its formatters need a writable HOME/cache
+                # (the sandbox HOME is the read-only /homeless-shelter) and a
+                # `go` on PATH (gci shells out to `go env`).
+                export HOME=$TMPDIR
+                export GOLANGCI_LINT_CACHE=$TMPDIR/golangci-lint-cache
+                export GOCACHE=$TMPDIR/go-cache
+              '';
               buildPhase = ''
                 runHook preBuild
                 golangci-lint run ./...
@@ -171,24 +182,25 @@
 
             # The doc-drift guard (see scripts/check-doc-versions.sh). Needs a
             # git repo because the script anchors on `git rev-parse`.
-            doc-versions = pkgs.runCommand "doc-versions-check"
-              {
-                nativeBuildInputs = [
-                  pkgs.git
-                  pkgs.bash
-                ];
-              }
-              ''
-                export HOME=$TMPDIR
-                cp -r ${src} repo
-                cd repo
-                chmod -R u+w .
-                git init -q .
-                git add -A
-                git -c user.name=check -c user.email=check@local commit -qm init
-                ${pkgs.bash}/bin/bash scripts/check-doc-versions.sh
-                touch $out
-              '';
+            doc-versions =
+              pkgs.runCommand "doc-versions-check"
+                {
+                  nativeBuildInputs = [
+                    pkgs.git
+                    pkgs.bash
+                  ];
+                }
+                ''
+                  export HOME=$TMPDIR
+                  cp -r ${src} repo
+                  cd repo
+                  chmod -R u+w .
+                  git init -q .
+                  git add -A
+                  git -c user.name=check -c user.email=check@local commit -qm init
+                  ${pkgs.bash}/bin/bash scripts/check-doc-versions.sh
+                  touch $out
+                '';
           };
 
           apps = {
