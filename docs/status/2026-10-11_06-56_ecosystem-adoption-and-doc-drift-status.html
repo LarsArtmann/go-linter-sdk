@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>go-linter-sdk — Ecosystem Adoption &amp; Doc Drift Status</title>
+    <style>
+      :root {
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        --bg: var(--surface);
+        --ink: var(--text);
+        --rose: var(--problem);
+        --emerald: var(--solution);
+        --teal: var(--solution);
+
+        --radius: 0px;
+        --radius-sm: 0px;
+        --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas, monospace;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      section[id], [id] { scroll-margin-top: 60px; }
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+      .layout { display: flex; gap: 2.5rem; padding: 2rem; }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav { display: flex; flex-direction: column; gap: 0; }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover, .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main { flex: 1; min-width: 0; }
+      h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 800; letter-spacing: -0.02em; }
+      h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; margin: 0 0 0.6rem; }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+      h3 { font-size: 1.1rem; margin: 0 0 0.4rem; font-weight: 700; }
+      h4 { font-size: 0.98rem; margin: 0 0 0.3rem; font-weight: 700; }
+      p { margin: 0 0 1rem; }
+      .hero { padding: 1.5rem 0 1.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-strong); }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 70ch; margin: 0; }
+      .card { background: var(--surface-raised); border: 1px solid var(--border); padding: 1.1rem 1.3rem; margin-bottom: 1rem; border-left: 4px solid var(--border-strong); }
+      .card-problem { border-left-color: var(--problem); background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised)); }
+      .card-solution { border-left-color: var(--solution); background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised)); }
+      .card-warning { border-left-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised)); }
+      .issue { background: var(--surface-raised); border: 1px solid var(--border); padding: 1.1rem 1.3rem; margin-bottom: 1rem; border-left: 4px solid var(--border-strong); }
+      .issue-critical { border-left-color: var(--problem); background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised)); }
+      .issue-important { border-left-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised)); }
+      .issue-nice { border-left-color: var(--solution); background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised)); }
+      .issue .where { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-faint); margin: 0.2rem 0 0.6rem; }
+      .issue p:last-child { margin-bottom: 0; }
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical { background: var(--problem); }
+      .severity-important { background: var(--warning); }
+      .severity-nice { background: var(--solution); }
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical { color: var(--problem); border-color: var(--problem); }
+      .badge-high { color: var(--warning); border-color: var(--warning); }
+      .badge-medium { color: var(--accent); border-color: var(--accent); }
+      .badge-low { color: var(--text-muted); }
+      .badge-fixed { color: var(--solution); border-color: var(--solution); }
+      .callout { margin: 0.8rem 0 0; padding: 0.7rem 0.9rem; border-left: 3px solid var(--border-strong); background: color-mix(in srgb, var(--text) 5%, transparent); font-size: 0.9rem; }
+      .callout strong { display: inline-block; margin-right: 0.4rem; }
+      .callout-solution { border-left-color: var(--solution); background: color-mix(in srgb, var(--solution) 10%, transparent); }
+      .callout-warning { border-left-color: var(--warning); background: color-mix(in srgb, var(--warning) 10%, transparent); }
+      .stat-grid, .scorecard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 1rem 0 1.5rem; }
+      .stat-card, .score-card { background: var(--surface-raised); border: 1px solid var(--border); padding: 1.1rem 1rem; position: relative; }
+      .stat-card::before, .score-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--border-strong); }
+      .stat-bad::before { background: var(--problem); }
+      .stat-good::before { background: var(--solution); }
+      .stat-warn::before { background: var(--warning); }
+      .stat-value { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--text); }
+      .stat-good .stat-value { color: var(--solution); }
+      .stat-bad .stat-value { color: var(--problem); }
+      .stat-warn .stat-value { color: var(--warning); }
+      .stat-label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); margin-top: 0.5rem; }
+      .strengths { display: grid; gap: 0.5rem; margin: 1rem 0 1.5rem; }
+      .strength { display: grid; grid-template-columns: auto 1fr; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+      .strength .check { font-family: var(--font-mono); font-weight: 700; color: var(--solution); font-size: 1.1rem; line-height: 1.4; }
+      .strength .text strong { display: block; margin-bottom: 0.15rem; }
+      .strength .text span { color: var(--text-muted); font-size: 0.9rem; }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; }
+      th { text-align: left; padding: 0.6rem 0.9rem; background: var(--surface-raised); color: var(--text-faint); font-family: var(--font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border-strong); }
+      td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); }
+      tr:hover td { background: var(--surface-raised); }
+      pre { background: var(--surface-sunken); border: 1px solid var(--border); padding: 1rem 1.2rem; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.65; overflow-x: auto; }
+      code { font-family: var(--font-mono); }
+      p code, li code, td code { font-size: 0.88em; background: var(--surface-sunken); padding: 0.1rem 0.35rem; }
+      .dep-tree { background: var(--surface-sunken); border: 1px solid var(--border); padding: 1rem 1.2rem; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; white-space: pre; overflow-x: auto; }
+      .dep-tree .root { color: var(--accent); font-weight: 700; }
+      .dep-tree .ok { color: var(--solution); }
+      .dep-tree .unwanted { color: var(--problem); }
+      .toc { background: var(--surface-raised); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 1rem 1.3rem; margin: 1rem 0 1.5rem; }
+      .toc h3 { margin-bottom: 0.5rem; }
+      .toc ul { list-style: none; padding: 0; }
+      .toc li { margin: 0.25rem 0; }
+      .toc a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+      .toc a:hover { color: var(--accent); }
+      ul.plain { margin: 0 0 1rem 1.2rem; }
+      ul.plain li { margin: 0.25rem 0; }
+      .footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-faint); font-family: var(--font-mono); }
+      @media (min-width: 1024px) { .sidebar { display: block; } }
+      @media (max-width: 768px) {
+        .layout { flex-direction: column; padding: 1rem; }
+        .top-bar { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.3rem; }
+        .stat-grid, .scorecard { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>Status Report</span>
+      <span>2026-10-11</span>
+      <span>go-linter-sdk</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#insights">Ecosystem Insights</a>
+          <a href="#done">a) Fully Done</a>
+          <a href="#partial">b) Partially Done</a>
+          <a href="#notstarted">c) Not Started</a>
+          <a href="#fucked">d) Totally Fucked Up</a>
+          <a href="#improve">e) What We Should Improve</a>
+          <a href="#next">f) Top 25 Next</a>
+          <a href="#question">g) Top Question</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div class="hero">
+          <div class="hero-badge">Status &middot; Full Snapshot</div>
+          <h1>Ecosystem Adoption &amp; Documentation Drift</h1>
+          <p class="hero-subtitle">
+            The code is green and the SDK finally has real consumers (six of
+            them). The documentation, however, still describes the project as
+            if nothing had happened since 2026-09-11 — a five-release,
+            three-Go-version, zero-to-six-consumer gap. This report inventories
+            the gap and the work to close it.
+          </p>
+        </div>
+
+        <nav class="toc">
+          <h3>Contents</h3>
+          <ul>
+            <li><a href="#summary">Summary</a></li>
+            <li><a href="#insights">Ecosystem Insights</a></li>
+            <li><a href="#done">a) Fully Done</a></li>
+            <li><a href="#partial">b) Partially Done</a></li>
+            <li><a href="#notstarted">c) Not Started</a></li>
+            <li><a href="#fucked">d) Totally Fucked Up</a></li>
+            <li><a href="#improve">e) What We Should Improve</a></li>
+            <li><a href="#next">f) Top 25 Next</a></li>
+            <li><a href="#question">g) Top Question</a></li>
+          </ul>
+        </nav>
+
+        <h2 id="summary"><span class="num">00</span>Summary</h2>
+        <div class="stat-grid">
+          <div class="stat-card stat-good">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Gate Checks Green</div>
+          </div>
+          <div class="stat-card stat-good">
+            <div class="stat-value">6</div>
+            <div class="stat-label">Direct Consumers (was 0)</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">9</div>
+            <div class="stat-label">Doc-Drift Items</div>
+          </div>
+          <div class="stat-card stat-bad">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Releases Undocumented</div>
+          </div>
+        </div>
+
+        <p>
+          Verified this session against the working tree: <code>go build</code>,
+          <code>go vet</code>, <code>go test</code>, <code>go test -race</code>,
+          <code>golangci-lint</code> (0 issues), <code>GOWORK=off go mod tidy</code>
+          (no drift), and library coverage <strong>98.7%</strong>. The SDK is on
+          the latest <code>go-finding</code> root release (<code>v1.14.0</code>,
+          confirmed against the module proxy). The single source of truth
+          (<code>go.mod</code>) is current; everything downstream of it is not.
+        </p>
+
+        <div class="callout callout-warning">
+          <strong>Headline:</strong> the SDK's own documentation is the most
+          stale artifact in the repo. <code>AGENTS.md</code> pins
+          <code>go-finding v1.10.0</code> and Go <code>1.26.7</code>; the real
+          values are <code>v1.14.0</code> and Go <code>1.27</code>. The README
+          still says "No external consumers yet"; six repos depend on it.
+        </div>
+
+        <h2 id="insights"><span class="num">01</span>Ecosystem Insights</h2>
+
+        <p>
+          An external <code>project-dependency-graph</code> scan of
+          <code>~/projects</code> (204 modules) plus a direct
+          <code>go.mod</code> grep this session produced the first real
+          adoption picture:
+        </p>
+
+        <div class="dep-tree">
+<span class="root">github.com/larsartmann/go-linter-sdk v0.3.1</span> — 6 direct consumers (60 indirect)
+├── <span class="ok">go-structure-linter</span>   (the original pilot; still on v0.3.1)
+├── <span class="ok">samber-linter</span>         (linter-building consumer)
+├── <span class="ok">go-humanize-linter</span>    (linter-building consumer)
+├── <span class="ok">cmdguard/lint</span>          (CLI framework's lint submodule)
+├── <span class="ok">project-meta/linter</span>     (meta tooling)
+└── <span class="ok">BuildFlow/execution</span>     (direct dep in the orchestrator)
+    <span class="unwanted">indirect:</span> 60 further modules (transitive)
+        </div>
+
+        <div class="card card-solution">
+          <h4>The value proposition is no longer hypothetical</h4>
+          <p>
+            The README and ROADMAP still frame adoption as "planned" and
+            "unproven". Six internal repos now import the SDK. The next
+            honest question is not "does anyone use it?" but "has any of them
+            <em>deleted its converter layer</em> yet?" That is the real
+            migration metric, and it is still unverified.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <h4>The go-finding sub-module "lockstep" claim is inaccurate</h4>
+          <p>
+            <code>AGENTS.md</code> states sub-modules "release in lockstep"
+            with the root. The proxy shows root at <code>v1.14.0</code> but
+            <code>toolsdk</code> at <code>v1.15.0</code> (and
+            <code>toolsdk</code> carries its own <code>v1.13.1</code> patch).
+            They are independently versioned in practice. Harmless to this SDK
+            (it imports only the root) but a wrong mental model in memory.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>Version-distribution health across the ecosystem</h4>
+          <p>
+            Of 95 <code>go.mod</code> files referencing
+            <code>go-finding</code>: 60 on <code>v1.14.0</code> (current),
+            31 on <code>v1.13.0</code>, 3 on <code>v1.11.0</code>, 1 on
+            <code>v1.12.0</code>. The SDK is on the current release, so no
+            bump is required — but roughly a third of the ecosystem is one
+            minor behind.
+          </p>
+        </div>
+
+        <h2 id="done"><span class="num">02</span>a) FULLY DONE</h2>
+        <p>Verifiably complete, with evidence from this session's gate run.</p>
+        <div class="strengths">
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Core SDK is stable and green</strong>
+              <span>build / vet / test / race / lint(0) / tidy / flake-check all pass; library coverage 98.7%.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Dependency is on the latest root release</strong>
+              <span><code>go-finding v1.14.0</code> equals the proxy's newest root tag; no bump needed.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>go.mod is tidy and drift-free</strong>
+              <span><code>GOWORK=off go mod tidy</code> produced zero diff in go.mod/go.sum.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Real consumers exist at v0.3.1</strong>
+              <span>6 direct + 60 indirect importers confirmed by grep and graph scan.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>v0.3.1 tag is the version consumers actually resolve</strong>
+              <span>Every direct consumer pins <code>v0.3.1</code> — the release process holds.</span>
+            </div>
+          </div>
+        </div>
+
+        <h2 id="partial"><span class="num">03</span>b) PARTIALLY DONE</h2>
+        <div class="issue issue-important">
+          <span class="severity severity-important">Important</span>
+          <h3>Go 1.27 migration is code-complete but doc-incomplete</h3>
+          <div class="where">go.mod (:3) vs AGENTS.md:64 · README.md:47,69</div>
+          <p>
+            <code>go.mod</code> says <code>go 1.27</code>, the flake pins
+            <code>go_1_27</code>, and CI was bumped to
+            <code>go1.27.0</code> (commit <code>59b289f</code>). But
+            <code>AGENTS.md</code> still says "Go 1.26.7",
+            <code>README.md</code> still says "Requires Go 1.26+", and the
+            <code>GOTOOLCHAIN</code> gotcha still cites <code>go1.26.7</code>.
+            Remains: update the living docs. Effort: <strong>S</strong>.
+          </p>
+        </div>
+        <div class="issue issue-important">
+          <span class="severity severity-important">Important</span>
+          <h3>flake.nix change is uncommitted in the working tree</h3>
+          <div class="where">flake.nix (git status: modified)</div>
+          <p>
+            The working tree has <code>goPkg = pkgs.go_1_27</code> plus a pin
+            of <code>goimports</code> to that toolchain. This is a real,
+            correct fix (it prevents a network fetch in the hermetic check
+            sandbox) but it sits uncommitted and undocumented. Remains: land
+            it and add a CHANGELOG entry. Effort: <strong>S</strong>.
+          </p>
+        </div>
+        <div class="issue issue-important">
+          <span class="severity severity-important">Important</span>
+          <h3>Consumer-adoption story is half-updated</h3>
+          <div class="where">README.md:331-347 · ROADMAP.md theme 2 · TODO_LIST.md</div>
+          <p>
+            Six consumers now exist, but README "Planned adoption targets" and
+            "No external consumers yet", ROADMAP theme 2, and the TODO_LIST
+            "Consumer adoption — None open" all predate that fact. Remains:
+            restate adoption truthfully and add the "did anyone delete a
+            converter?" follow-up. Effort: <strong>M</strong>.
+          </p>
+        </div>
+
+        <h2 id="notstarted"><span class="num">04</span>c) NOT STARTED</h2>
+        <ul class="plain">
+          <li><strong>Converter-deletion verification</strong> — no evidence any consumer actually removed its bridge package; the SDK's core claim is still untested at scale. Priority: high.</li>
+          <li><strong>Cut the next release (v0.3.2 or v0.4.0)</strong> — five dependency/Go bumps and a flake fix have landed since v0.3.1 with no tag; consumers stay pinned to an increasingly old artifact.</li>
+          <li><strong>Automated dependency-drift guard</strong> — nothing fails when a living doc disagrees with <code>go.mod</code>; this is exactly how the current drift accumulated. Priority: medium.</li>
+          <li><strong>cmd/ CLI wrapper</strong> — still roadmap-only (ROADMAP theme 2). Priority: low / defer.</li>
+          <li><strong>Flake <code>checks</code> for test/vet/lint</strong> — still only treefmt is a check derivation (ROADMAP theme 4). Priority: medium.</li>
+        </ul>
+
+        <h2 id="fucked"><span class="num">05</span>d) TOTALLY FUCKED UP</h2>
+        <p>Broken or actively misleading. Requires radical honesty.</p>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Blocking (trust)</span>
+          <h3>AGENTS.md dependency block describes a project that no longer exists</h3>
+          <div class="where">AGENTS.md:52-64</div>
+          <p>
+            Pins <code>go-finding v1.10.0</code> (real: <code>v1.14.0</code>),
+            Go <code>1.26.7</code> (real: <code>1.27</code>), and claims the
+            <code>toolsdk</code> sub-module example is
+            <code>toolsdk/v1.10.0</code> (real latest: <code>v1.15.0</code>).
+            This is the file every future session loads first — it is teaching
+            a stale world model to every agent that touches the repo.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong> Update the versions to v1.14.0 / Go 1.27 and
+            correct the "lockstep" claim.
+          </div>
+        </div>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">High</span>
+          <h3>README tells users the project has no consumers</h3>
+          <div class="where">README.md:13,37,340-347,349</div>
+          <p>
+            "no production linter has fully migrated yet", "Planned adoption
+            targets", "No external consumers yet". Six repos import the SDK
+            today. A reader evaluating it gets a false picture. This is the
+            sales page — the one place drift costs adoption directly.
+          </p>
+        </div>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">High</span>
+          <h3>CHANGELOG is missing five releases' worth of change</h3>
+          <div class="where">CHANGELOG.md [Unreleased]</div>
+          <p>
+            The last documented dependency bump is v1.9.2 → v1.10.0. Since
+            then: v1.11.0, v1.12.0, v1.13.0, v1.14.0 bumps and the Go
+            1.26 → 1.27 migration all landed with no entry. The CHANGELOG is
+            the project's "narrative of record" per its own memory — and it
+            has a five-event hole.
+          </p>
+        </div>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Medium</span>
+          <h3>The same version fact is written in four-plus places, all drifting</h3>
+          <div class="where">go.mod · AGENTS.md · TODO_LIST.md · DOMAIN_LANGUAGE.md · ROADMAP.md · .buildflow.yml</div>
+          <p>
+            This is the recurring "permanent drift machine" already diagnosed
+            in the 2026-09-09 report. It has drifted again: <code>ROADMAP.md</code>
+            still cites <code>v1.4.1</code> in its resolved-questions section,
+            <code>DOMAIN_LANGUAGE.md</code> header says v1.10.0,
+            <code>.buildflow.yml</code>'s comment says
+            <code>go-error-family v0.10.0</code> (real: v0.11.0). Root cause
+            is structural: prose duplicates <code>go.mod</code>.
+          </p>
+        </div>
+
+        <h2 id="improve"><span class="num">06</span>e) WHAT WE SHOULD IMPROVE</h2>
+        <ul class="plain">
+          <li>
+            <strong>Stop duplicating the dependency version in prose.</strong>
+            Point at <code>go.mod</code> ("see go.mod for the pinned version")
+            instead of hardcoding a number. Impact: kills the recurring drift
+            class. Fix: rewrite the six stale references as pointers, not
+            numbers.
+          </li>
+          <li>
+            <strong>Make doc/version drift fail CI.</strong> A tiny check that
+            greps living docs for a version string that disagrees with
+            <code>go.mod</code> would have caught every item in (d). Impact:
+            drift becomes impossible to ship. Fix: add a script + CI job.
+          </li>
+          <li>
+            <strong>Track adoption as a metric, not a vibe.</strong> The
+            dependency graph shows exactly who imports the SDK. Impact:
+            adoption status stops being guesswork. Fix: record the consumer
+            list in a living doc and refresh it periodically.
+          </li>
+          <li>
+            <strong>Close the loop after a bump.</strong> The v1.10.0 session
+            explicitly listed "forgot benchmarks" and "didn't run
+            <code>gh pr list</code>" — and four more bumps then landed with no
+            changelog entry at all. The bump checklist exists but is not
+            followed. Impact: the CHANGELOG hole in (d). Fix: enforce the
+            checklist.
+          </li>
+          <li>
+            <strong>Cut releases on a cadence.</strong> Five bumps with no tag
+            means consumers pin an artifact that no longer reflects master.
+            Impact: value already delivered is undelivered. Fix: tag after
+            green CI.
+          </li>
+        </ul>
+
+        <h2 id="next"><span class="num">07</span>f) Top 25 Next Tasks</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Task</th><th>Impact</th><th>Effort</th><th>Cat</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Update AGENTS.md dependency block: go-finding v1.14.0, Go 1.27, fix "lockstep" claim</td><td><span class="badge badge-critical">Critical</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>2</td><td>Fix README consumer sections: replace "no external consumers" with the real six-repo picture</td><td><span class="badge badge-critical">Critical</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>3</td><td>Backfill CHANGELOG with v1.11.0 → v1.14.0 bumps and the Go 1.26→1.27 migration</td><td><span class="badge badge-critical">Critical</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>4</td><td>Update TODO_LIST dependency line v1.10.0 → v1.14.0; reopen consumer-adoption item</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>5</td><td>Update DOMAIN_LANGUAGE.md vocabulary header v1.10.0 → v1.14.0</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>6</td><td>Update ROADMAP Q1 resolved-note v1.4.1 → v1.14.0</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>7</td><td>Fix .buildflow.yml comment (go-error-family v0.10.0 → v0.11.0)</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Cleanup</td></tr>
+              <tr><td>8</td><td>Update README "Requires Go 1.26+" → 1.27+</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>9</td><td>Update AGENTS.md GOTOOLCHAIN gotcha to go1.27.0</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>10</td><td>Land the uncommitted flake.nix go_1_27 + goimports-pin change with a CHANGELOG entry</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Quality</td></tr>
+              <tr><td>11</td><td>Convert stale version references to "see go.mod" pointers (kill the drift class)</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Docs</td></tr>
+              <tr><td>12</td><td>Add a CI check that fails when a living doc's version disagrees with go.mod</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Quality</td></tr>
+              <tr><td>13</td><td>Verify whether any consumer actually deleted its converter package</td><td><span class="badge badge-critical">Critical</span></td><td>M</td><td>Feature</td></tr>
+              <tr><td>14</td><td>Cut the next release (v0.3.2 docs/hygiene) after green CI</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Release</td></tr>
+              <tr><td>15</td><td>Record the consumer list (6 direct + 60 indirect) as a living adoption doc</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>16</td><td>Re-run benchmarks after the v1.10→v1.14 bump window</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Quality</td></tr>
+              <tr><td>17</td><td>Run <code>gh pr list</code>; close superseded dependabot PRs</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Cleanup</td></tr>
+              <tr><td>18</td><td>Add flake <code>checks</code> for go test/vet/golangci-lint</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Quality</td></tr>
+              <tr><td>19</td><td>Grep CI workflows for stale version pins docs sync missed</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Cleanup</td></tr>
+              <tr><td>20</td><td>Reconcile CONTRIBUTING.md against the current dependency story</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>21</td><td>Resolve ROADMAP Q2 (root package vs internal/) — still open</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Design</td></tr>
+              <tr><td>22</td><td>Resolve ROADMAP Q3 (library-only vs eventual CLI)</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Design</td></tr>
+              <tr><td>23</td><td>Add an adoption smoke test to the CI stranger-test job (import + register a rule)</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Quality</td></tr>
+              <tr><td>24</td><td>Document the go-finding sub-module versioning reality (not strict lockstep)</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Docs</td></tr>
+              <tr><td>25</td><td>Review the bump checklist and make it a durable, followed process</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Process</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-solution">
+          <strong>Handoff</strong> Items 1–25 are the harvest input for
+          <code>TODO_LIST.md</code> (bounded, actionable) and
+          <code>ROADMAP.md</code> (the design/process items). Do not let them
+          live only in this timestamped file.
+        </div>
+
+        <h2 id="question"><span class="num">08</span>g) Top Question</h2>
+        <div class="card card-warning">
+          <h4>Did any of the six consumers actually delete its converter layer?</h4>
+          <p>
+            The SDK's entire reason to exist is "eliminate the converter". Six
+            repos now <em>import</em> it, but importing is not migrating.
+            Nothing in this repo can prove the LOC were deleted — only the
+            consumer repos can. I tried to answer it by grepping
+            <code>~/projects</code> for <code>go-linter-sdk</code> imports and
+            found the consumers, but I cannot see whether their bridge
+            packages are gone without inspecting each one, and the "done"
+            definition is yours: does a pilot rule modulo a full port count?
+          </p>
+        </div>
+
+        <footer class="footer">
+          Generated 2026-10-11 · Gate verified against the working tree · Consumer
+          data from a project-dependency-graph scan + direct go.mod grep
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var sections = Array.from(links)
+          .map(function (l) { return document.getElementById(l.getAttribute("href").slice(1)); })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle("active", link.getAttribute("href") === "#" + entry.target.id);
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) { observer.observe(s); });
+      })();
+    </script>
+  </body>
+</html>

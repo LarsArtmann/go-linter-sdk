@@ -159,19 +159,23 @@ errors into `*RuleError`.
 
 - **Lives at:** `registry.go`
 
-## Borrowed vocabulary (go-finding v1.10.0)
+## Borrowed vocabulary (go-finding v1.14.0)
 
 The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
 directly; the SDK never translates them. Definitions below mirror the pinned
-v1.10.0 source (module cache), not newer tags. (v1.9.x and v1.10.0 made no
-core-module vocabulary changes since v1.7.0.)
+v1.14.0 source (module cache). Core vocabulary has grown since v1.7.0: v1.14.0
+adds typed fix edits (`Finding.Edits` / `TextEdit`) and
+`Report.SkippedModules` (nested `go.mod` boundaries the tool did not analyze).
 
 - **Finding** — one detected issue: identity (`ID`, `Rule`, `ToolName`),
   location (`Position`), `Message`, `Severity`, plus optional `Category`,
-  `Confidence`, `FixStrategy`, `GroupID`, and suppression metadata. Built via
+  `Confidence`, `FixStrategy`, `GroupID`, `Edits` (typed `[]TextEdit` fix list,
+  authoritative for applying a fix; never reconstruct it from the display pair),
+  and suppression metadata. Built via
   `finding.NewBuilder(...)` (validating) rather than struct literals.
-- **Report** — the aggregated result of a run: `ToolInfo` plus deduplicated
-  findings. `Registry.Run` returns one; `ExitCodeFromReport` consumes one.
+- **Report** — the aggregated result of a run: `ToolInfo`, deduplicated
+  findings, and metadata such as `FilesScanned` and `SkippedModules`.
+  `Registry.Run` returns one; `ExitCodeFromReport` consumes one.
 - **Severity** — impact of a finding: `info` < `warning` < `error` <
   `critical`. A rule declares its default severity in `RuleMeta.Sev`; it can
   still emit per-finding severities that differ.

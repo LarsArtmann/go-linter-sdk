@@ -10,7 +10,7 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 **[pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)**
 
-> **Status: Early.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.2% coverage, race-clean). The value proposition — eliminating converter code — is proven by `examples/no-go-mod` but **no production linter has fully migrated yet.**
+> **Status: Early, adopted.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.7% coverage, race-clean), and six LarsArtmann-internal repos already import it (pinned at `v0.3.1`). The value proposition — eliminating converter code — is proven by the pilot ports, but **no consumer has yet been verified to have deleted its converter package.**
 
 ---
 
@@ -34,7 +34,7 @@ The third row is the killer. When a linter's own issue type predates the ecosyst
 
 `go-structure-linter` got it rightest by aliasing `Issue = finding.Finding` — no converter at all. **`go-linter-sdk` codifies that pattern.** A rule emits `finding.Finding` directly via `finding.NewBuilder(...)`, so there is no intermediate type to convert.
 
-> The three linters in the table above are LarsArtmann-internal repositories; they are cited as evidence, not as installable consumers.
+> The three linters in the table above are LarsArtmann-internal repositories; they are cited as evidence, not as installable consumers. Several of them — and other internal repos — now import `go-linter-sdk` directly; see [Consumers](#consumers).
 
 ---
 
@@ -44,7 +44,7 @@ The third row is the killer. When a linter's own issue type predates the ecosyst
 go get github.com/larsartmann/go-linter-sdk
 ```
 
-Requires Go 1.26+ and [`go-finding`](https://github.com/larsartmann/go-finding) (see `go.mod` for the pinned version).
+Requires Go 1.27+ and [`go-finding`](https://github.com/larsartmann/go-finding) (see `go.mod` for the pinned version).
 
 ---
 
@@ -66,7 +66,7 @@ A typical linter binary combines all three: rules from `go-linter-sdk`, `registr
 
 Three steps from zero to a running linter:
 
-1. **Install** — `go get github.com/larsartmann/go-linter-sdk` (requires Go 1.26+ and a recent `go-finding`; see `go.mod`)
+1. **Install** — `go get github.com/larsartmann/go-linter-sdk` (requires Go 1.27+ and a recent `go-finding`; see `go.mod`)
 2. **Define rules** — write `linter.RuleFunc{Meta: ..., Run: ...}` that emits `finding.Finding` directly
 3. **Run** — `registry.Run(ctx, dir)` + `linter.ExitCodeFromReport(report)`
 
@@ -337,18 +337,22 @@ Example consumers in this repo:
 - `examples/naked-return-guard` — pilot port of `branching-flow`'s `nakedreturn` rule (156 LOC of analyzer + Detection type + converter became one self-contained `RuleFunc`)
 - `examples/oops-redundant-guard` — pilot port of `erraudit`'s `oops_redundant_guard` rule (detection core + go/analysis autofixer + violation bridge became one self-contained `RuleFunc`)
 
-Planned adoption targets:
+Direct consumers in the LarsArtmann ecosystem (all pinned at `v0.3.1`; verified 2026-10-11):
 
-- `go-structure-linter` — cleanest existing pattern; pilot target
-- `branching-flow` (1,871 LOC of converters to delete)
-- `erraudit` (1,214 LOC of converters to delete)
-- Future linters
+- `go-structure-linter` — the original pilot target
+- `samber-linter`
+- `go-humanize-linter`
+- `cmdguard/lint` — the CLI-framework sibling's lint submodule
+- `project-meta/linter`
+- `BuildFlow/execution` — the orchestrator depends on the SDK directly
 
-No external consumers yet.
+Roughly 60 further modules import it indirectly. Importing is not the same as
+migrating: the SDK's value proposition is that a consumer deletes its converter
+package, and that has not yet been independently verified for any of them.
 
 ## Status
 
-Early. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`), `examples/naked-return-guard` (a pilot port of `branching-flow`'s `nakedreturn` rule), and `examples/oops-redundant-guard` (a pilot port of `erraudit`'s `oops_redundant_guard` rule), but no production linter has fully migrated yet.
+Early but adopted. The `Rule`/`Registry`/`Detector` core is stable. The migration story is proven by `examples/no-go-mod` (a pilot port of `go-structure-linter`'s `NoGoModRule`), `examples/naked-return-guard` (a pilot port of `branching-flow`'s `nakedreturn` rule), and `examples/oops-redundant-guard` (a pilot port of `erraudit`'s `oops_redundant_guard` rule). Six internal repos now import the SDK (see [Consumers](#consumers)); the remaining unverified claim is converter-package deletion, not adoption.
 
 ## Support & security
 

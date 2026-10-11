@@ -49,32 +49,31 @@ Core types in package `linter`:
 
 ## Dependencies
 
-- **`go-finding` v1.10.0** (public repo; bumped from v1.9.2 on 2026-09-11, gate
-  green: build/test/race/lint/vet/flake-check; v1.10.0 has no core-module code
-  changes — it only adds the `toolsdk` sub-module, which this SDK does not
-  import). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
+- **`go-finding` v1.14.0** (public repo; bumped v1.10.0 → v1.14.0 through
+  2026-10, gate green: build/test/race/lint/vet/flake-check). Resolved as a real published tag (no local `replace` directive). `go.mod` carries the pinned version in `require`; consumers and CI both fetch it from the module proxy. For local cross-repo dev against an uncommitted sibling checkout, add a temporary `go.work` (workspace) or a `replace ../go-finding` line — neither is committed.
 - **go-finding is a multi-module repo; its sub-modules are irrelevant to this
   SDK's go.mod.** The repo ships root `github.com/larsartmann/go-finding` plus
-  independently tagged sub-modules `toolsdk`, `pipeline`, `analysis`,
-  `cmd/go-finding`. Sub-modules release in lockstep and are tagged
-  `<subdir>/vX.Y.Z` (e.g. `toolsdk/v1.10.0` — toolsdk's FIRST tag, because the
-  sub-module was born in the v1.10.0 release). This SDK imports only the root
-  module, so `go get github.com/larsartmann/go-finding@latest` is always the
-  complete bump.
-- Go 1.26.7 (uses `encoding/json/v2` experiment).
+  tagged sub-modules `toolsdk`, `pipeline`, `analysis`, `cmd/go-finding`. The
+  sub-modules are versioned **independently, not in lockstep**: `toolsdk`
+  reached `v1.15.0` while the root is at `v1.14.0`, and it carries its own
+  `v1.13.1` patch (verified against the module proxy 2026-10-11). This SDK
+  imports only the root module, so `go get github.com/larsartmann/go-finding@latest`
+  is always the complete bump.
+- Go 1.27 (uses `encoding/json/v2` experiment).
 
 ## Gotchas & conventions
 
-- **Flake `outputs` must declare `self`.** The `outputs` lambda uses an
-  `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict argument checking on
-  `@`-patterns, so omitting `self` breaks BuildFlow with
-  `function 'outputs' called with unexpected argument 'self'`. Keep `self,`
-  first in the destructure (the sibling `go-finding` flake is the reference).
-  **This fix has regressed twice**: applied in `c13366c` and again in `59e3cd4`,
-  then the auto-commit daemon clobbered it once more in `802ff0a` (2026-09-11,
-  stale flake.nix absorbed alongside a legit go-finding bump) and it was
-  restored 2026-09-17. If any `nix` eval fails with that error, check the
-  destructure first before suspecting inputs or the lockfile.
+- **Flake `outputs` and the `self` argument.** The `outputs` lambda uses the
+  flake-parts `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict
+  argument checking on `@`-patterns, so a bare multi-argument `outputs` that
+  does not tolerate `self` breaks with
+  `function 'outputs' called with unexpected argument 'self'`. Historically
+  this required `self,` first in the destructure (applied `c13366c`, `59e3cd4`,
+  clobbered `802ff0a`, restored 2026-09-17). **Verified 2026-10-11: the current
+  flake evaluates cleanly (`nix flake check --no-build` → all checks passed)
+  under flake-parts with `inputs@` and no explicit `self`**, so the requirement
+  is not load-bearing today. If a `nix` eval fails with that error, inspect the
+  destructure before suspecting inputs or the lockfile.
 - **`reports/` must exist for BuildFlow's `test-coverage` step.** It is kept
   durable via `reports/.gitkeep` plus a `.gitignore` exception
   (`!reports/`, `reports/*`, `!reports/.gitkeep`) — don't remove the marker.
@@ -111,14 +110,14 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   auth at all — the workaround is only needed when deliberately bypassing
   the proxy.)
 - **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
-  setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.26"`
-  resolved 1.26.5 on macos while `go.mod` required 1.26.7 (`go: go.mod
-  requires go >= 1.26.7`). Only a STEP-level `env:` takes precedence over the
-  `GITHUB_ENV` injection — the test job's go steps each pin
-  `GOTOOLCHAIN: go1.26.7` so Go downloads the exact patch.
+  setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.27"`
+  can resolve an older patch than `go.mod` requires (`go: go.mod requires go
+  >= 1.27`). Only a STEP-level `env:` takes precedence over the `GITHUB_ENV`
+  injection — every go step in `ci.yml` pins `GOTOOLCHAIN: go1.27.0` so Go
+  downloads the exact patch.
 - **The coverage gate measures library packages only.** `examples/` are
   exercised via `exec.Command` from integration tests, so their statements
-  never attribute (`./...` totals 83.3%; the library alone is 98.2%). CI runs
+  never attribute (`./...` totals 44.3%; the library alone is 98.7%). CI runs
   `go list ./... | grep -v /examples/ | xargs go test ...` — don't "fix" this
   back to `./...`.
 - **Released versions: v0.3.0 (2026-09-08), v0.3.1 (2026-09-09).** Tag only
@@ -184,6 +183,22 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   contradiction. Always tidy with `GOWORK=off go mod tidy` (or outside the
   workspace dir). Recorded in docs/migration-guide.md pitfalls too.
 
-## Consumers (Planned)
+## Consumers
 
-`go-structure-linter` (pilot), `branching-flow`, `erraudit`. No active consumers yet.
+Six direct consumers at `v0.3.1` (verified 2026-10-11 via `go.mod` grep plus a
+project-dependency-graph scan of `~/projects`; roughly 60 further indirect
+importers):
+
+| Consumer              | Notes                                        |
+| --------------------- | -------------------------------------------- |
+| `go-structure-linter` | The original pilot target.                   |
+| `samber-linter`       | Linter built on the SDK.                     |
+| `go-humanize-linter`  | Linter built on the SDK.                     |
+| `cmdguard/lint`       | The CLI-framework sibling's lint submodule.  |
+| `project-meta/linter` | Meta tooling consumer.                       |
+| `BuildFlow/execution` | Direct dependency in the orchestrator.       |
+
+The SDK's pilot rules were ported from `go-structure-linter`, `branching-flow`,
+and `erraudit`. Whether any consumer has **deleted its converter package** (the
+SDK's whole reason to exist) is not yet verified — that is the real migration
+metric, distinct from "does anyone import it".
