@@ -103,13 +103,8 @@
               pkgs.trash-cli
             ];
 
-            env = {
-              GOEXPERIMENT = "jsonv2";
-            };
-
             shellHook = ''
               echo "go-linter-sdk dev shell — $(go version)"
-              echo "GOEXPERIMENT=jsonv2 active (required: go-finding uses encoding/json/v2)"
             '';
           };
 
@@ -118,52 +113,40 @@
               goPkg
               pkgs.golangci-lint
             ];
-
-            env = {
-              GOEXPERIMENT = "jsonv2";
-            };
           };
 
           apps = {
             test = mkApp "test" "Run all tests" ''
-              export GOEXPERIMENT=jsonv2
               go test ./... -count=1 "$@"
             '';
 
             test-race = mkApp "test-race" "Run all tests with race detector" ''
-              export GOEXPERIMENT=jsonv2
               go test ./... -race -count=1 "$@"
             '';
 
             bench = mkApp "bench" "Run benchmarks" ''
-              export GOEXPERIMENT=jsonv2
               go test ./... -bench=. -benchmem "$@"
             '';
 
             build = mkApp "build" "Build all packages" ''
-              export GOEXPERIMENT=jsonv2
               go build ./...
             '';
 
             vet = mkApp "vet" "Run go vet" ''
-              export GOEXPERIMENT=jsonv2
               go vet ./...
             '';
 
             lint = mkApp "lint" "Run golangci-lint" ''
-              export GOEXPERIMENT=jsonv2
               golangci-lint run ./...
             '';
 
             coverage = mkApp "coverage" "Run tests with coverage report" ''
-              export GOEXPERIMENT=jsonv2
               mkdir -p reports
               go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
               go tool cover -func=reports/coverage.out
             '';
 
             clean = mkApp "clean" "Clean build and test artifacts" ''
-              export GOEXPERIMENT=jsonv2
               # reports/coverage.out is the canonical path; the bare coverage.out
               # sweep removes artifacts from before the path was aligned.
               trash-put reports/coverage.out coverage.out 2>/dev/null || true

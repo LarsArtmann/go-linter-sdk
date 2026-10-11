@@ -15,7 +15,7 @@ directly; there is nothing left to convert.
 
 ## Before you start
 
-- Go 1.26+ and `GOEXPERIMENT=jsonv2` (the SDK depends on go-finding, which uses
+- Go 1.27+ and `GOEXPERIMENT=jsonv2` (the SDK depends on go-finding, which uses
   `encoding/json/v2`). In a Nix project, copy the flake apps pattern
   (`nix run .#test|lint|build`) from this repo.
 - Inventory your rules and, for each, note: rule ID (must be preserved —

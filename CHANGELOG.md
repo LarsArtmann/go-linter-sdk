@@ -56,6 +56,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependency:** `go-finding` bumped `v1.10.0` → `v1.14.0` (through 2026-10).
+  Unlike the v1.9.2 → v1.10.0 step, these releases do change the core module:
+  v1.14.0 adds typed fix edits (`Finding.Edits` / `TextEdit`) and
+  `Report.SkippedModules`. This SDK passes both through unchanged, so no code
+  changes were required. Gate green (build, test, race, vet, golangci-lint).
+- **Toolchain:** `go.mod` `go 1.26` → `go 1.27`; the flake pins `go_1_27` and
+  every CI go step pins `GOTOOLCHAIN: go1.27.0`. `goimports` in treefmt is
+  pinned to the same toolchain so the network-less `nix flake check` sandbox
+  never tries to auto-download Go.
 - **Dependency:** `go-finding` bumped from `v1.9.2` to `v1.10.0` (2026-09-11).
   v1.10.0 contains no core-module code changes — its only addition is the new
   `toolsdk` sub-module (BuildFlow provider plugin contract), which this SDK

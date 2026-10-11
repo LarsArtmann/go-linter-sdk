@@ -4,7 +4,7 @@
 //
 // The rule checks for the presence of README.md in the target directory. Run:
 //
-//	GOEXPERIMENT=jsonv2 go run ./examples/minimal-linter [dir]
+//	go run ./examples/minimal-linter [dir]
 package main
 
 import (

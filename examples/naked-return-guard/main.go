@@ -17,7 +17,7 @@
 //
 // Run:
 //
-//	GOEXPERIMENT=jsonv2 go run ./examples/naked-return-guard [dir]
+//	go run ./examples/naked-return-guard [dir]
 package main
 
 import (

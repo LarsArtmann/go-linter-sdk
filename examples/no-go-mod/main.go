@@ -18,7 +18,7 @@
 //
 // Run:
 //
-//	GOEXPERIMENT=jsonv2 go run ./examples/no-go-mod [dir]
+//	go run ./examples/no-go-mod [dir]
 package main
 
 import (

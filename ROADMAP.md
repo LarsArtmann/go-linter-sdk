@@ -28,16 +28,19 @@ Raw ideas:
 
 The SDK exists to delete converter code: `branching-flow` (1,871 LOC) and
 `erraudit` (1,214 LOC) each maintain a bridge package purely because their
-native domain types predate `finding.Finding`. The value proposition is
-unproven until a real linter migrates beyond a single pilot rule.
+native domain types predate `finding.Finding`. Pilot ports of rules from both
+(plus `go-structure-linter`) now live in `examples/`, and six internal repos
+import the SDK. The claim is still unproven at scale: adoption and
+converter-deletion are different facts, and none has been verified to have
+deleted its converter package.
 
 Raw ideas:
 
-- Pilot-port a rule from `branching-flow` to validate the converter-deletion
-  claim at scale
-- Pilot-port a rule from `erraudit`
+- Verify whether any consumer actually deleted its converter package (the real
+  migration metric)
 - Full migration of `go-structure-linter` to `go-linter-sdk` (it already
   aliases `Issue = finding.Finding`)
+- Spread the SDK to the ~31 repos still on older `go-finding` releases
 - A `cmd/` directory with a production CLI binary wrapping the registry
   (`--enable`/`--disable` flag parsing, `--format` text/JSON/SARIF)
 
@@ -117,11 +120,11 @@ Decisions made in prior sessions, kept for context. These no longer block work.
   the auto-commit daemon pushes directly to master, and required-status
   checks would wedge it.
 
-- **Q1 — Is `go-finding` a real published tag?** **Yes.** `go-finding v1.4.1`
-  is a real published tag, confirmed in `go.mod` (`require
-github.com/larsartmann/go-finding v1.4.1`). There is no local `replace`
-  directive. Consumers and CI both fetch `v1.4.1` directly via VCS auth.
-  (resolved session 8)
+- **Q1 — Is `go-finding` a real published tag?** **Yes.** The dependency is a
+  real published tag, confirmed in `go.mod`
+  (`require github.com/larsartmann/go-finding v1.14.0`). There is no local
+  `replace` directive. Consumers and CI both fetch it from the module proxy.
+  (resolved session 8; version refreshed 2026-10-11)
 - **Q4 — Was the `flake.lock` bump that exposed the missing-`self` bug
   intentional?** Moot. The fix (declaring `self` in the `outputs` destructure)
   is permanent and verified across all sibling repos. The root cause was Nix

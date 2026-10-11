@@ -14,10 +14,9 @@
 | ⚪ `PLANNED`              | Designed or documented but **not yet implemented** in code.  |
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
-> delivers it AND confirm it works. Verified 2026-09-09: `nix run .#lint`
-> (0 issues), `nix run .#test-race` (clean), `nix flake check` (all checks
-> passed), library coverage 98.2%, proxy-only `go mod download` +
-> `go mod verify` green, CI green on `487d254`.
+> delivers it AND confirm it works. Re-verified 2026-10-11: `golangci-lint`
+> (0 issues), `go test -race` (clean), `nix flake check` (all checks passed),
+> library coverage 98.7%, `GOWORK=off go mod tidy` (no drift).
 >
 > **One-home rule:** this file tracks only what EXISTS in code today.
 > Not-yet-built capabilities live in `ROADMAP.md` until they graduate to

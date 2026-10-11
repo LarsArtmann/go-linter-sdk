@@ -23,7 +23,7 @@
 //
 // Run:
 //
-//	GOEXPERIMENT=jsonv2 go run ./examples/oops-redundant-guard [dir]
+//	go run ./examples/oops-redundant-guard [dir]
 package main
 
 import (

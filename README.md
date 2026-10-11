@@ -119,7 +119,7 @@ func main() {
 }
 ```
 
-> A complete, runnable version lives at [`examples/minimal-linter`](examples/minimal-linter) — run it with `GOEXPERIMENT=jsonv2 go run ./examples/minimal-linter [dir]`.
+> A complete, runnable version lives at [`examples/minimal-linter`](examples/minimal-linter) — run it with `go run ./examples/minimal-linter [dir]`.
 
 ### Plug into BuildFlow's DAG
 
