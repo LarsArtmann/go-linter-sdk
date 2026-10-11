@@ -11,13 +11,13 @@
 
 ## TL;DR
 
-| Metric | Value |
-| --- | --- |
-| Gate-blocking failures at session start | 2 failed steps (`nix-build`, `nix-build-verify`) + 3 error-severity findings (`go-structure-linter` AGENTS.md age, `securitymd` ×2) |
-| Gate-blocking failures now | **0** — `buildflow` exits 0 |
-| Warnings remaining (non-gating) | 2 after-auto-fix (`go-structure-linter` internal/, `go-work-sync`) + 6 detect-only tools |
-| Root cause of the hard failure | Go floor bumped to 1.27 but `flake.nix` still pinned `go_1_26`; treefmt's `goimports` shelled out to the older sandbox Go and tried to download a newer toolchain in the network-less `nix flake check` sandbox |
-| Bonus discovery | `GOEXPERIMENT=jsonv2` is obsolete on Go 1.27 and was removed repo-wide |
+| Metric                                  | Value                                                                                                                                                                                                           |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gate-blocking failures at session start | 2 failed steps (`nix-build`, `nix-build-verify`) + 3 error-severity findings (`go-structure-linter` AGENTS.md age, `securitymd` ×2)                                                                             |
+| Gate-blocking failures now              | **0** — `buildflow` exits 0                                                                                                                                                                                     |
+| Warnings remaining (non-gating)         | 2 after-auto-fix (`go-structure-linter` internal/, `go-work-sync`) + 6 detect-only tools                                                                                                                        |
+| Root cause of the hard failure          | Go floor bumped to 1.27 but `flake.nix` still pinned `go_1_26`; treefmt's `goimports` shelled out to the older sandbox Go and tried to download a newer toolchain in the network-less `nix flake check` sandbox |
+| Bonus discovery                         | `GOEXPERIMENT=jsonv2` is obsolete on Go 1.27 and was removed repo-wide                                                                                                                                          |
 
 ---
 
@@ -77,7 +77,7 @@
 ## e) WHAT WE SHOULD IMPROVE
 
 1. **Detect concurrent sessions early.** The buildflow preflight already prints the binary-freshness / shared-checkout hint; I ignored its significance until an edit collision forced the issue. Improvement: at session start, run `git log --oneline -5` and compare HEAD to my last-known HEAD before the first edit; treat rapid auto-commits as a live-session signal.
-2. **Never infer "cached finding" from one bypass run.** Improvement: to prove cache-staleness, reproduce the finding in the *same* pipeline path (full run) with the cache disabled, not in a different single-step path.
+2. **Never infer "cached finding" from one bypass run.** Improvement: to prove cache-staleness, reproduce the finding in the _same_ pipeline path (full run) with the cache disabled, not in a different single-step path.
 3. **Keep the Go-version pin single-source.** It currently lives in `go.mod`, `flake.nix` (`goPkg`), and `.golangci.yml` (`run.go`) — three places that drifted (the exact failure this session). Improvement: derive `goPkg` and the lint `go:` from a shared Nix `let` reading `go.mod`, or at minimum add a buildflow/CI check that the three agree.
 4. **Sweep experiments coherently.** When removing one graduated `goexperiment.*`, audit the sibling tags in the same pass (see (d)3).
 5. **Add a CI regression guard for the GOEXPERIMENT removal.** A step that builds with no `GOEXPERIMENT` set would have caught the flake/treefmt divergence that broke this run.
@@ -90,58 +90,58 @@
 
 Ranked by impact (Critical → Low). Effort S <30m, M 30m–2h, L >2h.
 
-| # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
-| 1 | Delete the local, gitignored `go.work` (or intentionally keep it) to stop the `go-work-sync` false positive | High | S | Cleanup |
-| 2 | Add a CI step that builds with **no** `GOEXPERIMENT` set (regression guard for the jsonv2 removal) | High | S | Quality |
-| 3 | Audit the remaining `.golangci.yml` `goexperiment.*` tags (`arenas`, `goroutineleakprofile`, `runtimesecret`, `simd`) against Go 1.27 | High | S | Cleanup |
-| 4 | Run `actionlint` locally and confirm the edited `ci.yml` parses | High | S | Quality |
-| 5 | Rebuild + reinstall the BuildFlow binary (`nix build . && nix run .#reinstall`) so dogfooding is not stale | High | M | Quality |
-| 6 | Refresh `TODO_LIST.md` by harvesting this report | High | M | Documentation |
-| 7 | Split `registry_test.go` (1135 lines) into focused files | High | M | Cleanup |
-| 8 | Reduce `registry.go` (371 lines) below the 350-line threshold | Medium | M | Cleanup |
-| 9 | Reduce `examples/oops-redundant-guard/main.go` (367 lines) below 350 | Medium | M | Cleanup |
-| 10 | Extract duplication in `examples_integration_test.go` (22 art-dupl findings) | Medium | M | Cleanup |
-| 11 | Decide on `branching-flow`'s strong-ID suggestions (`RuleID` type) — implement or document as deliberate | Medium | M | Feature |
-| 12 | Refresh `README.md` (576h stale) | Medium | M | Documentation |
-| 13 | Reconcile "35/36" (FEATURES.md) vs actual "56/64" BuildFlow counts | Medium | S | Documentation |
-| 14 | Unset the global `GOEXPERIMENT=jsonv2` in the user's shell to clear the buildflow preflight warning | Medium | S | Quality |
-| 15 | Merge the two-author `AGENTS.md` jsonv2 section into one voice | Medium | S | Documentation |
-| 16 | Merge the two CHANGELOG entries for the same change into one narrative bullet | Low | S | Documentation |
-| 17 | Add an `AGENTS.md` note about the shared-checkout / concurrent-session hazard | Medium | S | Documentation |
-| 18 | Verify `FEATURES.md` inventory is complete and current (768h stale) | Medium | M | Documentation |
-| 19 | Add a docs/migration-guide pitfall for the Go-floor vs flake-pin drift | Medium | S | Documentation |
-| 20 | Add `securitymd` green status to `FEATURES.md` | Low | S | Documentation |
-| 21 | Verify CI goes green on the post-session commit | High | S | Quality |
-| 22 | Run `nix run .#test-race` explicitly and record the result | Medium | S | Quality |
-| 23 | Run `nix run .#coverage` and record the exact library coverage | Low | S | Quality |
-| 24 | Consider a single-source Go version (derive `goPkg`/lint `go:` from `go.mod`) | Medium | M | Cleanup |
-| 25 | Investigate `govulncheck` reporting "requires go1.27" (toolchain of the nixpkgs binary) | Low | M | Quality |
-| 26 | Triage `vulnix` CVEs; decide whether a `nix flake update` is warranted | Medium | M | Security |
-| 27 | Confirm `SECURITY.md`'s 48h commitment is acceptable to the maintainer | Medium | S | Documentation |
-| 28 | Align `SUPPORT.md` response-time wording with `SECURITY.md` | Low | S | Documentation |
-| 29 | Re-run the full buildflow once more after all doc edits and capture a clean log | Medium | S | Quality |
-| 30 | Verify the `dprint-format` step's markdown rewrites are idempotent (it rewrote AGENTS/FEATURES) | Low | S | Quality |
-| 31 | Add `docs/status` HTML from the concurrent session to the review set | Low | S | Documentation |
-| 32 | Review the concurrent session's `docs/status/2026-10-11_06-56_*.html` for overlap | Medium | S | Documentation |
-| 33 | Ensure `FEATURES.md` "Tooling & infrastructure" row reflects `go_1_27` | Medium | S | Documentation |
-| 34 | Add a test asserting `RuleError` carries the rule ID (regression for error wrapping) | Low | M | Quality |
-| 35 | Consider raising the file-size threshold or splitting the largest files systematically | Low | M | Cleanup |
-| 36 | Record the treefmt `goimports` failure mode in the failure-triage reference (if fleet-wide) | Medium | M | Quality |
-| 37 | File/build a BuildFlow improvement: `go-work-sync` should ignore out-of-root `use` dirs | Medium | M | Feature |
-| 38 | Add a `GOEXPERIMENT=` vs `GOEXPERIMENT=none` nuance to `CONTRIBUTING.md` | Low | S | Documentation |
-| 39 | Check whether other LarsArtmann repos still pin `go_1_26` with a 1.27 floor | Medium | M | Cleanup |
-| 40 | Add an `AGENTS.md` "known BuildFlow false positives" section | Low | S | Documentation |
-| 41 | Re-run `buildflow -s go-structure-linter --format finding` to confirm only the internal/ warning remains | Low | S | Quality |
-| 42 | Decide `internal/` handling: accept warning vs suppress in `.buildflow.yml` | Medium | S | Cleanup |
-| 43 | Verify `go mod tidy` is clean with `GOWORK=off` (post-removal) | Medium | S | Quality |
-| 44 | Add the session's evidence commands to `CHANGELOG.md` release notes | Low | S | Documentation |
-| 45 | Update `README.md` "Companion libraries" if sibling import paths changed | Low | S | Documentation |
-| 46 | Spot-check that no doc still claims `GOEXPERIMENT` is required | High | S | Documentation |
-| 47 | Add a `--strict` dry run to see what warning-severity promotion would surface | Low | S | Quality |
-| 48 | Consider whether `gofumpt`/`golines` should also be pinned to `goPkg` for parity | Low | S | Cleanup |
-| 49 | Archive the pre-session failing log for future triage reference | Low | S | Quality |
-| 50 | Set up docs-health HARVEST for (f) into TODO_LIST/ROADMAP | High | M | Documentation |
+| #  | Task                                                                                                                                  | Impact | Effort | Category      |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 1  | Delete the local, gitignored `go.work` (or intentionally keep it) to stop the `go-work-sync` false positive                           | High   | S      | Cleanup       |
+| 2  | Add a CI step that builds with **no** `GOEXPERIMENT` set (regression guard for the jsonv2 removal)                                    | High   | S      | Quality       |
+| 3  | Audit the remaining `.golangci.yml` `goexperiment.*` tags (`arenas`, `goroutineleakprofile`, `runtimesecret`, `simd`) against Go 1.27 | High   | S      | Cleanup       |
+| 4  | Run `actionlint` locally and confirm the edited `ci.yml` parses                                                                       | High   | S      | Quality       |
+| 5  | Rebuild + reinstall the BuildFlow binary (`nix build . && nix run .#reinstall`) so dogfooding is not stale                            | High   | M      | Quality       |
+| 6  | Refresh `TODO_LIST.md` by harvesting this report                                                                                      | High   | M      | Documentation |
+| 7  | Split `registry_test.go` (1135 lines) into focused files                                                                              | High   | M      | Cleanup       |
+| 8  | Reduce `registry.go` (371 lines) below the 350-line threshold                                                                         | Medium | M      | Cleanup       |
+| 9  | Reduce `examples/oops-redundant-guard/main.go` (367 lines) below 350                                                                  | Medium | M      | Cleanup       |
+| 10 | Extract duplication in `examples_integration_test.go` (22 art-dupl findings)                                                          | Medium | M      | Cleanup       |
+| 11 | Decide on `branching-flow`'s strong-ID suggestions (`RuleID` type) — implement or document as deliberate                              | Medium | M      | Feature       |
+| 12 | Refresh `README.md` (576h stale)                                                                                                      | Medium | M      | Documentation |
+| 13 | Reconcile "35/36" (FEATURES.md) vs actual "56/64" BuildFlow counts                                                                    | Medium | S      | Documentation |
+| 14 | Unset the global `GOEXPERIMENT=jsonv2` in the user's shell to clear the buildflow preflight warning                                   | Medium | S      | Quality       |
+| 15 | Merge the two-author `AGENTS.md` jsonv2 section into one voice                                                                        | Medium | S      | Documentation |
+| 16 | Merge the two CHANGELOG entries for the same change into one narrative bullet                                                         | Low    | S      | Documentation |
+| 17 | Add an `AGENTS.md` note about the shared-checkout / concurrent-session hazard                                                         | Medium | S      | Documentation |
+| 18 | Verify `FEATURES.md` inventory is complete and current (768h stale)                                                                   | Medium | M      | Documentation |
+| 19 | Add a docs/migration-guide pitfall for the Go-floor vs flake-pin drift                                                                | Medium | S      | Documentation |
+| 20 | Add `securitymd` green status to `FEATURES.md`                                                                                        | Low    | S      | Documentation |
+| 21 | Verify CI goes green on the post-session commit                                                                                       | High   | S      | Quality       |
+| 22 | Run `nix run .#test-race` explicitly and record the result                                                                            | Medium | S      | Quality       |
+| 23 | Run `nix run .#coverage` and record the exact library coverage                                                                        | Low    | S      | Quality       |
+| 24 | Consider a single-source Go version (derive `goPkg`/lint `go:` from `go.mod`)                                                         | Medium | M      | Cleanup       |
+| 25 | Investigate `govulncheck` reporting "requires go1.27" (toolchain of the nixpkgs binary)                                               | Low    | M      | Quality       |
+| 26 | Triage `vulnix` CVEs; decide whether a `nix flake update` is warranted                                                                | Medium | M      | Security      |
+| 27 | Confirm `SECURITY.md`'s 48h commitment is acceptable to the maintainer                                                                | Medium | S      | Documentation |
+| 28 | Align `SUPPORT.md` response-time wording with `SECURITY.md`                                                                           | Low    | S      | Documentation |
+| 29 | Re-run the full buildflow once more after all doc edits and capture a clean log                                                       | Medium | S      | Quality       |
+| 30 | Verify the `dprint-format` step's markdown rewrites are idempotent (it rewrote AGENTS/FEATURES)                                       | Low    | S      | Quality       |
+| 31 | Add `docs/status` HTML from the concurrent session to the review set                                                                  | Low    | S      | Documentation |
+| 32 | Review the concurrent session's `docs/status/2026-10-11_06-56_*.html` for overlap                                                     | Medium | S      | Documentation |
+| 33 | Ensure `FEATURES.md` "Tooling & infrastructure" row reflects `go_1_27`                                                                | Medium | S      | Documentation |
+| 34 | Add a test asserting `RuleError` carries the rule ID (regression for error wrapping)                                                  | Low    | M      | Quality       |
+| 35 | Consider raising the file-size threshold or splitting the largest files systematically                                                | Low    | M      | Cleanup       |
+| 36 | Record the treefmt `goimports` failure mode in the failure-triage reference (if fleet-wide)                                           | Medium | M      | Quality       |
+| 37 | File/build a BuildFlow improvement: `go-work-sync` should ignore out-of-root `use` dirs                                               | Medium | M      | Feature       |
+| 38 | Add a `GOEXPERIMENT=` vs `GOEXPERIMENT=none` nuance to `CONTRIBUTING.md`                                                              | Low    | S      | Documentation |
+| 39 | Check whether other LarsArtmann repos still pin `go_1_26` with a 1.27 floor                                                           | Medium | M      | Cleanup       |
+| 40 | Add an `AGENTS.md` "known BuildFlow false positives" section                                                                          | Low    | S      | Documentation |
+| 41 | Re-run `buildflow -s go-structure-linter --format finding` to confirm only the internal/ warning remains                              | Low    | S      | Quality       |
+| 42 | Decide `internal/` handling: accept warning vs suppress in `.buildflow.yml`                                                           | Medium | S      | Cleanup       |
+| 43 | Verify `go mod tidy` is clean with `GOWORK=off` (post-removal)                                                                        | Medium | S      | Quality       |
+| 44 | Add the session's evidence commands to `CHANGELOG.md` release notes                                                                   | Low    | S      | Documentation |
+| 45 | Update `README.md` "Companion libraries" if sibling import paths changed                                                              | Low    | S      | Documentation |
+| 46 | Spot-check that no doc still claims `GOEXPERIMENT` is required                                                                        | High   | S      | Documentation |
+| 47 | Add a `--strict` dry run to see what warning-severity promotion would surface                                                         | Low    | S      | Quality       |
+| 48 | Consider whether `gofumpt`/`golines` should also be pinned to `goPkg` for parity                                                      | Low    | S      | Cleanup       |
+| 49 | Archive the pre-session failing log for future triage reference                                                                       | Low    | S      | Quality       |
+| 50 | Set up docs-health HARVEST for (f) into TODO_LIST/ROADMAP                                                                             | High   | M      | Documentation |
 
 > **HARVEST handoff:** items 1–50 belong in `TODO_LIST.md` (actionable, bounded) and `ROADMAP.md` (the larger refactors: 7–11, 24, 37). Do not let them die in this file.
 
@@ -151,7 +151,7 @@ Ranked by impact (Critical → Low). Effort S <30m, M 30m–2h, L >2h.
 
 1. **Is the concurrent Crush session on this repo still active, and should I coordinate with it?** I detected interleaved auto-commits (`109312c`, `6c57873`, `38e603b`, `417e45a`) and a colliding `AGENTS.md` write, but I cannot see the other session's intent. If it is still running, two agents editing the same docs will keep colliding.
 2. **Do you want the local `go.work` kept (sibling cross-repo dev, permanent warning) or deleted (clean buildflow)?** The choice is a workflow preference I cannot infer — the buildflow finding is a false positive either way.
-3. **Is the 48-hour initial-response commitment I added to `SECURITY.md` acceptable, or should it be a softer best-effort phrasing?** `securitymd` demands *a* commitment; only you know the real support posture.
+3. **Is the 48-hour initial-response commitment I added to `SECURITY.md` acceptable, or should it be a softer best-effort phrasing?** `securitymd` demands _a_ commitment; only you know the real support posture.
 
 ---
 
