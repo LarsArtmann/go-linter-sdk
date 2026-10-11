@@ -59,11 +59,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Dependency:** `go-finding` bumped `v1.10.0` → `v1.14.0` (through 2026-10).
-  Unlike the v1.9.2 → v1.10.0 step, these releases do change the core module:
-  v1.14.0 adds typed fix edits (`Finding.Edits` / `TextEdit`) and
-  `Report.SkippedModules`. This SDK passes both through unchanged, so no code
-  changes were required. Gate green (build, test, race, vet, golangci-lint).
+- **Dependency:** `go-finding` bumped `v1.10.0` → `v1.14.0`, release by
+  release (this SDK passes every change through unchanged; gate green per
+  bump: build, test, race, vet, golangci-lint):
+  - **v1.11.0 (2026-09-17):** release-workflow hardening (concurrency guard,
+    preflight gates, docs version stamp) and a fix for an integer underflow in
+    correlation proximity sorting — the only core-module behavior fix in the
+    window.
+  - **v1.12.0 (2026-09-17):** `pipeline` gains `PipelineResult.Outcomes`;
+    remaining changes are test-only or module-hygiene (no core-module change
+    for this SDK).
+  - **v1.13.0 (2026-09-22):** `toolsdk`-only (`Trigger.NotRequires`) plus a
+    clearer tag-validation error message — no core-module change for this SDK.
+  - **v1.14.0 (2026-10-05):** report coverage evidence (`Summary.FilesScanned`
+    always serialized, `Summary.SkippedModules`) — this SDK passes both
+    through — and the json/v2 GA build change that let this repo drop
+    `GOEXPERIMENT=jsonv2` everywhere. The new toolsdk options channel and
+    switch topology live in sub-modules this SDK does not import.
 - **Toolchain:** `go.mod` `go 1.26` → `go 1.27`; the flake pins `go_1_27` and
   every CI go step pins `GOTOOLCHAIN: go1.27.0`. `goimports` in treefmt is
   pinned to the same toolchain so the network-less `nix flake check` sandbox
