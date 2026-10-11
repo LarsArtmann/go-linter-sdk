@@ -205,7 +205,7 @@ jobs:
           		os.Exit(3)
           	}
           	detector := linter.DetectorFromRegistry(registry, "hello-linter")
-          	findings, err := detector.Detect(context.Background(), ".")
+          	findings, err := detector.Detect(finding.WithWorkingDir(context.Background(), "."))
           	if err != nil || len(findings) == 0 {
           		fmt.Println("DetectorFromRegistry: expected findings, got none or error")
           		os.Exit(4)
