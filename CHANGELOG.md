@@ -152,6 +152,23 @@ the practical breakage surface is empty (verified 2026-10-11,
   `@`-pattern checking made every `nix run .#*` / `nix flake check` fail with
   "function 'outputs' called with unexpected argument 'self'"). Restored to
   match the documented gotcha and the `go-finding` reference flake.
+- **CI was red on Go 1.27**: the pinned golangci-lint binary predated the
+  toolchain and typecheck failed on every file (see Changed). Fixed by the
+  v2.14.0 bump; all eight CI jobs green on the release commit.
+
+### Documentation
+
+- **Adoption verified and documented** (`docs/ADOPTION.md`): per-repo verdicts
+  on converter deletion, refresh procedure, metrics. The README status claim
+  and AGENTS.md consumer table updated from "unproven" to verified.
+- ROADMAP: Theme 2 rewritten on the verified-claim footing; Q2 (root package
+  stays) and Q3 (library-only stands) resolved with rationale; stale raw ideas
+  (stranger-test CI job, flake checks) removed — both shipped.
+- `docs/DOMAIN_LANGUAGE.md` borrowed-vocabulary section is now version-neutral
+  (points at `go.mod`) instead of pinning a go-finding version in prose.
+- Twenty superseded status reports archived under `docs/status/archived/` with
+  superseded annotations; the two 2026-10-11 reports annotated with the
+  same-day execution results (GOEXPERIMENT pivot, adoption verification).
 
 ## [0.3.1] - 2026-09-09
 

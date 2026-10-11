@@ -19,56 +19,37 @@
      (1: v0.3.1 release, 2: secret deletion, 4: dprint decision). Numbers are
      never reused — historical reports reference them. -->
 
-### Publication (repo went public 2026-09-08)
-
-None open. (2026-09-09: gitleaks full-history scan clean + sensitive-docs
-sweep accepted with dated verdict; GitHub metadata set — description, topics
-`go`/`linter`/`static-analysis`, homepage → pkg.go.dev.)
-
 ### Consumer adoption (the reason this SDK exists)
 
-- **#10 — Verify converter-package deletion.** Six internal repos import the SDK
-  (verified 2026-10-11: `go-structure-linter`, `samber-linter`,
-  `go-humanize-linter`, `cmdguard/lint`, `project-meta/linter`,
-  `BuildFlow/execution`), but importing is not migrating. Inspect each and
-  record whether its bridge/converter package is gone. Impact: **Critical**.
-- **#11 — Record the consumer list as a living adoption doc.** The
-  dependency-graph scan is the only place this data lives today; capture a
-  durable, refreshable version. Impact: Medium.
+None open. (#10 converter-deletion verification and #11 the durable adoption
+doc both completed 2026-10-11: all six consumers verified at source level,
+evidence and refresh procedure in `docs/ADOPTION.md`; logged in the v0.4.0
+CHANGELOG entry.)
 
 ### Documentation & drift
 
-- **#12 — Add a CI guard against doc/version drift.** Fail when a living doc's
-  `go-finding`/Go version disagrees with `go.mod`. That failure class produced
-  the 2026-10-11 drift (AGENTS/README/TODO/ROADMAP/DOMAIN_LANGUAGE all stale).
-  Impact: High.
-- **#13 — Convert remaining prose version references to "see go.mod".**
-  AGENTS.md and README now point at `go.mod`; sweep the rest. Impact: Medium.
+None open. (#12 the CI doc-drift guard and #13 the version-pointer refactor
+both completed 2026-10-11: `scripts/check-doc-versions.sh` runs as a CI job
+and a flake check; living docs point at `go.mod`. Logged in the v0.4.0
+CHANGELOG entry.)
 
 ### Release
 
-- **#14 — Cut the next release.** Five dependency/Go bumps and a flake fix have
-  landed since `v0.3.1` with no tag; consumers pin an artifact that no longer
-  matches master. Tag only after green CI. Impact: High.
+None open. (#14 completed 2026-10-11: v0.4.0 tagged after green CI on the
+exact commit; pkg.go.dev verified. Logged in `CHANGELOG.md`.)
 
 ### Dependency hygiene
 
-- **#15 — Re-run benchmarks** after the recent dependency-bump window against
-  `reports/benchmarks-baseline.txt` (forgotten in an earlier bump session).
-  Impact: Medium.
-- **#16 — Sweep dependabot PRs** (`gh pr list`); close any superseded by the
-  manual bumps. Impact: Low.
+None open. (#15 benchmarks re-run 2026-10-11 — every measured op improved
+20-30% vs the 2026-09-09 baseline, no regressions; baseline refreshed.
+#16 dependabot sweep 2026-10-11: zero open PRs, nothing superseded.)
 
 ### Quality hardening
 
-- **#17 — Add flake `checks` for `go test`, `go vet`, and `golangci-lint`**
-  (today only treefmt is a check derivation). Impact: Medium.
-- **#18 — Enforce the bump checklist** (build/test/race/lint/vet/flake-check +
-  `GOWORK=off` tidy + benchmark + changelog) so bumps stop landing undocumented.
-  Impact: Medium.
-
-Current dependency state: see `go.mod` — the single source of truth, enforced
-by the doc-drift guard (`scripts/check-doc-versions.sh`, CI job `doc-drift`).
+None open. (#17 flake `checks` for `go test` / `go vet` / `golangci-lint` plus
+the doc guard completed 2026-10-11 — `nix flake check` runs five hermetic
+derivations. #18 the bump checklist is encoded in
+`scripts/bump-checklist.sh` and referenced from CONTRIBUTING.md.)
 
 ---
 

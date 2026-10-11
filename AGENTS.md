@@ -184,9 +184,13 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   and go-output to end users; keep that section accurate if the siblings'
   import paths change.
 - **User decisions recorded 2026-09-09 (P0 of the 47-task plan):**
-  1. **Version label: v0.3.1 stands.** No next-minor bump until real Go API
-     movement (e.g. a Register contract change); adjacent tags would confuse
-     `@latest`.
+  1. **Version label: v0.3.1 stood; v0.4.0 taken 2026-10-11.** The original
+     rule ("no next-minor until real Go API movement") targeted docs-only
+     adjacent tags; the 1.26→1.27 toolchain floor bump is a consumer-visible
+     requirement change that a PATCH would hide, so the 0.x MINOR is the
+     honest slot. All six consumers already ran Go 1.27 (verified), so the
+     practical breakage was empty. Future floor/API bumps: MINOR. Docs-only
+     pkg.go.dev refreshes: PATCH.
   2. **PAT rotation: user-owned.** The `PRIVATE_REPO_TOKEN` Actions secret is
      deleted; whether the underlying token still lives in the GitHub account
      and is used elsewhere is only knowable by the user — rotate at will.
