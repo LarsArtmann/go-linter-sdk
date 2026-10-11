@@ -156,6 +156,16 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
     commit the result before pushing.
   - pkg.go.dev freezes the tagged README; v0.3.1 exists mostly to refresh it
     (docs-only releases are fine for that — PATCH version).
+  - **2026-10-11 deviation, recorded honestly:** the concurrent release
+    session pushed the v0.4.0 tag ~2 minutes BEFORE its CI run finished. The
+    run came back green (all 9 jobs) on the exact tagged commit, so the
+    outcome satisfies the rule's verification standard — but the sequencing
+    was luck, not discipline, and re-luck is not a strategy. If that run had
+    been red, the tag would have needed retracting
+    (`git push origin :refs/tags/v0.4.0` + proxy propagation mess). Keep the
+    rule: push the commit, wait for green, THEN push the tag; commit+tag in
+    one `git push` only when the delta vs the last green commit is docs-only
+    and locally actionlint-validated.
 - **`dprint.json` re-exists (re-added 2026-09-09) but is NOT wired into treefmt.**
   It is a standalone formatter config; wiring it into treefmt would fetch wasm
   plugins from the network at runtime and break hermetic `nix flake check` (only
