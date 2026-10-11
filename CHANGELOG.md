@@ -53,6 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ID `oops_redundant_guard`, severity (warning), confidence (0.85), message,
   and suggestion text are preserved. Covered by three integration tests
   (clean code, detection, if/else not flagged).
+- **`SECURITY.md` completed** with "Supported Versions" and "Security
+  Practices" sections plus a response-time commitment, clearing the
+  `securitymd` BuildFlow gate.
 
 ### Changed
 
@@ -65,6 +68,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   every CI go step pins `GOTOOLCHAIN: go1.27.0`. `goimports` in treefmt is
   pinned to the same toolchain so the network-less `nix flake check` sandbox
   never tries to auto-download Go.
+- **`GOEXPERIMENT=jsonv2` dropped everywhere.** Go 1.27 promotes
+  `encoding/json/v2` and `jsontext` to standard packages, so the experiment flag
+  in `flake.nix` (both devShells and all eight apps), `.buildflow.yml`,
+  `.golangci.yml` build tags, `ci.yml`, and the docs is now obsolete and was
+  removed. Verified by a forced clean `GOEXPERIMENT= go build -a ./...`.
 - **Dependency:** `go-finding` bumped from `v1.9.2` to `v1.10.0` (2026-09-11).
   v1.10.0 contains no core-module code changes — its only addition is the new
   `toolsdk` sub-module (BuildFlow provider plugin contract), which this SDK

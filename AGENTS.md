@@ -86,6 +86,14 @@ Core types in package `linter`:
   Removed 2026-10-11: Go 1.27 enables the `encoding/json/v2` experiment by
   default, so golangci-lint compiles `go-finding`'s transitive imports without
   it. Setting `GOEXPERIMENT=none` reintroduces the failure.
+- **The Go version is pinned in three places; keep them in lockstep.** `go.mod`
+  (`go 1.27`), `flake.nix` (`goPkg = pkgs.go_1_27`), and `.golangci.yml`
+  (`run.go: 1.27.0`). treefmt's `goimports` formatter shells out to `go`, so the
+  flake overrides `pkgs.gotools` to run against `goPkg`; without that the
+  sandbox Go (nixpkgs default, still 1.26.x) is older than `go.mod`'s floor and
+  the toolchain auto-switch tries to download a newer Go, which fails in the
+  network-less `nix flake check` sandbox (root cause of the 2026-10-11 treefmt
+  failure).
 - **Tests are black-box (`package linter_test`), not white-box.** This was a
   deliberate decision to satisfy `testpackage` natively (no suppression) and
   test the real consumer contract. Test factories (`makeRule`, `failingRule`)
@@ -186,6 +194,19 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   otherwise-identical go.sum — explaining the "green on `487d254`, red later"
   contradiction. Always tidy with `GOWORK=off go mod tidy` (or outside the
   workspace dir). Recorded in docs/migration-guide.md pitfalls too.
+- **`go.work`'s `use ../go-finding` is a local-only convenience and is
+  gitignored (never committed).** BuildFlow's `go-work-sync` reports it as a
+  "stale module reference" because `DetectGoWorkDrift` only scans directories
+  under the repo root, so an out-of-repo `use` can never be "found on disk"; it
+  is an expected false positive for sibling-checkout workspaces, not drift to
+  repair. Deleting `go.work` clears it (local builds then use the published
+  `go-finding` tag from the proxy); re-add it only while testing uncommitted
+  sibling changes and expect the warning again.
+- **go-structure-linter's `internal/` suggestion is a deliberate non-fix.**
+  This repo is a public library: its API is the root package `linter`, consumed
+  by import path, and there is no non-public implementation worth hiding. The
+  finding is a warning (it does not gate); do not "fix" it by inventing an
+  `internal/` package.
 
 ## Consumers
 
