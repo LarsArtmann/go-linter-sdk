@@ -95,10 +95,19 @@ Core types in package `linter`:
   (`go 1.27`), `flake.nix` (`goPkg = pkgs.go_1_27`), and `.golangci.yml`
   (`run.go: 1.27.0`). treefmt's `goimports` formatter shells out to `go`, so the
   flake overrides `pkgs.gotools` to run against `goPkg`; without that the
-  sandbox Go (nixpkgs default, still 1.26.x) is older than `go.mod`'s floor and
+  sandbox Go (nixpkgs default, which can lag `go.mod`'s floor) is older and
   the toolchain auto-switch tries to download a newer Go, which fails in the
   network-less `nix flake check` sandbox (root cause of the 2026-10-11 treefmt
   failure).
+- **Doc drift is guarded, not just frowned upon.**
+  `scripts/check-doc-versions.sh` (CI job `doc-drift`) fails when a living doc
+  hardcodes a dependency version that is neither `go.mod`'s nor a repo tag, or
+  when the Go pins above fall out of lockstep with `go.mod`. Living docs point
+  at `go.mod`; don't re-hardcode versions there. Genuinely historical
+  references take a `docguard:allow` line marker (used sparingly — each one is
+  a promise to revisit on the next bump). Removing `**/*.md` / `docs/**` from
+  CI `paths-ignore` was deliberate: doc-only commits are exactly the commits
+  that need the guard.
 - **Tests are black-box (`package linter_test`), not white-box.** This was a
   deliberate decision to satisfy `testpackage` natively (no suppression) and
   test the real consumer contract. Test factories (`makeRule`, `failingRule`)

@@ -45,6 +45,23 @@ To format code (gofumpt + goimports + golines@120 + nixfmt):
 nix fmt
 ```
 
+### Doc-drift guard
+
+`go.mod` is the single source of truth for dependency and Go versions. Living
+docs (AGENTS.md, README.md, CONTRIBUTING.md, FEATURES.md, ROADMAP.md,
+TODO_LIST.md, SUPPORT.md, SECURITY.md, docs/DOMAIN_LANGUAGE.md,
+docs/migration-guide.md) must not hardcode versions that disagree with it.
+CI enforces this with the `doc-drift` job; run it locally before pushing:
+
+```sh
+scripts/check-doc-versions.sh
+```
+
+It fails when a doc pins a dependency version that is not `go.mod`'s (or a
+repo tag), or when the Go pins in `flake.nix`, `ci.yml`, and `.golangci.yml`
+fall out of lockstep with `go.mod`. For a genuinely historical version
+reference, append the marker `docguard:allow` to that line.
+
 To run the full BuildFlow suite (mirrors CI):
 
 ```sh
@@ -55,7 +72,8 @@ nix develop --command buildflow
 
 1. Fork the repository and create a feature branch.
 2. Make your changes in `nix develop`, keeping code formatted with `nix fmt`.
-3. Ensure `nix run .#test`, `nix run .#lint`, and `nix flake check` all pass.
+3. Ensure `nix run .#test`, `nix run .#lint`, `nix flake check`, and
+   `scripts/check-doc-versions.sh` all pass.
 4. Update `CHANGELOG.md` under the `[Unreleased]` section.
 5. Submit a pull request describing the change and its motivation.
 

@@ -143,8 +143,11 @@ jobs:
     timeout-minutes: 15
 
   # Simulates a stranger consuming the published module: clean directory, no
-  # VCS access, module proxy only, latest tagged version. Verifies what pkg.go.dev
-  # users actually get. Note: `@latest` resolves the newest TAG, so this lags
+  # VCS access, module proxy only, latest tagged version. Beyond building and
+  # running a hello-linter, it exercises the exact adoption APIs the six known
+  # consumers rely on (RuleFunc rules, Registry.Run, ExitCodeByConfidence,
+  # DetectorFromRegistry) — an adoption smoke test, not just a compile check.
+  # Note: `@latest` resolves the newest TAG, so this lags
   # master by design — it tests the published artifact, not the working tree.
   stranger-test:
     runs-on: ubuntu-latest
@@ -194,6 +197,20 @@ jobs:
           		os.Exit(2)
           	}
           	fmt.Println(len(report.ActiveFindings()), "finding(s)")
+
+          	// Adoption smoke test: exercise the consumer-facing helpers the
+          	// way real linters do (exit-code policy + detector adaptation).
+          	if code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); code == 0 {
+          		fmt.Println("ExitCodeByConfidence: expected nonzero for a report with findings")
+          		os.Exit(3)
+          	}
+          	detector := linter.DetectorFromRegistry(registry, "hello-linter")
+          	findings, err := detector.Detect(context.Background(), ".")
+          	if err != nil || len(findings) == 0 {
+          		fmt.Println("DetectorFromRegistry: expected findings, got none or error")
+          		os.Exit(4)
+          	}
+          	fmt.Println("adoption smoke test OK")
           }
           GOEOF
           go mod tidy
