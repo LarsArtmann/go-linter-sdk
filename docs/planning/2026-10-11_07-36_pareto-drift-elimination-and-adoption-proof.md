@@ -1,5 +1,18 @@
 # Pareto Execution Plan — Drift Elimination & Adoption Proof
 
+> **EXECUTED 2026-10-11 (same day, two parallel sessions).** All 25 medium
+> tasks (M1–M25) completed. Headline outcomes: CI gate repaired and green
+> (golangci-lint v2.14.0 for Go 1.27 export data); doc-drift guard shipped as
+> script + CI job + flake check, with living docs pointing at `go.mod`; stale
+> `goexperiment.*` build tags removed; converter deletion verified at source
+> level in all six consumers (4 MIGRATED, 2 documented PARTIAL —
+> `docs/ADOPTION.md`); benchmarks improved 20–30% vs baseline; five hermetic
+> flake checks; adoption smoke test in CI; bump checklist scripted; 20 status
+> reports archived; ROADMAP Q2/Q3 resolved; v0.4.0 tagged with green CI on the
+> exact commit. One deviation recorded in AGENTS.md: the release session pushed
+> the tag ~2 min before CI finished (run came back green). This file is a
+> snapshot artifact; see `CHANGELOG.md` (v0.4.0) for the narrative of record.
+
 - **Created:** 2026-10-11 07:36 CEST
 - **Repo:** `go-linter-sdk`
 - **Basis:** the 2026-10-11 session self-review
