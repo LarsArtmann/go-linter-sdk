@@ -11,14 +11,14 @@ keeps living docs version-pointered).
 
 ## Consumers
 
-| Repository | Integration pattern | Converter layer |
-| ---------- | ------------------- | --------------- |
-| `go-humanize-linter` | 11 rules as `linter.RuleFunc` in `linter.Registry`; CLI + golangci plugin | None — born native |
-| `cmdguard` (`cmdguard/lint`) | Rules as `linter.RuleFunc`; BuildFlow provider via `go-finding/toolsdk` `Spec` | None — born native |
-| `project-meta` (`project-meta/linter`) | `linter.RuleFunc` rules; `linter.Registry`; CLI exit via `linter.ExitCodeByConfidence` | None — born native |
-| `BuildFlow` (`tools/providers`) | Runs sibling registries in-process (`Registry.Run`); deleted its `PrioritizedViolation` hierarchy (~4,737 LOC) and 10 converter files in favor of `finding.Finding` | Deleted (see `BuildFlow/CHANGELOG.md`) |
-| `go-structure-linter` (pilot) | SDK registry/detectors under a rule-level adapter (`internal/rules/sdk_adapter.go`); local `types.Issue` is a **type alias** of `finding.Finding`, so no data translation exists | Converter struct deleted; adapter kept **by design** (ADR-003) |
-| `samber-linter` | Rules are `go/analysis` analyzers (golangci plugin contract); SDK supplies exit-code policy (`linter.ExitCodeByConfidence`) | Never had one; `analysis.Diagnostic → finding.Finding` mapping is documented design |
+| Repository                             | Integration pattern                                                                                                                                                              | Converter layer                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `go-humanize-linter`                   | 11 rules as `linter.RuleFunc` in `linter.Registry`; CLI + golangci plugin                                                                                                        | None — born native                                                                  |
+| `cmdguard` (`cmdguard/lint`)           | Rules as `linter.RuleFunc`; BuildFlow provider via `go-finding/toolsdk` `Spec`                                                                                                   | None — born native                                                                  |
+| `project-meta` (`project-meta/linter`) | `linter.RuleFunc` rules; `linter.Registry`; CLI exit via `linter.ExitCodeByConfidence`                                                                                           | None — born native                                                                  |
+| `BuildFlow` (`tools/providers`)        | Runs sibling registries in-process (`Registry.Run`); deleted its `PrioritizedViolation` hierarchy (~4,737 LOC) and 10 converter files in favor of `finding.Finding`              | Deleted (see `BuildFlow/CHANGELOG.md`)                                              |
+| `go-structure-linter` (pilot)          | SDK registry/detectors under a rule-level adapter (`internal/rules/sdk_adapter.go`); local `types.Issue` is a **type alias** of `finding.Finding`, so no data translation exists | Converter struct deleted; adapter kept **by design** (ADR-003)                      |
+| `samber-linter`                        | Rules are `go/analysis` analyzers (golangci plugin contract); SDK supplies exit-code policy (`linter.ExitCodeByConfidence`)                                                      | Never had one; `analysis.Diagnostic → finding.Finding` mapping is documented design |
 
 ## Verdicts on the core claim
 
@@ -62,7 +62,7 @@ Tracked snapshots; update alongside the refresh procedure.
 1. For each row above: `grep -rn "go-linter-sdk" <repo> --include="go.mod"`.
 2. Re-run the converter check: search the consumer for `type (Issue|Violation)`
    structs and `toFinding`-style translation functions; a finding is only a
-   problem if a *data* converter reappears (rule-level adapters documented as
+   problem if a _data_ converter reappears (rule-level adapters documented as
    deliberate, like `go-structure-linter` ADR-003, are acceptable).
 3. Update the table and this header's verification date.
 4. Record new consumers via the module proxy "Imported by" count on

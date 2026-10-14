@@ -17,7 +17,10 @@ cd "$repo"
 
 fail=0
 pass() { echo "  OK  $1"; }
-miss() { echo "  FAIL $1"; fail=1; }
+miss() {
+	echo "  FAIL $1"
+	fail=1
+}
 
 echo "Dependency-bump checklist for $(basename "$repo")"
 echo
@@ -29,13 +32,13 @@ echo "[2/8] Vet"
 GOWORK=off GOEXPERIMENT= go vet ./... && pass "go vet ./..." || miss "go vet ./..."
 
 echo "[3/8] Tests"
-GOWORK=off GOEXPERIMENT= go test ./... -count=1 > /tmp/bump-test.log 2>&1 && pass "go test ./..." || { miss "go test ./... (see /tmp/bump-test.log)"; }
+GOWORK=off GOEXPERIMENT= go test ./... -count=1 >/tmp/bump-test.log 2>&1 && pass "go test ./..." || { miss "go test ./... (see /tmp/bump-test.log)"; }
 
 echo "[4/8] Race"
-GOWORK=off GOEXPERIMENT= go test ./... -race -count=1 > /tmp/bump-race.log 2>&1 && pass "go test -race" || { miss "go test -race (see /tmp/bump-race.log)"; }
+GOWORK=off GOEXPERIMENT= go test ./... -race -count=1 >/tmp/bump-race.log 2>&1 && pass "go test -race" || { miss "go test -race (see /tmp/bump-race.log)"; }
 
 echo "[5/8] Lint"
-if command -v golangci-lint > /dev/null; then
+if command -v golangci-lint >/dev/null; then
 	GOWORK=off golangci-lint run --timeout=5m ./... && pass "golangci-lint" || miss "golangci-lint"
 else
 	miss "golangci-lint not on PATH (nix develop first)"

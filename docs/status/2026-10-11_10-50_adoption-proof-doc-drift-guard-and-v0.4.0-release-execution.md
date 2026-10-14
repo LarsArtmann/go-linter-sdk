@@ -15,16 +15,16 @@
 
 ## TL;DR
 
-| Metric | Value |
-| --- | --- |
-| Plan tasks completed | 25/25 (M1–M25), with named deviations |
-| CI state at session start | **RED** (lint job broken on Go 1.27) |
-| CI state now | **GREEN** — doc-drift, test×2, lint, fmt, govulncheck, nix, benchmarks, stranger-test |
-| Converter-deletion claim | **VERIFIED** at source level in all 6 consumers (was "unproven") |
-| Doc-drift | Structurally guarded: script + CI job + flake check; living docs point at `go.mod` |
-| Benchmarks vs 2026-09-09 baseline | All measured ops 20–30% faster, zero regressions |
-| Release | v0.4.0 (Go 1.26→1.27 floor = MINOR slot); tag pushed ~2 min before CI finished — green outcome, process violation recorded |
-| Honest failures | One claim-before-verification shipped in a commit; guard script took 3 debug iterations; version label decided without the user (plan said "with user") |
+| Metric                            | Value                                                                                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan tasks completed              | 25/25 (M1–M25), with named deviations                                                                                                                   |
+| CI state at session start         | **RED** (lint job broken on Go 1.27)                                                                                                                    |
+| CI state now                      | **GREEN** — doc-drift, test×2, lint, fmt, govulncheck, nix, benchmarks, stranger-test                                                                   |
+| Converter-deletion claim          | **VERIFIED** at source level in all 6 consumers (was "unproven")                                                                                        |
+| Doc-drift                         | Structurally guarded: script + CI job + flake check; living docs point at `go.mod`                                                                      |
+| Benchmarks vs 2026-09-09 baseline | All measured ops 20–30% faster, zero regressions                                                                                                        |
+| Release                           | v0.4.0 (Go 1.26→1.27 floor = MINOR slot); tag pushed ~2 min before CI finished — green outcome, process violation recorded                              |
+| Honest failures                   | One claim-before-verification shipped in a commit; guard script took 3 debug iterations; version label decided without the user (plan said "with user") |
 
 ---
 
@@ -70,14 +70,14 @@
      files for direct `finding.Finding` consumption (their CHANGELOG records
      the commits).
    - `go-structure-linter` — **PARTIAL by design**: `types.Issue` is a type
-     *alias* of `finding.Finding` (the data converter is gone); the rule-level
+     _alias_ of `finding.Finding` (the data converter is gone); the rule-level
      adapter is permanent per their ADR-003.
    - `samber-linter` — **PARTIAL by design**: never had a custom Issue type;
      rules are `go/analysis` analyzers (golangci plugin contract); SDK supplies
      exit-code policy.
-   The README's "no consumer has yet been verified to have deleted its
-   converter package" caveat is **gone** — replaced with the verified claim
-   and a link to `docs/ADOPTION.md`.
+     The README's "no consumer has yet been verified to have deleted its
+     converter package" caveat is **gone** — replaced with the verified claim
+     and a link to `docs/ADOPTION.md`.
 6. **Durable adoption doc (M7, TODO #11).** `docs/ADOPTION.md`: per-repo
    verdict table, what "adopted" means, metrics snapshot (6 direct consumers;
    60/31/3/1 go-finding version distribution across 95 go.mods; pkg.go.dev
@@ -131,7 +131,7 @@
    (consumers hit the proxy), but the frozen-README habit (AGENTS.md
    post-release) is not yet satisfied.
 2. **Adoption doc pinned-version column.** The plan (F34) said "fill 6
-   consumers + pinned versions"; the doc deliberately records *no* version
+   consumers + pinned versions"; the doc deliberately records _no_ version
    numbers (they'd rot on every consumer bump and trip the guard). Deviation
    is documented in the doc itself, but it IS a deviation from the plan text.
 3. **Guard script hardening.** Shipped correct (proven by tests), but never
@@ -259,58 +259,58 @@
 
 Ranked by impact. Effort S <30m, M 30m–2h, L >2h.
 
-| # | Task | Impact | Effort |
-| --- | --- | --- | --- |
-| 1 | Verify pkg.go.dev renders v0.4.0; if stale after hours, use "Request a version" (TODO #19) | Medium | S |
-| 2 | Bump the six consumer repos v0.3.1 → v0.4.0 (ecosystem bump wave) | High | M |
-| 3 | Add `shellcheck` flake check + CI job; fix findings in `scripts/*.sh` | High | S |
-| 4 | Commit a guard self-test (`--self-test` with synthetic fail/pass fixtures) | High | S |
-| 5 | Mechanical tag-rule CI check: fail if a pushed tag's commit lacks a green run | High | S |
-| 6 | Session-lock convention for release scopes (`release-in-progress.md` marker) | Medium | S |
-| 7 | Extend stranger-test to `DetectorsFromRegistry` (pipeline path) | Medium | S |
-| 8 | Benchmark regression automation: diff CI artifact vs `reports/benchmarks-baseline.txt`, fail >2× | Medium | M |
-| 9 | Split `registry_test.go` (1135 lines) into focused files | Medium | M |
-| 10 | Reduce `registry.go` (371 lines) below the 350-line threshold | Medium | M |
-| 11 | Reduce `examples/oops-redundant-guard/main.go` (367 lines) below 350 | Medium | S |
-| 12 | Extract duplication in `examples_integration_test.go` (22 art-dupl findings) | Medium | M |
-| 13 | Record the parallel-session lesson in crush-config `references/lessons.md` | Medium | S |
-| 14 | Decide `branching-flow` strong-ID suggestions (`RuleID` type) — implement or document | Medium | M |
-| 15 | File the BuildFlow `go-work-sync` improvement (ignore out-of-root `use` dirs) | Medium | S |
-| 16 | Rebuild + reinstall the BuildFlow binary so dogfooding isn't stale | Medium | M |
-| 17 | Investigate nixpkgs govulncheck's "requires go1.27" warnings | Low | M |
-| 18 | Triage vulnix CVEs; decide whether `nix flake update` is warranted | Medium | M |
-| 19 | Unset global-shell `GOEXPERIMENT=jsonv2` (user env; clears buildflow preflight warning) | Low | S |
-| 20 | Enforce `docguard:allow` auditability (count + locations in guard output) | Low | S |
-| 21 | Move LIVING_DOCS list in the guard to a shared config consumed by docs | Low | S |
-| 22 | Add ADOPTION.md refresh reminder into `bump-checklist.sh` manual steps | Low | S |
-| 23 | Automate "docs-only release → PATCH" labeling rule (CI check on tag diff) | Low | M |
-| 24 | Verify all README badges render correctly post-release | Low | S |
-| 25 | FAQ/README polish pass after adoption rewrite | Low | M |
-| 26 | Add `DetectorsFromRegistry` example to README patterns section | Low | S |
-| 27 | ROADMAP: `Filter` type for severity/category filtering — refine or park | Low | S |
-| 28 | ROADMAP: `NewRegistryFromRules` constructor — refine or park | Low | S |
-| 29 | ROADMAP: `Category.All()` — refine or park | Low | S |
-| 30 | ROADMAP: typed `RuleSet` wrapper — refine or park | Low | S |
-| 31 | ROADMAP: `ExitCodeFromFindings` convenience — refine or park | Low | S |
-| 32 | ROADMAP: O(1) map index alongside linear scans — benchmark-gate first | Low | M |
-| 33 | ROADMAP: `RuleFunc` generics evaluation — design spike, no commitment | Low | M |
-| 34 | Nix apps: `watch` (live test re-runs) | Low | S |
-| 35 | Nix apps: `tidy` (`GOWORK=off go mod tidy`) | Low | S |
-| 36 | Nix apps: `deps-update` | Low | S |
-| 37 | `direnv` setup and/or pre-commit hooks (`pre-commit-hooks.nix`) | Low | M |
-| 38 | Review `devShells.ci` — everything CI needs, nothing extra | Low | S |
-| 39 | `meta.position` on apps + `flake-schemas` for richer `nix flake show` | Low | S |
-| 40 | Reconcile `.golangci.yml` remaining formatters/linters against nixpkgs binary version drift (local nix golangci-lint vs CI v2.14.0 divergence) | Medium | S |
-| 41 | Confirm SECURITY.md 48-hour commitment is acceptable to the maintainer | Medium | S |
-| 42 | Align SUPPORT.md response-time wording with SECURITY.md | Low | S |
-| 43 | Track "Imported by" count monthly (ADOPTION.md metrics row per month) | Low | S |
-| 44 | Consumer-bump checklist derived from `bump-checklist.sh` (cross-repo variant) | Low | M |
-| 45 | Annotate `docs/planning` older plans as executed/archived (2026-08-08, 2026-09-09 plans) | Low | S |
-| 46 | Consider suppressing the permanent `internal/` buildflow warning in config (decide keep-vs-suppress) | Low | S |
-| 47 | Keep the `go.work` decision explicit in AGENTS.md (keep-and-document won; document the re-add procedure crisply) | Low | S |
-| 48 | Add `.golangci.yml` `run.go` to the doc-guard lockstep check (it checks it, but only when present — assert presence) | Low | S |
-| 49 | Evaluate Renovate vs Dependabot for nix inputs | Low | M |
-| 50 | Celebrate: the SDK's founding claim is now evidence-backed — update the project homepage/description if it says "unproven" anywhere | Low | S |
+| #  | Task                                                                                                                                           | Impact | Effort |
+| -- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
+| 1  | Verify pkg.go.dev renders v0.4.0; if stale after hours, use "Request a version" (TODO #19)                                                     | Medium | S      |
+| 2  | Bump the six consumer repos v0.3.1 → v0.4.0 (ecosystem bump wave)                                                                              | High   | M      |
+| 3  | Add `shellcheck` flake check + CI job; fix findings in `scripts/*.sh`                                                                          | High   | S      |
+| 4  | Commit a guard self-test (`--self-test` with synthetic fail/pass fixtures)                                                                     | High   | S      |
+| 5  | Mechanical tag-rule CI check: fail if a pushed tag's commit lacks a green run                                                                  | High   | S      |
+| 6  | Session-lock convention for release scopes (`release-in-progress.md` marker)                                                                   | Medium | S      |
+| 7  | Extend stranger-test to `DetectorsFromRegistry` (pipeline path)                                                                                | Medium | S      |
+| 8  | Benchmark regression automation: diff CI artifact vs `reports/benchmarks-baseline.txt`, fail >2×                                               | Medium | M      |
+| 9  | Split `registry_test.go` (1135 lines) into focused files                                                                                       | Medium | M      |
+| 10 | Reduce `registry.go` (371 lines) below the 350-line threshold                                                                                  | Medium | M      |
+| 11 | Reduce `examples/oops-redundant-guard/main.go` (367 lines) below 350                                                                           | Medium | S      |
+| 12 | Extract duplication in `examples_integration_test.go` (22 art-dupl findings)                                                                   | Medium | M      |
+| 13 | Record the parallel-session lesson in crush-config `references/lessons.md`                                                                     | Medium | S      |
+| 14 | Decide `branching-flow` strong-ID suggestions (`RuleID` type) — implement or document                                                          | Medium | M      |
+| 15 | File the BuildFlow `go-work-sync` improvement (ignore out-of-root `use` dirs)                                                                  | Medium | S      |
+| 16 | Rebuild + reinstall the BuildFlow binary so dogfooding isn't stale                                                                             | Medium | M      |
+| 17 | Investigate nixpkgs govulncheck's "requires go1.27" warnings                                                                                   | Low    | M      |
+| 18 | Triage vulnix CVEs; decide whether `nix flake update` is warranted                                                                             | Medium | M      |
+| 19 | Unset global-shell `GOEXPERIMENT=jsonv2` (user env; clears buildflow preflight warning)                                                        | Low    | S      |
+| 20 | Enforce `docguard:allow` auditability (count + locations in guard output)                                                                      | Low    | S      |
+| 21 | Move LIVING_DOCS list in the guard to a shared config consumed by docs                                                                         | Low    | S      |
+| 22 | Add ADOPTION.md refresh reminder into `bump-checklist.sh` manual steps                                                                         | Low    | S      |
+| 23 | Automate "docs-only release → PATCH" labeling rule (CI check on tag diff)                                                                      | Low    | M      |
+| 24 | Verify all README badges render correctly post-release                                                                                         | Low    | S      |
+| 25 | FAQ/README polish pass after adoption rewrite                                                                                                  | Low    | M      |
+| 26 | Add `DetectorsFromRegistry` example to README patterns section                                                                                 | Low    | S      |
+| 27 | ROADMAP: `Filter` type for severity/category filtering — refine or park                                                                        | Low    | S      |
+| 28 | ROADMAP: `NewRegistryFromRules` constructor — refine or park                                                                                   | Low    | S      |
+| 29 | ROADMAP: `Category.All()` — refine or park                                                                                                     | Low    | S      |
+| 30 | ROADMAP: typed `RuleSet` wrapper — refine or park                                                                                              | Low    | S      |
+| 31 | ROADMAP: `ExitCodeFromFindings` convenience — refine or park                                                                                   | Low    | S      |
+| 32 | ROADMAP: O(1) map index alongside linear scans — benchmark-gate first                                                                          | Low    | M      |
+| 33 | ROADMAP: `RuleFunc` generics evaluation — design spike, no commitment                                                                          | Low    | M      |
+| 34 | Nix apps: `watch` (live test re-runs)                                                                                                          | Low    | S      |
+| 35 | Nix apps: `tidy` (`GOWORK=off go mod tidy`)                                                                                                    | Low    | S      |
+| 36 | Nix apps: `deps-update`                                                                                                                        | Low    | S      |
+| 37 | `direnv` setup and/or pre-commit hooks (`pre-commit-hooks.nix`)                                                                                | Low    | M      |
+| 38 | Review `devShells.ci` — everything CI needs, nothing extra                                                                                     | Low    | S      |
+| 39 | `meta.position` on apps + `flake-schemas` for richer `nix flake show`                                                                          | Low    | S      |
+| 40 | Reconcile `.golangci.yml` remaining formatters/linters against nixpkgs binary version drift (local nix golangci-lint vs CI v2.14.0 divergence) | Medium | S      |
+| 41 | Confirm SECURITY.md 48-hour commitment is acceptable to the maintainer                                                                         | Medium | S      |
+| 42 | Align SUPPORT.md response-time wording with SECURITY.md                                                                                        | Low    | S      |
+| 43 | Track "Imported by" count monthly (ADOPTION.md metrics row per month)                                                                          | Low    | S      |
+| 44 | Consumer-bump checklist derived from `bump-checklist.sh` (cross-repo variant)                                                                  | Low    | M      |
+| 45 | Annotate `docs/planning` older plans as executed/archived (2026-08-08, 2026-09-09 plans)                                                       | Low    | S      |
+| 46 | Consider suppressing the permanent `internal/` buildflow warning in config (decide keep-vs-suppress)                                           | Low    | S      |
+| 47 | Keep the `go.work` decision explicit in AGENTS.md (keep-and-document won; document the re-add procedure crisply)                               | Low    | S      |
+| 48 | Add `.golangci.yml` `run.go` to the doc-guard lockstep check (it checks it, but only when present — assert presence)                           | Low    | S      |
+| 49 | Evaluate Renovate vs Dependabot for nix inputs                                                                                                 | Low    | M      |
+| 50 | Celebrate: the SDK's founding claim is now evidence-backed — update the project homepage/description if it says "unproven" anywhere            | Low    | S      |
 
 ---
 
