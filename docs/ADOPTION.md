@@ -57,6 +57,26 @@ Tracked snapshots; update alongside the refresh procedure.
   the rest of the adoption is private or unindexed; the go.mod scan is the
   more complete signal.
 
+**2026-10-15 (bump wave):**
+
+- All six direct consumers at **v0.4.0**. Four were already bumped by their
+  own sessions (go-structure-linter, samber-linter, go-humanize-linter, and
+  all three BuildFlow modules); this session bumped `cmdguard/lint` and
+  `project-meta/linter` (`go get` + tidy with go.work renamed during the
+  write; build + `go test` + `-race` + `go mod verify` green; re-verified
+  via go.mod grep after).
+- Additive check done at source: the v0.3.1→v0.4.0 exported-symbol delta is
+  tests/benchmarks plus three new `Category` constants — no removals, no
+  renames.
+- samber-linter master carries one red test (`TestGoWorkMultiModule` in
+  internal/driver: HW-1 fixture expectation not firing); **bisect-proven
+  pre-existing** — fails identically at v0.3.1; restored to v0.4.0 after.
+- BuildFlow local gates were skipped deliberately: its working tree carried
+  an uncommitted local `replace` plus an in-flight submodule bump from a
+  concurrent session, so local runs would have measured the replace target,
+  not the tag. Its CI is the verification layer.
+- pkg.go.dev "Imported by": **3** (unchanged, re-verified 2026-10-15).
+
 ## Refresh procedure
 
 1. For each row above: `grep -rn "go-linter-sdk" <repo> --include="go.mod"`.

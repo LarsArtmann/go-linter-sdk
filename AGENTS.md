@@ -208,6 +208,18 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
      daemon commits but never pushes; pushing manually at end-of-session is
      now a mandatory step. (Option (c), daemon-pushes-on-green-CI, stays off
      the table while branch protection might ever be enabled.)
+- **User decisions recorded 2026-10-15 (ratifying the v0.4.0 release):**
+  1. **Version policy: keep the `0.x` prefix; the MINOR-vs-PATCH slot choice
+     within 0.x is delegated** ("just keep 0.* in front, everything else I do
+     not care about"). v0.4.0 stands; the 2026-09-09 slot rules remain the
+     working default.
+  2. **Concurrent release races: risk accepted (status quo).** No lock policy;
+     the 2026-10-11 tag-before-CI incident remains a recorded deviation, not
+     a process change.
+  3. **Consumer bump wave executed 2026-10-15** — all six consumers at v0.4.0
+     (cmdguard/lint and project-meta/linter bumped here; the other four were
+     already bumped by their own sessions). Evidence:
+     `docs/ADOPTION.md` 2026-10-15 snapshot.
 - **Auto-git daemon manages commits.** The daemon commits automatically with
   generated messages (sometimes low-quality). Do not rewrite history to fix
   them — `CHANGELOG.md` is the narrative of record. Focus on keeping the
@@ -247,8 +259,8 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
 
 ## Consumers
 
-Six direct consumers at `v0.3.1` (verified 2026-10-11 via `go.mod` grep plus a
-project-dependency-graph scan of `~/projects`; roughly 60 further indirect
+Six direct consumers at `v0.4.0` (bump wave executed 2026-10-15 with
+build + `go test` + `go mod verify` gates; roughly 60 further indirect
 importers):
 
 | Consumer              | Notes                                       |
