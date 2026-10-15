@@ -35,14 +35,10 @@ CHANGELOG entry.)
 
 ### Release
 
-- **#19 — Verify pkg.go.dev renders v0.4.0.** The module proxy already serves
-  v0.4.0 and resolves `@latest` to it (verified 2026-10-11 via `go get` +
-  `go list -m @latest`), but pkg.go.dev's crawler still rendered v0.3.1 ~25
-  minutes after tagging. Re-check `https://pkg.go.dev/github.com/larsartmann/go-linter-sdk`
-  — it should flip to v0.4.0 with the frozen v0.4.0 README (Go 1.27+
-  requirement, "Status: Early, adopted, proven" line). If still stale after a
-  few hours, request the version via pkg.go.dev's "Request a version" flow.
-  Impact: Low (cosmetic; consumers hit the proxy, not the site).
+None open. (#19 pkg.go.dev verification completed 2026-10-15: the site serves
+v0.4.0 as Latest with the frozen v0.4.0 README — verified mechanically from
+the page's raw HTML (breadcrumb `go-linter-sdk@v0.4.0`, `Version: v0.4.0`,
+`Published: Oct 11, 2026`); no "Request a version" escalation was needed.)
 
 ### Dependency hygiene
 

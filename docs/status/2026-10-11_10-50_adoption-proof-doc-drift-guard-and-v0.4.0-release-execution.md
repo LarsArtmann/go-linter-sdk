@@ -130,6 +130,9 @@
    and an escalation path ("Request a version" flow). Not user-visible harm
    (consumers hit the proxy), but the frozen-README habit (AGENTS.md
    post-release) is not yet satisfied.
+   **RESOLVED 2026-10-15:** pkg.go.dev now serves v0.4.0 as Latest with the
+   frozen v0.4.0 README (verified from the page's raw HTML); no escalation
+   was needed. TODO_LIST #19 closed.
 2. **Adoption doc pinned-version column.** The plan (F34) said "fill 6
    consumers + pinned versions"; the doc deliberately records _no_ version
    numbers (they'd rot on every consumer bump and trip the guard). Deviation
