@@ -44,7 +44,7 @@ Core types in package `linter`:
 - **`DetectorFromRegistry`** — adapts a registry to a single `finding.Detector` for BuildFlow integration. Reads working dir from context.
 - **`DetectorsFromRegistry`** — returns `[]finding.Detector` (one per rule) for `go-finding/pipeline` integration with per-rule parallelism, timeouts, and error isolation. Each detector is named after the rule's ID.
 - **`ExitCodeFromReport`** — binary: 0 if clean, 1 if any findings.
-- **`Category`** is an open `string` type. The 11 built-in constants (fixed 2026-10-15: README/AGENTS said 8 while `rule.go` ships 11) are recommendations; consumers can define custom categories (`Category("api")`).
+- **`Category`** is an open `string` type. The 11 built-in constants are recommendations; consumers can define custom categories (`Category("api")`).
 - **`finding.Confidence` and `finding.FixStrategy`** are per-finding, set via `finding.NewBuilder(...).WithConfidence(...).WithFixStrategy(...)`. More expressive than rule-level defaults.
 
 ### Error Wrapping Pattern
