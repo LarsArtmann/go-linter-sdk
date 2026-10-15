@@ -314,12 +314,12 @@ for _, ruleErr := range linter.RuleErrors(err) {
 }
 ```
 
-| Symbol              | Purpose                                                          |
-| ------------------- | ---------------------------------------------------------------- |
-| `*RuleError`        | Wraps a rule failure; `RuleID` names the failing rule            |
-| `RuleErrors(err)`   | Extract every `*RuleError` from a joined or wrapped error        |
-| `ErrRuleFailed`     | Sentinel matched by `errors.Is` for any rule failure             |
-| `NewRuleError(...)` | Wrap a cause as a `*RuleError` when implementing your own runner |
+| Symbol              | Purpose                                                           |
+| ------------------- | ----------------------------------------------------------------- |
+| `*RuleError`        | Wraps a rule failure; `RuleID` names the failing rule             |
+| `RuleErrors(err)`   | Extract every `*RuleError` from a joined or wrapped error         |
+| `ErrRuleFailed`     | Sentinel matched by `errors.Is` for any rule failure              |
+| `NewRuleError(...)` | Wrap a cause as a `*RuleError` when implementing your own runner  |
 | `ErrMissingFields`  | Sentinel wrapped into `Register`'s panic on empty identity fields |
 
 ---
