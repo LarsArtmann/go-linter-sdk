@@ -13,21 +13,21 @@ bisect-proven unrelated to the SDK.
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-| - | ---- | -------- |
-| 1 | **TODO #19 closed: pkg.go.dev renders v0.4.0.** Verified mechanically from the page's raw HTML (no summarizer): breadcrumb `go-linter-sdk@v0.4.0`, `Version: v0.4.0` + `Latest` chip, `Published: Oct 11, 2026`, README rendered from the v0.4.0 tag. No "Request a version" escalation needed. | TODO_LIST.md Release section rewritten to "None open"; 2026-10-11 status report annotated inline (`RESOLVED 2026-10-15`); commit `6dc7ebf` |
-| 2 | **Silent post-tag dependency bump given a narrative.** Master's `go-finding` v1.14.0 → v1.15.0 (transitive `go-error-family` v0.11.0 → v0.12.0) had landed in auto-commit `154c20a` with zero documentation anywhere (proven: repo-wide grep + `git log -S`). Recorded in CHANGELOG `[Unreleased]` with upstream content verified from go-finding's own CHANGELOG via GitHub API (source-compatible `DetectorV2` coverage channel; `Detector` unchanged). | CHANGELOG.md; doc guard green |
-| 3 | **Three user decisions taken and recorded in AGENTS.md** (2026-10-15 block): (1) version policy = keep `0.x` prefix, MINOR-vs-PATCH slot nuance delegated, v0.4.0 stands; (2) concurrent release races accepted as status quo; (3) consumer bump wave approved and executed. | AGENTS.md "User decisions recorded 2026-10-15" |
-| 4 | **Bump classified additive at source, not from CHANGELOGs.** Exported-symbol diff v0.3.1→v0.4.0: three new `Category` constants + tests/benchmarks only; the 8 non-test lines are a `//nolint` rename and a doc comment. Published v0.4.0 go.mod inspected from the module cache (`go 1.27`, `go-finding v1.14.0`). | `git diff v0.3.1..v0.4.0` symbol grep; `@v/v0.4.0.mod` |
-| 5 | **All six consumers enumerated with hazard sweep** (full-depth `find`, go.work/vendor/replace checks, dirty-tree checks). Discovered the ecosystem had moved since 2026-10-11: four of six already at v0.4.0 via their own sessions. | Sweep output; ADOPTION.md 2026-10-15 snapshot |
-| 6 | **cmdguard/lint bumped v0.3.1 → v0.4.0** with go.work hygiene (renamed during `go get`, restored after), `GOWORK=off` throughout, version grep-verified post-mutation. Baseline recorded first (F11): build green, one pre-existing red. | cmdguard `8fd9f26` (daemon), lint/go.mod |
-| 7 | **project-meta/linter bumped v0.3.1 → v0.4.0**, same hygiene. Pre-existing untidy go.mod found at baseline and tidied (aligned transitive go-error-family to v0.12.0 + go.sum hashes) before bumping, so the baseline was measurable. | project-meta `5e527d5` (daemon), linter/go.mod |
-| 8 | **Phase-4 verification on both bumped modules:** `go build`, `go test ./...`, `go test -race ./...`, `go mod verify` — all green; failing-test count compared against baseline (cmdguard: same single pre-existing red, no new failures). | Session gate runs |
-| 9 | **cmdguard's pre-existing red closed:** `TestReadmeRuleTableInSync` (README rule table drifted from `allRuleDefs()`). Regenerated with the module's own command; committed `2e1c122`. | cmdguard `2e1c122` |
-| 10 | **cmdguard guard/dprint split-brain fixed at root cause** (the deep item of the session — see d1 for how it bit): `RuleTableMarkdown()` now emits dprint's exact padded table format (byte-equality proven against dprint's own output), and the drift guard compares trimmed content so dprint's ownership of surrounding blank lines stops breaking the byte-for-byte pin. All three gates — guard test, `dprint check`, `go vet` — green simultaneously, full lint suite green at HEAD. | cmdguard `752a5fc` (daemon-swept), lint/rules_table.go + rules_table_test.go |
-| 11 | **samber-linter failure classified by direct bisect, not speculation:** `TestGoWorkMultiModule` (internal/driver, HW-1 fixture) fails **identically at v0.3.1** → pre-existing, not v0.4.0-caused. Restored to v0.4.0, tree clean. | Bisect run in session; ADOPTION.md snapshot |
-| 12 | **Wave evidence written where it lives:** ADOPTION.md 2026-10-15 snapshot (wave execution, additive proof, samber bisect verdict, BuildFlow skip rationale, "Imported by: 3" re-verified unchanged from the raw pkg.go.dev HTML); AGENTS.md Consumers table updated to v0.4.0. | ADOPTION.md; AGENTS.md; commit `7ebfa21` |
-| 13 | **Everything committed; go-linter-sdk pushed and CI-green at HEAD `7ebfa21`** (CI + Dependency Graph, success). Doc guard green after every doc edit (it validates CHANGELOG version mentions against go.mod — caught nothing stale after the `[Unreleased]` entry). | `gh run list`; `scripts/check-doc-versions.sh` |
+| #  | Item                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Evidence                                                                                                                                   |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1  | **TODO #19 closed: pkg.go.dev renders v0.4.0.** Verified mechanically from the page's raw HTML (no summarizer): breadcrumb `go-linter-sdk@v0.4.0`, `Version: v0.4.0` + `Latest` chip, `Published: Oct 11, 2026`, README rendered from the v0.4.0 tag. No "Request a version" escalation needed.                                                                                                                                                                                            | TODO_LIST.md Release section rewritten to "None open"; 2026-10-11 status report annotated inline (`RESOLVED 2026-10-15`); commit `6dc7ebf` |
+| 2  | **Silent post-tag dependency bump given a narrative.** Master's `go-finding` v1.14.0 → v1.15.0 (transitive `go-error-family` v0.11.0 → v0.12.0) had landed in auto-commit `154c20a` with zero documentation anywhere (proven: repo-wide grep + `git log -S`). Recorded in CHANGELOG `[Unreleased]` with upstream content verified from go-finding's own CHANGELOG via GitHub API (source-compatible `DetectorV2` coverage channel; `Detector` unchanged).                                  | CHANGELOG.md; doc guard green                                                                                                              |
+| 3  | **Three user decisions taken and recorded in AGENTS.md** (2026-10-15 block): (1) version policy = keep `0.x` prefix, MINOR-vs-PATCH slot nuance delegated, v0.4.0 stands; (2) concurrent release races accepted as status quo; (3) consumer bump wave approved and executed.                                                                                                                                                                                                               | AGENTS.md "User decisions recorded 2026-10-15"                                                                                             |
+| 4  | **Bump classified additive at source, not from CHANGELOGs.** Exported-symbol diff v0.3.1→v0.4.0: three new `Category` constants + tests/benchmarks only; the 8 non-test lines are a `//nolint` rename and a doc comment. Published v0.4.0 go.mod inspected from the module cache (`go 1.27`, `go-finding v1.14.0`).                                                                                                                                                                        | `git diff v0.3.1..v0.4.0` symbol grep; `@v/v0.4.0.mod`                                                                                     |
+| 5  | **All six consumers enumerated with hazard sweep** (full-depth `find`, go.work/vendor/replace checks, dirty-tree checks). Discovered the ecosystem had moved since 2026-10-11: four of six already at v0.4.0 via their own sessions.                                                                                                                                                                                                                                                       | Sweep output; ADOPTION.md 2026-10-15 snapshot                                                                                              |
+| 6  | **cmdguard/lint bumped v0.3.1 → v0.4.0** with go.work hygiene (renamed during `go get`, restored after), `GOWORK=off` throughout, version grep-verified post-mutation. Baseline recorded first (F11): build green, one pre-existing red.                                                                                                                                                                                                                                                   | cmdguard `8fd9f26` (daemon), lint/go.mod                                                                                                   |
+| 7  | **project-meta/linter bumped v0.3.1 → v0.4.0**, same hygiene. Pre-existing untidy go.mod found at baseline and tidied (aligned transitive go-error-family to v0.12.0 + go.sum hashes) before bumping, so the baseline was measurable.                                                                                                                                                                                                                                                      | project-meta `5e527d5` (daemon), linter/go.mod                                                                                             |
+| 8  | **Phase-4 verification on both bumped modules:** `go build`, `go test ./...`, `go test -race ./...`, `go mod verify` — all green; failing-test count compared against baseline (cmdguard: same single pre-existing red, no new failures).                                                                                                                                                                                                                                                  | Session gate runs                                                                                                                          |
+| 9  | **cmdguard's pre-existing red closed:** `TestReadmeRuleTableInSync` (README rule table drifted from `allRuleDefs()`). Regenerated with the module's own command; committed `2e1c122`.                                                                                                                                                                                                                                                                                                      | cmdguard `2e1c122`                                                                                                                         |
+| 10 | **cmdguard guard/dprint split-brain fixed at root cause** (the deep item of the session — see d1 for how it bit): `RuleTableMarkdown()` now emits dprint's exact padded table format (byte-equality proven against dprint's own output), and the drift guard compares trimmed content so dprint's ownership of surrounding blank lines stops breaking the byte-for-byte pin. All three gates — guard test, `dprint check`, `go vet` — green simultaneously, full lint suite green at HEAD. | cmdguard `752a5fc` (daemon-swept), lint/rules_table.go + rules_table_test.go                                                               |
+| 11 | **samber-linter failure classified by direct bisect, not speculation:** `TestGoWorkMultiModule` (internal/driver, HW-1 fixture) fails **identically at v0.3.1** → pre-existing, not v0.4.0-caused. Restored to v0.4.0, tree clean.                                                                                                                                                                                                                                                         | Bisect run in session; ADOPTION.md snapshot                                                                                                |
+| 12 | **Wave evidence written where it lives:** ADOPTION.md 2026-10-15 snapshot (wave execution, additive proof, samber bisect verdict, BuildFlow skip rationale, "Imported by: 3" re-verified unchanged from the raw pkg.go.dev HTML); AGENTS.md Consumers table updated to v0.4.0.                                                                                                                                                                                                             | ADOPTION.md; AGENTS.md; commit `7ebfa21`                                                                                                   |
+| 13 | **Everything committed; go-linter-sdk pushed and CI-green at HEAD `7ebfa21`** (CI + Dependency Graph, success). Doc guard green after every doc edit (it validates CHANGELOG version mentions against go.mod — caught nothing stale after the `[Unreleased]` entry).                                                                                                                                                                                                                       | `gh run list`; `scripts/check-doc-versions.sh`                                                                                             |
 
 ## b) PARTIALLY DONE
 
@@ -119,71 +119,71 @@ bisect-proven unrelated to the SDK.
    BuildFlow tells the next session why a stranger declined to run its gates.
 9. **The question-tool batch at the moment of decision worked well** (3 policy decisions in one round, zero
    back-and-forth). Use it at decision time instead of parking questions in reports.
-10. **Update the adoption table format to carry verification *mode*, not just date** (e.g. "grep-only" vs
+10. **Update the adoption table format to carry verification _mode_, not just date** (e.g. "grep-only" vs
     "grep+build+test") so partial verification like BuildFlow's is visible without reading prose.
 
 ## f) Up to 50 things we should get done next
 
 Brainstorm, sorted roughly by impact — items 1–12 are the real queue; the rest is ROADMAP fuel and needs HARVEST routing.
 
-| #  | Task                                                                                                                                       | Impact | Size |
-| -- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ---- |
-| 1  | Push cmdguard (`2e1c122`, `752a5fc`) and project-meta (`5e527d5`) to origin; confirm their CI goes green                                     | High   | S    |
-| 2  | Diagnose samber-linter `TestGoWorkMultiModule` (HW-1 fixture) at source; fix in samber-linter or file with verified diagnosis                | High   | M    |
-| 3  | Decide the release vehicle for CHANGELOG `[Unreleased]` (v0.4.1 PATCH now vs accumulate) and cut it per go-release (tag after green CI)      | High   | M    |
-| 4  | Run ADOPTION refresh step 2 fully: converter-deletion re-scan across all six consumers, refresh verdicts                                     | High   | M    |
-| 5  | Post-release: re-verify pkg.go.dev renders the new tag with the refreshed README (frozen-README habit)                                       | Med    | S    |
-| 6  | Harvest this section into TODO_LIST.md / ROADMAP.md (docs-health HARVEST) and annotate this report as items complete                          | Med    | S    |
-| 7  | Sweep `~/projects` for NEW direct consumers since 2026-10-11 (dependency-graph scan); update ADOPTION table                                  | Med    | M    |
-| 8  | Re-run the go-finding version-distribution scan (60/31/4 snapshot is from 2026-10-11)                                                        | Med    | S    |
-| 9  | Check whether branching-flow and erraudit (pilot-rule donors) now import the SDK; if so, add to ADOPTION                                      | Med    | S    |
-| 10 | Re-run benchmarks vs the 2026-10-11 baseline after the go-finding v1.15.0 bump; refresh baseline file                                        | Med    | S    |
-| 11 | BuildFlow: resolve the local `replace` on go-linter-sdk once its in-flight submodule wave lands (commit or discard, record in that repo)     | Med    | S    |
-| 12 | Make ADOPTION verification-mode explicit per row (grep-only vs build+test) so partial verification is visible                                | Med    | S    |
-| 13 | Record "re-run gate after formatter mutation" in the fleet lessons file (cross-project failure mode, 2 occurrences)                          | Med    | S    |
-| 14 | cmdguard: decide whether `website/src/styles/global.out.css` (generated, now 1,537 lines in history) should be gitignored                    | Med    | S    |
-| 15 | cmdguard: AGENTS.md is 359 lines (fleet doc guard wants ≤220) — split detailed content into docs/                                             | Med    | M    |
-| 16 | cmdguard: evaluate toolsdk v1.15.0 adoption re: `lint/provider/provider.go:33` missing `SwitchCases` finding                                 | Med    | M    |
-| 17 | cmdguard: fix go-humanize-linter warning `main.go:193` (manual pluralization)                                                                | Low    | S    |
-| 18 | cmdguard: investigate duplicate go-humanize-linter findings ([lint] + [root]) — module fan-out dedup question for BuildFlow                  | Low    | M    |
-| 19 | cmdguard: add dprint, tailwindcss, vulnix to devShells.default (kills the nix-fallback warnings every run)                                   | Low    | S    |
-| 20 | cmdguard: rebuild stale `result` symlink (`nix build .# -o result`) to quiet vulnix advisory                                                 | Low    | S    |
-| 21 | cmdguard: rebuild/reinstall the stale BuildFlow binary (built at `518739c`, HEAD `d114f28`)                                                  | Low    | S    |
-| 22 | cmdguard: migrate or delete legacy `~/.cache/buildflow/buildflow.db`                                                                         | Low    | S    |
-| 23 | cmdguard: fix or blocklist the tsc `type-check`/`tsconfig-check` environment failures (nix-copy noise, no real diagnostics)                  | Low    | S    |
-| 24 | cmdguard: trim the pre-commit step set (budget 60s, actual ~2min) to shrink daemon race windows                                              | Low    | M    |
-| 25 | project-meta: normalize `go 1.27.1` patch-floor to `go 1.27` in go.mod + go.work (fleet rule: major.minor only)                              | Low    | S    |
-| 26 | project-meta: give bump `5e527d5` a narrative entry in its CHANGELOG if the repo keeps one                                                   | Low    | S    |
-| 27 | cmdguard + project-meta: pin `-race` in their CI for the lint modules (verified locally this session, CI coverage unconfirmed)               | Low    | S    |
-| 28 | Verify the go.work rename/restore left zero residue in cmdguard and project-meta (committed vs ignored state)                                | Low    | S    |
-| 29 | Watch go-finding sub-module tags (toolsdk v1.15.0 leads root) for SDK-relevant surface; scan on next bump                                     | Low    | S    |
-| 30 | go-linter-sdk: review `[Unreleased]` wording for the go-error-family indirect bump accuracy before any release                                | Low    | S    |
-| 31 | go-linter-sdk: check this repo's AGENTS.md against the fleet agents-md-size guard (cmdguard's tripped at 359/220)                             | Low    | S    |
-| 32 | go-linter-sdk: evaluate `DetectorV2`/coverage-channel adoption surface from go-finding v1.15.0 (ROADMAP candidate)                            | Med    | M    |
-| 33 | Track GO-2026-6617 (stdlib HTTP/2 HPACK race, flagged by govulncheck in cmdguard); bump toolchain when the fix lands                          | Med    | S    |
-| 34 | go-linter-sdk: confirm the stranger-test CI job exercised v0.4.0 (it resolves `@latest`) — evidence in last green run                         | Low    | S    |
-| 35 | Annotate the 2026-10-11 report's remaining section-f items that later sessions complete (only #19 annotated so far)                           | Low    | S    |
-| 36 | go-linter-sdk: consider folding "docs-only PATCH refreshes pkg.go.dev README" into the release checklist explicitly                          | Low    | S    |
-| 37 | samber-linter: after fixing #2, re-run its full suite and re-certify the consumer in ADOPTION                                                | Med    | S    |
-| 38 | go-humanize-linter, go-structure-linter: their bumps were done by their own sessions without cross-verification evidence — spot-check their gates | Low | S    |
-| 39 | BuildFlow: wait for its CI on the in-flight submodule wave, then re-issue the wave verification for all three modules                         | Med    | S    |
-| 40 | Fleet: standardize "record-and-skip leaves a dated note in the skipped repo" (BuildFlow case)                                                | Low    | S    |
-| 41 | go-linter-sdk: add the samber bisect pattern (two-command version bisect) to the migration guide's pitfalls section                          | Low    | S    |
-| 42 | Fleet: propose a BuildFlow step that re-runs the last gate after any auto-fix rewrote a file (upstream fix for d1)                            | Med    | M    |
-| 43 | go-linter-sdk: ROADMAP entry for consumer-facing DetectorV2 passthrough (coverage evidence flows only if the SDK's detectors implement it)    | Low    | S    |
-| 44 | cmdguard: post-fix, add a regression test that RuleTableMarkdown output is dprint-stable (round-trip property test)                           | Low    | S    |
-| 45 | project-meta: confirm its daemon-committed go.sum state passes its own CI (unpushed)                                                          | Low    | S    |
-| 46 | go-linter-sdk: consider noting the "Imported by: 3" refresh cadence in ADOPTION (manual check each wave)                                      | Low    | S    |
-| 47 | Sweep stale sibling dirs (`BuildFlow-pr44`, `BuildFlow.vendor.bak`) — delete or document why they stay                                        | Low    | S    |
-| 48 | go-linter-sdk: examples' README claims vs master rule count (frozen-tag drift recurs each release; automate a check?)                         | Low    | M    |
-| 49 | Fleet: decide whether ecosystem waves should auto-push consumer commits (ties to g1)                                                          | Med    | S    |
-| 50 | Debrief: was skipping BuildFlow's local gates the right call? (Ask g3; record the verdict as a precedent)                                     | Low    | S    |
+| #  | Task                                                                                                                                              | Impact | Size |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---- |
+| 1  | Push cmdguard (`2e1c122`, `752a5fc`) and project-meta (`5e527d5`) to origin; confirm their CI goes green                                          | High   | S    |
+| 2  | Diagnose samber-linter `TestGoWorkMultiModule` (HW-1 fixture) at source; fix in samber-linter or file with verified diagnosis                     | High   | M    |
+| 3  | Decide the release vehicle for CHANGELOG `[Unreleased]` (v0.4.1 PATCH now vs accumulate) and cut it per go-release (tag after green CI)           | High   | M    |
+| 4  | Run ADOPTION refresh step 2 fully: converter-deletion re-scan across all six consumers, refresh verdicts                                          | High   | M    |
+| 5  | Post-release: re-verify pkg.go.dev renders the new tag with the refreshed README (frozen-README habit)                                            | Med    | S    |
+| 6  | Harvest this section into TODO_LIST.md / ROADMAP.md (docs-health HARVEST) and annotate this report as items complete                              | Med    | S    |
+| 7  | Sweep `~/projects` for NEW direct consumers since 2026-10-11 (dependency-graph scan); update ADOPTION table                                       | Med    | M    |
+| 8  | Re-run the go-finding version-distribution scan (60/31/4 snapshot is from 2026-10-11)                                                             | Med    | S    |
+| 9  | Check whether branching-flow and erraudit (pilot-rule donors) now import the SDK; if so, add to ADOPTION                                          | Med    | S    |
+| 10 | Re-run benchmarks vs the 2026-10-11 baseline after the go-finding v1.15.0 bump; refresh baseline file                                             | Med    | S    |
+| 11 | BuildFlow: resolve the local `replace` on go-linter-sdk once its in-flight submodule wave lands (commit or discard, record in that repo)          | Med    | S    |
+| 12 | Make ADOPTION verification-mode explicit per row (grep-only vs build+test) so partial verification is visible                                     | Med    | S    |
+| 13 | Record "re-run gate after formatter mutation" in the fleet lessons file (cross-project failure mode, 2 occurrences)                               | Med    | S    |
+| 14 | cmdguard: decide whether `website/src/styles/global.out.css` (generated, now 1,537 lines in history) should be gitignored                         | Med    | S    |
+| 15 | cmdguard: AGENTS.md is 359 lines (fleet doc guard wants ≤220) — split detailed content into docs/                                                 | Med    | M    |
+| 16 | cmdguard: evaluate toolsdk v1.15.0 adoption re: `lint/provider/provider.go:33` missing `SwitchCases` finding                                      | Med    | M    |
+| 17 | cmdguard: fix go-humanize-linter warning `main.go:193` (manual pluralization)                                                                     | Low    | S    |
+| 18 | cmdguard: investigate duplicate go-humanize-linter findings ([lint] + [root]) — module fan-out dedup question for BuildFlow                       | Low    | M    |
+| 19 | cmdguard: add dprint, tailwindcss, vulnix to devShells.default (kills the nix-fallback warnings every run)                                        | Low    | S    |
+| 20 | cmdguard: rebuild stale `result` symlink (`nix build .# -o result`) to quiet vulnix advisory                                                      | Low    | S    |
+| 21 | cmdguard: rebuild/reinstall the stale BuildFlow binary (built at `518739c`, HEAD `d114f28`)                                                       | Low    | S    |
+| 22 | cmdguard: migrate or delete legacy `~/.cache/buildflow/buildflow.db`                                                                              | Low    | S    |
+| 23 | cmdguard: fix or blocklist the tsc `type-check`/`tsconfig-check` environment failures (nix-copy noise, no real diagnostics)                       | Low    | S    |
+| 24 | cmdguard: trim the pre-commit step set (budget 60s, actual ~2min) to shrink daemon race windows                                                   | Low    | M    |
+| 25 | project-meta: normalize `go 1.27.1` patch-floor to `go 1.27` in go.mod + go.work (fleet rule: major.minor only)                                   | Low    | S    |
+| 26 | project-meta: give bump `5e527d5` a narrative entry in its CHANGELOG if the repo keeps one                                                        | Low    | S    |
+| 27 | cmdguard + project-meta: pin `-race` in their CI for the lint modules (verified locally this session, CI coverage unconfirmed)                    | Low    | S    |
+| 28 | Verify the go.work rename/restore left zero residue in cmdguard and project-meta (committed vs ignored state)                                     | Low    | S    |
+| 29 | Watch go-finding sub-module tags (toolsdk v1.15.0 leads root) for SDK-relevant surface; scan on next bump                                         | Low    | S    |
+| 30 | go-linter-sdk: review `[Unreleased]` wording for the go-error-family indirect bump accuracy before any release                                    | Low    | S    |
+| 31 | go-linter-sdk: check this repo's AGENTS.md against the fleet agents-md-size guard (cmdguard's tripped at 359/220)                                 | Low    | S    |
+| 32 | go-linter-sdk: evaluate `DetectorV2`/coverage-channel adoption surface from go-finding v1.15.0 (ROADMAP candidate)                                | Med    | M    |
+| 33 | Track GO-2026-6617 (stdlib HTTP/2 HPACK race, flagged by govulncheck in cmdguard); bump toolchain when the fix lands                              | Med    | S    |
+| 34 | go-linter-sdk: confirm the stranger-test CI job exercised v0.4.0 (it resolves `@latest`) — evidence in last green run                             | Low    | S    |
+| 35 | Annotate the 2026-10-11 report's remaining section-f items that later sessions complete (only #19 annotated so far)                               | Low    | S    |
+| 36 | go-linter-sdk: consider folding "docs-only PATCH refreshes pkg.go.dev README" into the release checklist explicitly                               | Low    | S    |
+| 37 | samber-linter: after fixing #2, re-run its full suite and re-certify the consumer in ADOPTION                                                     | Med    | S    |
+| 38 | go-humanize-linter, go-structure-linter: their bumps were done by their own sessions without cross-verification evidence — spot-check their gates | Low    | S    |
+| 39 | BuildFlow: wait for its CI on the in-flight submodule wave, then re-issue the wave verification for all three modules                             | Med    | S    |
+| 40 | Fleet: standardize "record-and-skip leaves a dated note in the skipped repo" (BuildFlow case)                                                     | Low    | S    |
+| 41 | go-linter-sdk: add the samber bisect pattern (two-command version bisect) to the migration guide's pitfalls section                               | Low    | S    |
+| 42 | Fleet: propose a BuildFlow step that re-runs the last gate after any auto-fix rewrote a file (upstream fix for d1)                                | Med    | M    |
+| 43 | go-linter-sdk: ROADMAP entry for consumer-facing DetectorV2 passthrough (coverage evidence flows only if the SDK's detectors implement it)        | Low    | S    |
+| 44 | cmdguard: post-fix, add a regression test that RuleTableMarkdown output is dprint-stable (round-trip property test)                               | Low    | S    |
+| 45 | project-meta: confirm its daemon-committed go.sum state passes its own CI (unpushed)                                                              | Low    | S    |
+| 46 | go-linter-sdk: consider noting the "Imported by: 3" refresh cadence in ADOPTION (manual check each wave)                                          | Low    | S    |
+| 47 | Sweep stale sibling dirs (`BuildFlow-pr44`, `BuildFlow.vendor.bak`) — delete or document why they stay                                            | Low    | S    |
+| 48 | go-linter-sdk: examples' README claims vs master rule count (frozen-tag drift recurs each release; automate a check?)                             | Low    | M    |
+| 49 | Fleet: decide whether ecosystem waves should auto-push consumer commits (ties to g1)                                                              | Med    | S    |
+| 50 | Debrief: was skipping BuildFlow's local gates the right call? (Ask g3; record the verdict as a precedent)                                         | Low    | S    |
 
 ## g) Questions I cannot figure out myself
 
 1. **Should ecosystem-wave commits to consumer repos be pushed automatically?** Your standing rule (recorded 2026-09-09,
    for THIS repo) is that I push at session end; the global default is never-push-without-ask. cmdguard and
-   project-meta bumps are sitting unpushed because I could not tell which rule you intend for *other* repos during a
+   project-meta bumps are sitting unpushed because I could not tell which rule you intend for _other_ repos during a
    wave you approved. Push them now?
 2. **Release vehicle for the pending `[Unreleased]` entry:** cut **v0.4.1** now (dependency bump + gets the improved
    README onto pkg.go.dev, which currently freezes the stale "8 constants" version) or let it accumulate into the next
@@ -194,5 +194,5 @@ Brainstorm, sorted roughly by impact — items 1–12 are the real queue; the re
 
 ---
 
-*Snapshot ends. Point-in-time report — annotate, don't rewrite (docs-health ANNOTATE). Section (f) items 1–12 are the
-HARVEST candidates; the tail needs routing rigor before becoming commitments.*
+_Snapshot ends. Point-in-time report — annotate, don't rewrite (docs-health ANNOTATE). Section (f) items 1–12 are the
+HARVEST candidates; the tail needs routing rigor before becoming commitments._

@@ -17,7 +17,7 @@ func buildExample(t *testing.T, target string) string {
 
 	bin := filepath.Join(t.TempDir(), filepath.Base(target))
 
-	cmd := exec.CommandContext(context.Background(), "go", "build", "-o", bin, target) //nolint:gosec
+	cmd := exec.CommandContext(context.Background(), "go", "build", "-o", bin, target)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -31,7 +31,7 @@ func buildExample(t *testing.T, target string) string {
 func runExample(t *testing.T, bin, dir string) (string, string, int) {
 	t.Helper()
 
-	cmd := exec.CommandContext(context.Background(), bin, dir) //nolint:gosec
+	cmd := exec.CommandContext(context.Background(), bin, dir)
 
 	stdoutBuf := &bytes.Buffer{}
 	stderrBuf := &bytes.Buffer{}
