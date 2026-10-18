@@ -71,7 +71,6 @@ linters:
     - intrange
     - iotamixing
     - ireturn
-    - lll
     - loggercheck
     - maintidx
     - makezero
@@ -324,5 +323,5 @@ formatters:
       - _templ\.go$
       - vendor/
 issues:
-  max-issues-per-linter: 100
-  max-same-issues: 5
+  max-issues-per-linter: 0
+  max-same-issues: 0
