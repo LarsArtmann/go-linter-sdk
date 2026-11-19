@@ -100,6 +100,25 @@ Conventions:
 Please use [GitHub Issues](https://github.com/larsartmann/go-linter-sdk/issues)
 to report bugs or request features.
 
+## Docs gates (docs-health battery)
+
+This repo is judged by `docs-gates run` (the docs-health battery: freshness,
+annotate, routing, cadence, plus the doc-drift guard). Its repo-specific
+knobs live in `.docs-gates.json`; a repo without one gets the fleet defaults.
+This repo pins one knob:
+
+```json
+{ "audit_max": 0 }
+```
+
+`audit_max` is the freshness ratchet: how many unharvested §f items the
+newest status report may carry before the gate goes red. `0` means strict —
+every harvestable item must be routed into TODO_LIST/ROADMAP the day it is
+written. Never raise the pin; the ratchet only ratchets down. (History: it
+was 33 while ancient archived reports carried unharvested items, then
+drained to 0 on 2026-11-19.) The other knobs (corpus paths, thresholds,
+skip_gates) keep fleet defaults — see `docs-gates --help`.
+
 ## Version-pinned references
 
 Docs that name dependency or tool versions must point at `go.mod` (the single

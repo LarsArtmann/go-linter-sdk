@@ -383,6 +383,9 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 | `RuleMeta` struct | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                |
 | `Category`        | Open `string` type. 11 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                 |
 | `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                      |
+| `RuleSet`         | Immutable, order-preserving rule collection with O(1) ID lookup; mutex-free `Check` + `ToRegistry` conversion                      |
+| `Filter`          | Severity/category gate over findings (`Keep`/`Apply`); zero value keeps everything                                                 |
+| `CoverageReporter`| Optional `Rule` extension: `Coverage(ctx, dir)` reports files-scanned/skipped-modules evidence into the report                     |
 
 ### Functions
 
@@ -475,6 +478,11 @@ Example consumers in this repo:
 - `examples/naked-return-guard` — pilot port of `branching-flow`'s `nakedreturn` rule (156 LOC of analyzer + Detection type + converter became one self-contained `RuleFunc`)
 - `examples/oops-redundant-guard` — pilot port of `erraudit`'s `oops_redundant_guard` rule (detection core + go/analysis autofixer + violation bridge became one self-contained `RuleFunc`)
 - `examples/cli-triage` — discovery + triage demo: `FilterRules` (--enable/--disable), `OptIn` gating, tiered exit codes (0 clean / 1 must-fix / 2 triage / 3 tool failure)
+
+Exit contract for the example tier: every example exits 0 on a clean tree and
+non-zero on findings; `cli-triage` owns the full contract — `0` clean,
+`1` must-fix findings, `2` triage-only findings, `3` tool failure — so CI can
+distinguish "findings below threshold" from "the tool crashed".
 
 Direct consumers in the LarsArtmann ecosystem (verified 2026-10-11; integration
 pattern and converter status per repo in [`docs/ADOPTION.md`](docs/ADOPTION.md)):
