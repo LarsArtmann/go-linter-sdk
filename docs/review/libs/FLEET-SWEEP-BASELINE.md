@@ -46,6 +46,25 @@ records the corrected table).
    conversion (it already runs `RunDetect`-shaped hosts).
 3. Any rule with a mechanical fix attaches `WithEdits` (ADR 0002 GO items).
 
+## AFTER sweep 1 — post-v0.6.0 (2026-11-19, scripts/fleet-sweep.sh)
+
+| Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
+| --- | --- | --- | --- | --- |
+| go-structure-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| samber-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| go-humanize-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| cmdguard/lint | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| project-meta/linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| BuildFlow/execution | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| BuildFlow/tools | v0.6.0 | 0 refs | 0 refs | 0 refs |
+
+Reading: every location is on the current release; channel adoption is still
+zero — that is TODO_LIST #29's consumer-side work (CoverageReporter on
+walking rules, DetectorV2 in BuildFlow's DAG, WithEdits where rules know a
+mechanical fix). Relativize needs no consumer code, so host-portable IDs are
+already fleet-wide through `Registry.Run`/adapters. The sweep itself is now
+mechanical: `bash scripts/fleet-sweep.sh`.
+
 ## How to verify
 
 ```bash

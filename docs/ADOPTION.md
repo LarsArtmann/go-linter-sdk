@@ -107,6 +107,31 @@ Tracked snapshots; update alongside the refresh procedure.
   `docs/review/libs/FLEET-SWEEP-BASELINE.md`.
 - pkg.go.dev "Imported by": **3** (re-verified 2026-11-19).
 
+**2026-11-19 later (v0.6.0 bump wave, LOCAL ONLY — pushes owner-gated):**
+
+- **Second recorded decay instance, same day:** BuildFlow's three modules
+  (execution, tools, root-indirect) were found back at **v0.4.1** when this
+  wave re-grepped — the "all eight at v0.5.0" line above was wrong for
+  BuildFlow within hours of being written (a concurrent BuildFlow session or
+  its daemon reverted/reset the module files). The lesson compounds: never
+  trust a snapshot; grep go.mod at wave time.
+- All eight module locations now at **v0.6.0**: go-structure-linter,
+  samber-linter, go-humanize-linter, cmdguard/lint, project-meta/linter
+  (root + linter), BuildFlow/execution, BuildFlow/tools, BuildFlow root
+  (indirect). `go get @v0.6.0` per module.
+- **Gates:** green on go-structure-linter, go-humanize-linter, cmdguard/lint,
+  project-meta/linter, BuildFlow/execution + build on all three BuildFlow
+  modules. Known-failure inventory unchanged and still not SDK-caused:
+  samber-linter `TestReadmeLatestReleaseMatchesGitTag` (their release-flow
+  drift); BuildFlow/tools `providers` suite is **flaky** (failed once,
+  passed on identical bytes immediately after — test-isolation issue in that
+  repo, routed to its tracker, not a v0.6.0 regression).
+- **Push state: all local.** No commits authored by this session in consumer
+  repos (their daemons auto-committed the go.mod/go.sum changes; nothing
+  pushed by this session). Owner question g-1 governs pushes.
+- pkg.go.dev: v0.6.0 indexed (proxy `go list -m @v0.6.0` verified; page
+  render checked post-release).
+
 ## Refresh procedure
 
 1. For each row above: `grep -rn "go-linter-sdk" <repo> --include="go.mod"`.
