@@ -234,6 +234,8 @@ enable; order is preserved.
 - **Named over the plan's `FilterRulesRules`** (rejected: reads like a
   typo/stutter) — decision recorded in CHANGELOG and docs/decisions/.
 
+## Borrowed vocabulary (go-finding)
+
 The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
 directly; the SDK never translates them. Definitions below mirror the pinned
 source in the module cache (version: see `go.mod`). The vocabulary keeps
