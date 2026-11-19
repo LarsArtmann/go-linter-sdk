@@ -356,3 +356,110 @@ func TestRuleMeta_Validate_CustomCategoryAccepted(t *testing.T) {
 		}
 	}
 }
+
+func TestDetectorFromRegistry_DetectV2_ErrorWrapsRuleError(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(failingRule("boom"))
+
+	detector := linter.DetectorFromRegistry(r, "agg-lint")
+
+	v2, ok := detector.(finding.DetectorV2)
+	if !ok {
+		t.Fatal("expected DetectorV2")
+	}
+
+	_, err := v2.DetectV2(context.Background())
+	if err == nil {
+		t.Fatal("expected error from failing rule")
+	}
+
+	ruleErr, ok := errors.AsType[*linter.RuleError](err)
+	if !ok {
+		t.Fatalf("expected *RuleError, got %T: %v", err, err)
+	}
+
+	if ruleErr.RuleID != "boom" {
+		t.Errorf("expected rule ID boom, got %q", ruleErr.RuleID)
+	}
+
+	if !errors.Is(err, linter.ErrRuleFailed) {
+		t.Errorf("expected ErrRuleFailed sentinel, got: %v", err)
+	}
+
+	v1Findings, detectErr := detector.Detect(context.Background())
+	if detectErr == nil {
+		t.Fatal("expected Detect to propagate the same error")
+	}
+
+	if len(v1Findings) != 0 {
+		t.Errorf("expected no findings on error, got %d", len(v1Findings))
+	}
+}
+
+func TestDetectorsFromRegistry_DetectV2_ErrorWrapsRuleError(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(failingRule("boom-per-rule"))
+
+	detectors := linter.DetectorsFromRegistry(r)
+	if len(detectors) != 1 {
+		t.Fatalf("expected 1 detector, got %d", len(detectors))
+	}
+
+	v2, ok := detectors[0].(finding.DetectorV2)
+	if !ok {
+		t.Fatal("expected DetectorV2")
+	}
+
+	_, err := v2.DetectV2(context.Background())
+	if err == nil {
+		t.Fatal("expected error from failing rule")
+	}
+
+	ruleErr, ok := errors.AsType[*linter.RuleError](err)
+	if !ok {
+		t.Fatalf("expected *RuleError, got %T: %v", err, err)
+	}
+
+	if ruleErr.RuleID != "boom-per-rule" {
+		t.Errorf("expected rule ID boom-per-rule, got %q", ruleErr.RuleID)
+	}
+}
+
+func TestRegistry_Run_ContinueOnError_KeepsCoverageFromPassingRules(t *testing.T) {
+	t.Parallel()
+
+	f := makeRule("cov-ok", nil).NewFinding("kept issue", finding.Pos(finding.FilePath("kept.go"), 1, 1)).MustBuild()
+
+	r := linter.NewRegistry()
+	r.Register(failingRule("boom"))
+	r.Register(newCoverageRule("cov-ok", 7, []string{"mod-x"}, []finding.Finding{f}))
+
+	report, err := r.Run(context.Background(), ".", linter.ContinueOnError())
+	if err == nil {
+		t.Fatal("expected joined error from the failing rule")
+	}
+
+	if !errors.Is(err, linter.ErrRuleFailed) {
+		t.Errorf("expected ErrRuleFailed in joined error, got: %v", err)
+	}
+
+	if report == nil {
+		t.Fatal("expected partial report despite the failure")
+	}
+
+	if report.Summary.FilesScanned != 7 {
+		t.Errorf("expected coverage from the passing rule (7), got %d", report.Summary.FilesScanned)
+	}
+
+	if !slices.Equal(report.Summary.SkippedModules, []string{"mod-x"}) {
+		t.Errorf("expected SkippedModules [mod-x], got %v", report.Summary.SkippedModules)
+	}
+
+	if report.Len() != 1 {
+		t.Errorf("expected the passing rule's finding to survive, got %d findings", report.Len())
+	}
+}

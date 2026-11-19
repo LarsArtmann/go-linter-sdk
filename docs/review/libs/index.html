@@ -859,7 +859,7 @@
           <h1>Library fleet review — go-linter-sdk</h1>
           <p class="hero-subtitle">
             Seven first-party libraries audited for superb leverage: the single
-            adopted dependency scored, the SDK self-audited, and five non-adoptions
+            adopted dependency scored, the SDK self-audited, and six non-adoptions
             declined with named flip triggers. Per-library evidence lives in the
             linked reports next to this page.
           </p>
@@ -894,7 +894,7 @@
             <div class="stat-label">Self-leverage — high</div>
           </div>
           <div class="stat-card stat-good">
-            <div class="stat-value">5/5</div>
+            <div class="stat-value">6/6</div>
             <div class="stat-label">Declines justified, with flip triggers</div>
           </div>
         </div>
@@ -919,7 +919,7 @@
         <div class="card card-solution">
           <h4>Every decline is a justified no</h4>
           <p>
-            The five non-adoptions all protect the single-dependency policy
+            The six non-adoptions all protect the single-dependency policy
             (go-finding root only) or sit at the wrong layer — and each names
             the concrete condition that would flip it. The fleet already
             receives four of these libraries' value through the correct
@@ -989,7 +989,7 @@
             <div class="check">+</div>
             <div class="text">
               <strong>Single-dep policy held under audit pressure</strong>
-              <span>All five decline verdicts trace back to it; no transitive tree entered the published API during this review.</span>
+              <span>All six decline verdicts trace back to it; no transitive tree entered the published API during this review.</span>
             </div>
           </div>
           <div class="strength">
@@ -1146,6 +1146,15 @@ for r in go-finding linter-autoconfigure-sdk go-policy-dsl go-dag-app go-complia
 grep -n '#2[0-7]' TODO_LIST.md                  # 8 routed rows (one BLOCKED)
 bash scripts/check-doc-versions.sh             # doc versions OK
 go test ./...                                  # suite green at review HEAD</code></pre>
+        <p>
+          Render re-verified 2026-11-19 (post 6/6 stat fix): headless chromium
+          152 screenshots at 1440&times;2400 and 1440&times;900
+          (<a href="assets/index-render-full.png">full</a>,
+          <a href="assets/index-render-top.png">top</a>), vision-checked on
+          those exact bytes with zai/glm-4.5v (reasoning off) &mdash; PASS, all
+          four stat cards read correctly (8 scored, 72 self-leverage, 6/6
+          declines justified, 85 avg adopted score).
+        </p>
 
         <footer class="footer">
           Generated 2026-11-19 &middot; All claims verified against source code

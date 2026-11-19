@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+The post-release tier on master: composition and filtering APIs that make
+`--enable`/`--disable` set logic, immutable rule collections, and finding
+filters first-class, plus an O(1) registry index. No existing signature
+changed.
+
+### Added
+
+- **`Filter` type** (`filter.go`): severity/category finding filter with
+  zero-value-keeps-all semantics and copy semantics on `Apply` (input never
+  mutated). Compose with `RuleSet.Check` output or any `[]finding.Finding`.
+- **`RuleSet` type** (`ruleset.go`): immutable, order-preserving rule
+  collection with O(1) `Get`/`Has` ID lookup, `ToRegistry` for registry
+  interop, and fail-fast `Check`.
+- **`NewRegistryFromRules(rules, opts...)`**: bulk registry constructor with
+  the same duplicate/identity validation as per-rule `Register`.
+- **`ExitCodeFromFindings(findings)`**: binary exit-code convention for a raw
+  `[]finding.Finding`, no `*finding.Report` needed.
+- **`AllCategories()`**: fresh copy of the eleven recommended categories.
+- **O(1) registry index**: `Registry.Get`/`Has` now use a `byID` map instead
+  of a linear scan; `Deregister` stays O(n) by design to preserve
+  registration order. Race-gated by `TestRegistry_ConcurrentIndexMix`.
+  Benchmarks: `Get` ~15 ns/op flat (15.1/15.0/15.3 ns at 100/500/1000 rules,
+  0 allocs); `BenchmarkRegistry_Run_Coverage` ~709 ns/op (10 coverage rules,
+  50 files each).
+
+### Changed
+
+- **`examples/cli-triage` exit contract**: tool failure now exits **3**,
+  distinct from triage (2) and must-fix (1) — CI can tell "findings below
+  threshold" from "the tool crashed". Contract documented in the example's
+  godoc and asserted by integration tests.
+
+### Documentation
+
+- ADR 0002: fix representation — NO-GO on SDK-level fix application, GO on
+  declaration teaching (`WithEdits` in examples).
+- ADR 0003: `RuleFunc` generics evaluation — DECLINED, sketch
+  compile-checked.
+- Fleet-audit template + sweep baseline under `docs/review/libs/`.
+
 ## [0.5.0] - 2026-11-19
 
 The report-truthfulness release. The SDK's execution paths now feed

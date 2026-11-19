@@ -423,10 +423,6 @@ func ExitCodeFromReport(report *finding.Report) int {
 // ExitCodeFromFindings is [ExitCodeFromReport] for callers that hold a plain
 // finding slice and never build a Report: 0 when findings is nil or empty,
 // 1 otherwise. Same binary convention, no aggregation step.
-
-// ExitCodeFromFindings is [ExitCodeFromReport] for callers that hold a plain
-// finding slice and never build a Report: 0 when findings is nil or empty,
-// 1 otherwise. Same binary convention, no aggregation step.
 func ExitCodeFromFindings(findings []finding.Finding) int {
 	if len(findings) == 0 {
 		return 0
