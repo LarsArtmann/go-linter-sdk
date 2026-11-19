@@ -75,6 +75,48 @@ mechanical fix). Relativize needs no consumer code, so host-portable IDs are
 already fleet-wide through `Registry.Run`/adapters. The sweep itself is now
 mechanical: `bash scripts/fleet-sweep.sh`.
 
+## AFTER sweep 2 — TODO #29 executed (2026-11-19, same day)
+
+| Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
+| --- | --- | --- | --- | --- |
+| go-structure-linter | v0.6.0 | **7 refs** | 0 refs | 0 refs |
+| samber-linter | v0.6.0 | **6 refs** | 0 refs | 0 refs |
+| go-humanize-linter | v0.6.0 | **6 refs** | 0 refs | 0 refs |
+| cmdguard/lint | v0.6.0 | **7 refs** | 0 refs | 0 refs |
+| project-meta/linter | v0.6.0 | **8 refs** | 0 refs | 0 refs |
+| BuildFlow/execution | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| BuildFlow/tools | v0.6.0 | **3 refs** | 0 refs | 0 refs |
+
+Reading — the coverage channel is LIVE fleet-wide, first non-zero sweep:
+
+- **All five walking-rule linters report CoverageReporter evidence**
+  (TODO #29's primary target): go-structure-linter counts via a
+  `countingProject` decorator at the SDK-adapter's project factory;
+  samber-linter via the driver-level `scanCoverage` (parsed-file count
+  across loaded packages); go-humanize-linter via a per-Check context sink
+  through the shared walker (`checkFuncDecls`), registry wrapped with
+  `coverageRule`; cmdguard/lint via a `treeWalkingRule` wrapper over the
+  single `analyze()` walker (all 8 rules); project-meta/linter via honest
+  per-scan counters on `metadataMissingCheck` (0 on every early return).
+- **BuildFlow's V2 lane**: `dtool.DetectorV2FromFinding`
+  (domain/tool) folds DetectResult scan evidence into FindingReport.Summary;
+  `ToolFromSpec` (tools/providers) prefers the V2 lane when the SDK
+  detector implements `gofinding.DetectorV2`. The 3 tools refs are that
+  bridge; execution itself stays 0 by design — the DAG consumes the domain
+  Detector abstraction, and the coverage flow enters at the
+  tools/providers boundary (domain/tool is its own module, not swept).
+- **Relativize still 0 refs**: correct — it needs no consumer code; the
+  channel is active through the SDK's own Run/adapters.
+- **WithEdits still 0 refs**: remaining adoption surface (rule-level fix
+  declarations, ADR-0002 GO items) — future work, tracked in ROADMAP.
+- **Accumulation note**: go-finding's `AddDetectResult` SUMS per-rule
+  counts, so an N-rule registry over F files reports N·F — the documented
+  contract, pinned by cmdguard's and go-humanize's new tests.
+- **Decay instance #4 recorded**: a concurrent BuildFlow session wiped the
+  uncommitted V2-bridge edits mid-session (its own 20:39 race-triage status
+  report proves the collision); re-applied and daemon-committed
+  (e18a22479) within minutes. Shared-checkout lesson: gate AND commit fast.
+
 ## How to verify
 
 ```bash
