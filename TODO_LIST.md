@@ -60,9 +60,10 @@ shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
 ### From the v0.5.0 execution (2026-11-19, Pareto plan M-series)
 
 None open. (#29 CoverageReporter fleet adoption completed 2026-11-19: all
-five walking-rule linters report coverage evidence plus BuildFlow's V2
-bridge (`dtool.DetectorV2FromFinding`, preferred by `ToolFromSpec`); the
-first non-zero sweep is recorded as "AFTER sweep 2" in
+five walking-rule linters report coverage evidence — go-structure-linter,
+samber-linter, go-humanize-linter, cmdguard/lint, project-meta/linter —
+plus BuildFlow's V2 bridge (`dtool.DetectorV2FromFinding`, preferred by
+`ToolFromSpec`); the first non-zero sweep is recorded as "AFTER sweep 2" in
 `docs/review/libs/FLEET-SWEEP-BASELINE.md` and logged in the [Unreleased]
 CHANGELOG entry. (#28 the WithEdits declaration teaching shipped
 2026-11-19: oops example carries `WithEdits` + `FixStrategyDirect`, README
@@ -103,7 +104,7 @@ historical unharvested items carry inline verdicts — done / NOT-DO superseded
 / routed; `.docs-gates.json` ratchet lowered 33 → 0, so any future unharvested
 item gates red immediately. #32 and #33, both routed from that drain,
 completed 2026-11-19: #32 landed as the flake's eval-time
-`golangci-version-sync` assertion (caught live v2.14.0-vs-v2.15.0 drift on
+`golangci-version-sync` assertion (caught live action-pin-vs-flake drift on
 its first run) plus a shape rule in check-doc-versions.sh; #33 landed as a
 shellcheck flake check + CI job with all four scripts clean — logged in the
 [Unreleased] CHANGELOG entry.)
