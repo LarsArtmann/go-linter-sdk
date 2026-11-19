@@ -11,24 +11,23 @@ The core (`Rule` / `Registry` / `Detector` / `RuleError`) is stable and
 intentionally minimal. The next tier of capabilities is about ergonomics for
 consumers building real linters on top of the SDK.
 
+Shipped from this theme (2026-11-19, v0.5.0 and master): `CoverageReporter`
+coverage channel, `DetectorV2` adapters, `Relativize`-normalized IDs,
+`ErrInvalidCategory`, the `Filter` finding type (severity/category), the
+`NewRegistryFromRules` bulk constructor, `AllCategories` (the `Category.All`
+idea), `ExitCodeFromFindings` convenience, the O(1) Get/Has/Deregister
+lookup story (O(1) `Get`/`Has` ID index; `Deregister` O(n) by design), the
+immutable `RuleSet` (`ruleset.go`), and the fifth example
+(`examples/cli-triage`). Declined with rationale: `RuleFunc` generics
+(`docs/decisions/2026-11-19_rulefunc-generics-evaluation.md`) and SDK-level
+fix application (ADR 0002, `docs/decisions/2026-11-19_rule-fix-representation.md`).
+
 Raw ideas:
 
-- A `Filter` type for severity/category-based finding filtering
-- `NewRegistryFromRules(rules []Rule) *Registry` constructor for pre-built slices
-- `Category.All()` — return all built-in category values
-- A typed `RuleSet` wrapper around `[]Rule` for consumers that don't want a
-  mutex'd registry
-- `ExitCodeFromFindings([]Finding) int` convenience that skips building a Report
-- `map[string]int` index alongside the rules slice for O(1) Get/Has/Deregister
-  (today all three are O(n) linear scans; fine for <100 rules, quadratic if a
-  consumer calls Has in a hot loop at scale)
-- Evaluate whether `RuleFunc` should use generics for type-safe rule definitions
-- Rule-level fix representation: an optional `Fixer` surface on rules emitting
-  `finding.TextEdit` via `WithEdits`/`FixStrategyDirect`, bridging SDK linters
-  to go-finding's direct-fix pipeline (the oops pilot port deleted erraudit's
-  autofixer; nothing replaced it). If built, model it on the go-finding
-  toolsdk `Repairer` + dry-run contract so rules graduate to BuildFlow repair
-  steps without a second design pass
+- Rule-level fix DECLARATION example (ADR 0002's GO half, TODO_LIST #28):
+  `WithEdits` + `FixStrategyDirect` in the oops example, README host-side
+  application pointers
+- CoverageReporter adoption wave at consumers (TODO_LIST #29)
 
 ### 2. Consumer adoption (the reason this SDK exists)
 

@@ -177,7 +177,7 @@ Tags: [TODO]=already routed to TODO_LIST, [RMAP]=already in ROADMAP,
 3. [TODO] #20 — modernize all 4 examples (WithToolName + NewFinding, fix
    tool-name identity mismatch).
 4. [TODO] #27 — toolsdk registration recipe in README.
-5. [TODO] #26 — shape-validate `RuleMeta.Cat` via `finding.Category.IsValid()`.
+5. ~~[TODO] #26 — shape-validate `RuleMeta.Cat` via `finding.Category.IsValid()`.~~ done at `4c86cef` (v0.5.0; ErrInvalidCategory sentinel, CHANGELOG [0.5.0] Added)
 6. [TODO] #21 — fifth example: OptIn + FilterRules + ExitCodeByConfidence.
 7. [TODO] #22 — document the golangci-lint-auto-configure converge workflow.
 8. [TODO] #23 (BLOCKED) — go-policy-dsl companion-libs mention at stable v1.
@@ -214,10 +214,10 @@ Tags: [TODO]=already routed to TODO_LIST, [RMAP]=already in ROADMAP,
     semantics before wiring.
 26. [RMAP] `Filter` type for severity/category finding filtering.
 27. [RMAP] `NewRegistryFromRules` constructor.
-28. [RMAP] `Category.All()`.
+28. ~~[RMAP] `Category.All()`.~~ done at `4c86cef` (shipped as `AllCategories`, ROADMAP theme 1)
 29. [RMAP] Typed `RuleSet` wrapper.
-30. [RMAP] `ExitCodeFromFindings` convenience.
-31. [RMAP] O(1) index for Get/Has/Deregister.
+30. ~~[RMAP] `ExitCodeFromFindings` convenience.~~ done at `4c86cef` (registry.go, ROADMAP theme 1)
+31. ~~[RMAP] O(1) index for Get/Has/Deregister.~~ done at `4c86cef` (O(1) Get/Has ID index; Deregister stays O(n) by design, ROADMAP theme 1)
 32. [RMAP] Generics evaluation for RuleFunc.
 33. [RMAP] Full go-structure-linter native-migration idea.
 34. [RMAP] Spread SDK to ~31 repos on older go-finding releases.
@@ -247,7 +247,7 @@ Tags: [TODO]=already routed to TODO_LIST, [RMAP]=already in ROADMAP,
     exercise it today).
 47. [NEW] Check whether ADOPTION.md lists the two pilot-port examples
     (naked-return-guard, oops-redundant-guard) — add if missing while doing #20.
-48. [PROC] Self-enforce the no-polling rule (two violations this session).
+48. ~~[PROC] Self-enforce the no-polling rule (two violations this session).~~ NOT-DO — session-discipline self-reminder, not a repo-doc obligation
 49. [NEW] Generalize the verdict-dashboard pattern for a fleet-wide index
     (repo #1 of potentially many).
 50. [NEW] Decide the erraudit-autofixer resurrection explicitly (the oops

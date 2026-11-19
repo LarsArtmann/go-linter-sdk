@@ -48,39 +48,27 @@ None open. (#15 benchmarks re-run 2026-10-11 — every measured op improved
 
 ### Fleet library review follow-ups (2026-11-19, `docs/review/libs/`)
 
-- **#20 TODO — Modernize `examples/` to the current API.** All four example
-  binaries call bare `NewRegistry()` and hand-roll `finding.NewBuilder(...)`;
-  none uses `RuleFunc.NewFinding` or `WithToolName`, and `minimal-linter` /
-  `no-go-mod` leak the default `"linter"` tool name into the report header
-  while their findings carry a different name (identity mismatch). Evidence:
-  `docs/review/libs/go-linter-sdk.md` rows 3, 6, 15.
-- **#21 TODO — Add a fifth example demonstrating the CLI trio.** One `OptIn`
-  rule + `FilterRules(enable, disable)` from `os.Args` + `ExitCodeByConfidence`
-  triage exit — the only SDK capabilities with no runnable example. Evidence:
-  `docs/review/libs/go-linter-sdk.md` rows 2, 12, 13.
-- **#22 TODO — Document the `golangci-lint-auto-configure` converge workflow**
-  (AGENTS.md tooling section): the practice is tribal knowledge visible only in
-  git history (commit `56b667e`) and one status report. Evidence:
-  `docs/review/libs/linter-autoconfigure-sdk.md`.
 - **#23 BLOCKED — Revisit go-policy-dsl README companion-libs mention when it
   tags a stable v1** (its ROADMAP explicitly names this SDK as prospective
   secondary consumer; pre-v1 breaking changes make an earlier mention a
   liability). Evidence: `docs/review/libs/go-policy-dsl.md`.
-- **#24 TODO — Adopt go-finding DetectorV2 coverage evidence in
-  `Registry.Run`** (feed `report.AddDetectResult` per rule; today every SDK
-  linter reports `filesScanned: 0`). Evidence:
-  `docs/review/libs/go-finding.md` opportunity 1.
-- **#25 TODO — Relativize finding paths in the Detector adapters**
-  (`DetectorFromRegistry`/`DetectorsFromRegistry` should pass findings through
-  `finding.Relativize(findings, dir)`; today BuildFlow-lane IDs embed host
-  paths). Evidence: `docs/review/libs/go-finding.md` opportunity 2.
-- **#26 TODO — Shape-validate `RuleMeta.Cat` via `finding.Category.IsValid()`**
-  in `validateIdentityFields` (rule.go). Evidence:
-  `docs/review/libs/go-finding.md` opportunity 4.
-- **#27 TODO — Add the BuildFlow-provider registration recipe to README**
-  (complete copy-pasteable `toolsdk.Register(toolsdk.Spec{...})` snippet with
-  the blank-import note; docs-only, no go.mod change). Evidence:
-  `docs/review/libs/go-finding-toolsdk.md` opportunity 1.
+
+Executed from this batch (2026-11-19): #20, #21, #22, #24, #25, #26, #27
+shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
+2026-11-19 ADOPTION snapshot; rows removed per the DONE legend above.
+
+### From the v0.5.0 execution (2026-11-19, Pareto plan M-series)
+
+- **#28 TODO — Teach fix DECLARATION in an example (ADR 0002 GO items).**
+  Extend `examples/oops-redundant-guard` to attach `WithEdits` +
+  `FixStrategyDirect` to its findings (~15 LOC, no application code) and add
+  a README subsection pointing hosts at `finding.ApplySimpleFixes` and the
+  toolsdk `Repairer` recipe. Design: `docs/decisions/2026-11-19_rule-fix-representation.md`.
+- **#29 TODO — CoverageReporter adoption at consumers (fleet AFTER targets).**
+  Each walking-rule linter implements `CoverageReporter` on its tree-walking
+  rules so fleet dashboards get `filesScanned ≠ 0`; BuildFlow/execution
+  consumes `DetectorV2` from the SDK adapters. Before-state and per-repo
+  targets: `docs/review/libs/FLEET-SWEEP-BASELINE.md`.
 
 ### Quality hardening
 

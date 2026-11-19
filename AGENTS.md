@@ -327,3 +327,46 @@ Verified 2026-11-19: analyze reports 0 critical/high/medium/optional findings
   tag-on-green rule; the v0.5.0 tag released the same day refreshes it, so no
   docs-only PATCH was spent. Re-check after every release (post-release
   habit, AGENTS.md).
+
+## v0.5.0 release + post-plan API surface (2026-11-19)
+
+The Pareto plan (M1–M27) was executed to completion in one session; v0.5.0
+("report truthfulness") is TAGGED and live (CI green on `4c86cef`, tag pushed
+after green per the tag-on-green rule; pkg.go.dev renders the new README and
+`CoverageReporter`/`ErrInvalidCategory` docs). Consumer bump wave: all 8
+module locations at v0.5.0 (go-structure-linter, samber-linter,
+go-humanize-linter, cmdguard/lint, project-meta/linter, BuildFlow
+execution/tools/root). BEFORE trusting "all consumers current", re-grep
+go.mod — the 2026-10-15 snapshot had silently decayed (project-meta and
+BuildFlow were back on v0.4.x); see `docs/ADOPTION.md` 2026-11-19 snapshot.
+
+- **New API on master after the tag** (ships in the NEXT release, not
+  v0.5.0): `Filter` (severity/category finding filter, zero-value-keeps-all,
+  copy semantics — `filter.go`), `NewRegistryFromRules`, `AllCategories`,
+  `ExitCodeFromFindings` (registry.go), immutable `RuleSet` with O(1)
+  lookup + `ToRegistry` + fail-fast `Check` (ruleset.go), and the O(1)
+  `Get`/`Has` ID index inside `Registry` (`byID map[string]Rule`;
+  `Register` duplicate-check and `Get`/`Has` are O(1) now, `Deregister`
+  stays O(n) BY DESIGN to preserve registration order — race-gated by
+  `TestRegistry_ConcurrentIndexMix` + `export_test.go` `ByIDLen` shim).
+- **OptIn + FilterRules composition quirk:** `OptIn` returns the unexported
+  `optInRule` type, so opt-in rules CANNOT ride through
+  `FilterRules([]RuleFunc)` wrapped — filter the plain `RuleFunc` slice
+  first, then wrap with `OptIn` at registration and skip registration
+  unless explicitly enabled (pattern demonstrated in
+  `examples/cli-triage/main.go`). If this bites a consumer, the fix is a
+  `FilterRulesRules` variant taking `[]Rule`.
+- **ADR 0002 (fix representation):** NO-GO on SDK-level fix application;
+  GO on declaration teaching (`WithEdits` in the oops example — TODO_LIST
+  #28). `WithEdits(edits ...TextEdit)` is variadic, not slice-taking.
+- **`errors.AsType` two-value form:** `v, ok := errors.AsType[T](err)`.
+- **Vision-model QA learnings:** gemini prepay depleted + zai glm-4.6v
+  max_tokens bug; `glm-4.5v` with reasoning=off worked for PNG verdicts.
+- **Example self-reference gotcha:** a rule var cannot reference itself in
+  its own initializer closure — declare `var rule linter.RuleFunc` first,
+  then assign (three godoc examples do this).
+- **Fleet corpus is 8/8:** `docs/review/libs/` now includes
+  `go-error-family.md` (transitive-only, deliberate), the reusable
+  `FLEET-AUDIT-TEMPLATE.md`, and `FLEET-SWEEP-BASELINE.md`; every report
+  carries the standardized re-review footer. go-finding score re-derived to
+  85/100 post-remediation (addendum in the report).
