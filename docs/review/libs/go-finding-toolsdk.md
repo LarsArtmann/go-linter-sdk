@@ -74,6 +74,7 @@ GOWORK=off go list -m all | grep finding
 # github.com/larsartmann/go-finding v1.15.1   (only the root module)
 
 git -C /home/lars/projects/go-finding tag -l 'toolsdk/*' | sort -V | tail -3
+# toolsdk/v1.14.0
 # toolsdk/v1.15.0
 # toolsdk/v1.16.0
 git -C /home/lars/projects/go-finding diff --stat toolsdk/v1.16.0..HEAD -- toolsdk | tail -1
@@ -84,7 +85,7 @@ sed -n '84p' /home/lars/projects/go-finding/toolsdk/spec.go
 #	Detect finding.Detector
 sed -n '234,237p' /home/lars/projects/go-linter-sdk/registry.go   # the "tool-sdk Spec.Detect field" doc comment — accurate
 rg -n 'toolsdk' /home/lars/projects/go-linter-sdk/README.md       # README.md:131 — the one-line recipe pointer
-rg -n 'toolsdk v1.16.0 ×14|branching-flow|go-linter-sdk ' /home/lars/projects/go-finding/docs/ecosystem.md | head -4
-# 153: ...toolsdk v1.16.0 ×14,   158: | branching-flow | v1.15.1 | — | — | v1.16.0 |
-# 168: | go-linter-sdk | v1.15.1 | — | — | — |        (unreleased local HEAD doc)
+rg -n 'toolsdk v1.16.0 ×14|go-linter-sdk +\| v1.15.1 \| — +' /home/lars/projects/go-finding/docs/ecosystem.md
+# 153: md-go-validator bumped 2026-11-08). Submodule reach: toolsdk v1.16.0 ×14,
+# 168: | go-linter-sdk                | v1.15.1 | — | — | — |        (unreleased local HEAD doc)
 ```

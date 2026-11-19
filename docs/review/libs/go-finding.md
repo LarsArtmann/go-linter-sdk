@@ -17,7 +17,7 @@ Read from the module-cache copy of the pinned version,
 | Capability | Library evidence (file:line @ v1.15.1) |
 | --- | --- |
 | `Finding` data model + branded identity types (`ID`, `RuleName`, `ToolName`, `FilePath`, `GroupID`) | `finding.go:14` (struct), `branded_types.go:8-16`, `id.go:34` (`GenerateID`) |
-| Fluent Builder: `NewBuilder` + 16 `With*` + `Build`/`MustBuild`/`BuildOrDefault` | `finding_builder.go:16` (NewBuilder), `:29-140` (WithID…WithMetadata), `:143-171` |
+| Fluent Builder: `NewBuilder` + 15 `With*` + `Build`/`MustBuild`/`BuildOrDefault` | `finding_builder.go:16` (NewBuilder), `:29-140` (WithID…WithMetadata), `:143-171` |
 | `Template` batch builder factory (stamp tool/category/fix/tags/group once) | `finding_builder.go:178` (type), `:189` (`NewTemplate`), `:244` (`Template.Builder`) |
 | `Report` aggregation: `NewReport`, `AddFinding(s)`, `ComputeSummary(At)`, `NewReportFromFindings` | `report.go:97-135`, `:213-226`; `Summary` incl. `FilesScanned`/`SkippedModules` at `report.go:71,74-78` |
 | Report queries: `Len`, `All`, `ActiveFindings`, `BySeverity`, `GroupFindings(Sorted)`, `Filter`, `Map`, `FindingsSnapshot` | `report_query.go:162,203,32,50,82,114,170,183,13` |
@@ -78,7 +78,7 @@ Row scores: Fully=1 (rows 1,2,4,5,7,8,13 = 7), Partial=0.5 (rows 3,10,12 = 3), M
 
 ## Version currency
 
-- Consumer pins **v1.15.1** — the **latest published root tag** (`git -C /home/lars/projects/go-finding tag --sort=-creatordate | head -1` on root-module tags → `v1.15.1`). Fully current.
+- Consumer pins **v1.15.1** — the **latest published root tag** (`git -C /home/lars/projects/go-finding tag -l 'v*' --sort=-creatordate | head -2` → `v1.15.1`, `v1.15.0`). Fully current.
 - v1.15.1 itself = v1.15.0 + `Relativize` (+65 LOC, relativize.go) and a GenerateID doc note (issue #47) — i.e. the pin already carries the host-portable-ID capability the SDK hasn't adopted.
 - Library HEAD is **110 commits past v1.15.1** (2026-11-18), but the unreleased root-module Go API delta is tiny: branded-type tightening (`IsHashID(id ID)` signature change, SARIF `RuleID` now branded — id.go, sarif_export.go), a `VersionPatch` stamp fix (version.go), plus new docs (`docs/guides/detector-coverage.md`, `docs/ecosystem.md` with the 23-repo consumer-pin sweep), CI scripts, and a new `examples/detectorv2` demo. Nothing in the unreleased root API changes any verdict above; the two type tightenings are compile-compatible for this consumer (it never calls `IsHashID` or reads SARIF RuleID).
 - Bump history is disciplined: CHANGELOG.md:12-19 records the v1.15.0→v1.15.1 era bump with gates green, and `scripts/check-doc-versions.sh` keeps docs from duplicating the pin.
