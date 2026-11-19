@@ -403,6 +403,7 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 | `ExitCodeByConfidence(report, thr)` | `int`                    | 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                                   |
 | `ExitCodeFromFindings(findings)`    | `int`                    | Same binary convention for a plain `[]finding.Finding`, no Report needed                              |
 | `FilterRules(all, enable, disable)` | `[]RuleFunc`             | Standard --enable/--disable filtering for CLI and plugin entry points                                 |
+| `SelectRules(all, enable, disable)` | `[]Rule`                 | Same --enable/--disable logic for a `[]Rule` slice; OptIn-wrapped rules ride through (no unexported-wrapper problem) |
 | `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`  | Severity/category-based finding filtering; zero value keeps everything, input never mutated           |
 | `NewRegistryFromRules(rules, opts)` | `*Registry`              | Bulk constructor with the same validation as per-rule `Register`                                      |
 | `RuleSet` (type)                    | `NewRuleSet`, `Check`, `ToRegistry` | Immutable, order-preserving, mutex-free rule collection with O(1) ID lookup                 |

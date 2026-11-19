@@ -443,6 +443,10 @@ func ExitCodeFromFindings(findings []finding.Finding) int {
 //	for _, rule := range rules {
 //		registry.Register(rule)
 //	}
+//
+// For a []Rule slice — e.g. rules already wrapped with [OptIn] — use
+// [SelectRules] instead: OptIn returns an unexported wrapper type, so those
+// values cannot ride a []RuleFunc.
 func FilterRules(all []RuleFunc, enable, disable map[string]bool) []RuleFunc {
 	if len(enable) == 0 && len(disable) == 0 {
 		return all
@@ -463,6 +467,36 @@ func FilterRules(all []RuleFunc, enable, disable map[string]bool) []RuleFunc {
 	}
 
 	return filtered
+}
+
+// SelectRules is [FilterRules] for a []Rule slice: same --enable/--disable
+// set logic, same filtering precedence (disable wins over enable; an empty
+// enable set means "all rules except disabled"), but over Rule interface
+// values, matching by rule ID. Named distinctly from FilterRules because the
+// element type differs — this variant accepts rules already wrapped with
+// [OptIn], whose unexported wrapper type cannot ride a []RuleFunc. Returns
+// the input slice unchanged when both sets are empty.
+func SelectRules(all []Rule, enable, disable map[string]bool) []Rule {
+	if len(enable) == 0 && len(disable) == 0 {
+		return all
+	}
+
+	var selected []Rule
+
+	for _, rule := range all {
+		id := rule.ID()
+		if disable[id] {
+			continue
+		}
+
+		if len(enable) > 0 && !enable[id] {
+			continue
+		}
+
+		selected = append(selected, rule)
+	}
+
+	return selected
 }
 
 // ExitCodeByConfidence returns a tiered exit code based on finding confidence:

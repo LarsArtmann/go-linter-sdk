@@ -20,7 +20,10 @@
 //
 // Run:
 //
-//	go run ./examples/cli-triage [dir] [--enable=no-todos] [--disable=long-func]
+//	go run ./examples/cli-triage [dir] [--enable=r1,r2] [--disable=r3] [--help]
+//
+// --enable/--disable accept comma-separated rule IDs. --help prints usage and
+// exits 0.
 package main
 
 import (
@@ -31,6 +34,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/larsartmann/go-finding"
@@ -50,6 +54,24 @@ const (
 	longFuncLines = 40
 )
 
+var usage = `cli-triage — discovery and triage demo linter
+
+Usage:
+  cli-triage [dir] [flags]
+
+Flags:
+  --enable=r1,r2   run only these rules (comma-separated IDs)
+  --disable=r1,r2  never run these rules (comma-separated IDs)
+  -h, --help       show this help and exit
+
+Rules:
+  long-func  default on    flags functions longer than ` + strconv.Itoa(longFuncLines) + ` lines
+  no-todos   opt-in        flags TODO comments (triage-only by confidence)
+
+Exit codes:
+  0 clean · 1 must-fix findings · 2 triage-only findings · 3 tool failure
+`
+
 func main() {
 	var dir string
 
@@ -58,10 +80,18 @@ func main() {
 
 	for _, arg := range os.Args[1:] {
 		switch {
+		case arg == "--help" || arg == "-h":
+			fmt.Print(usage)
+
+			os.Exit(exitClean)
 		case strings.HasPrefix(arg, "--enable="):
-			enable[strings.TrimPrefix(arg, "--enable=")] = true
+			for id := range strings.SplitSeq(strings.TrimPrefix(arg, "--enable="), ",") {
+				enable[id] = true
+			}
 		case strings.HasPrefix(arg, "--disable="):
-			disable[strings.TrimPrefix(arg, "--disable=")] = true
+			for id := range strings.SplitSeq(strings.TrimPrefix(arg, "--disable="), ",") {
+				disable[id] = true
+			}
 		default:
 			dir = arg
 		}
@@ -73,16 +103,16 @@ func main() {
 
 	registry := linter.NewRegistry(linter.WithToolName(toolName))
 
-	for _, rule := range linter.FilterRules(allRules(), enable, disable) {
-		if rule.Meta.ID == noTodosID && !enable[noTodosID] {
+	// SelectRules works on []Rule, so the opt-in rule rides through already
+	// wrapped in OptIn. OptIn rules carry IsEnabledByDefault() == false, so
+	// the gate below is generic: skip any opt-in rule that was not explicitly
+	// enabled, no per-rule ID checks needed.
+	for _, rule := range linter.SelectRules(allRules(), enable, disable) {
+		if !rule.IsEnabledByDefault() && !enable[rule.ID()] {
 			continue
 		}
 
-		if rule.Meta.ID == noTodosID {
-			registry.Register(linter.OptIn(rule))
-		} else {
-			registry.Register(rule)
-		}
+		registry.Register(rule)
 	}
 
 	report, err := registry.Run(context.Background(), dir)
@@ -103,9 +133,10 @@ func main() {
 	os.Exit(code)
 }
 
-// allRules returns every rule the linter ships, in registration order.
-// Filtering (--enable/--disable) selects the subset to register.
-func allRules() []linter.RuleFunc {
+// allRules returns every rule the linter ships, in registration order, as the
+// general Rule interface: the opt-in rule is already wrapped in OptIn, so
+// SelectRules and the registration gate can key off IsEnabledByDefault.
+func allRules() []linter.Rule {
 	var longFunc linter.RuleFunc
 
 	longFunc = linter.RuleFunc{
@@ -138,7 +169,7 @@ func allRules() []linter.RuleFunc {
 		},
 	}
 
-	return []linter.RuleFunc{longFunc, noTodos}
+	return []linter.Rule{longFunc, linter.OptIn(noTodos)}
 }
 
 // findLongFuncs walks dir's Go files and flags oversized function bodies.

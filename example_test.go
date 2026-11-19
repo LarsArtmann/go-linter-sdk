@@ -185,6 +185,45 @@ func ExampleOptIn() {
 	// id: experimental
 }
 
+// ExampleSelectRules demonstrates --enable/--disable set logic over a []Rule
+// slice. Unlike FilterRules (which takes []RuleFunc), SelectRules accepts
+// rules already wrapped with OptIn, whose unexported wrapper type cannot ride
+// a []RuleFunc — so the registration gate can key off IsEnabledByDefault
+// instead of comparing rule IDs.
+func ExampleSelectRules() {
+	plain := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "always-on",
+			Name:        "always-on rule",
+			Description: "runs by default",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	}
+
+	optIn := linter.OptIn(linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "no-todos",
+			Name:        "TODO comment",
+			Description: "noisy; opt-in",
+			Cat:         linter.CategoryDocumentation,
+			Sev:         finding.SeverityInfo,
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	})
+
+	all := []linter.Rule{plain, optIn}
+
+	enable := map[string]bool{"no-todos": true}
+	disable := map[string]bool{"always-on": true}
+
+	for _, rule := range linter.SelectRules(all, enable, disable) {
+		fmt.Println("register:", rule.ID())
+	}
+	// Output: register: no-todos
+}
+
 // ExampleRegistry_Run_continueOnError demonstrates the continue-on-error
 // failure policy: all rules run regardless of individual failures, partial
 // findings are collected, and errors are joined.

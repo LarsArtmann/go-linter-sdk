@@ -973,6 +973,78 @@ func TestFilterRules_EnableAndDisableCombined(t *testing.T) {
 	}
 }
 
+func TestSelectRules_NoFilterReturnsAll(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.Rule{
+		makeRule("a", nil),
+		linter.OptIn(makeRule("optin", nil)),
+	}
+
+	got := linter.SelectRules(all, nil, nil)
+	if len(got) != 2 {
+		t.Fatalf("expected both rules back unchanged, got %d", len(got))
+	}
+}
+
+func TestSelectRules_OptInRulesRideThrough(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.Rule{
+		makeRule("plain", nil),
+		linter.OptIn(makeRule("optin-a", nil)),
+		linter.OptIn(makeRule("optin-b", nil)),
+	}
+
+	enable := map[string]bool{"optin-a": true}
+	got := linter.SelectRules(all, enable, nil)
+
+	if len(got) != 1 {
+		t.Fatalf("expected only optin-a, got %d rules", len(got))
+	}
+
+	if got[0].ID() != "optin-a" {
+		t.Errorf("expected optin-a, got %q", got[0].ID())
+	}
+
+	if got[0].IsEnabledByDefault() {
+		t.Error("expected the OptIn wrapper to survive SelectRules untouched")
+	}
+}
+
+func TestSelectRules_DisableWinsOverEnable(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.Rule{
+		makeRule("a", nil),
+		makeRule("b", nil),
+	}
+
+	got := linter.SelectRules(all, map[string]bool{"a": true, "b": true}, map[string]bool{"b": true})
+	if len(got) != 1 || got[0].ID() != "a" {
+		t.Errorf("expected [a] (disable wins), got %v", got)
+	}
+}
+
+func TestSelectRules_MixedRuleFuncAndOptIn(t *testing.T) {
+	t.Parallel()
+
+	all := []linter.Rule{
+		makeRule("plain-a", nil),
+		linter.OptIn(makeRule("optin-x", nil)),
+		makeRule("plain-b", nil),
+	}
+
+	got := linter.SelectRules(all, nil, map[string]bool{"plain-b": true})
+	if len(got) != 2 {
+		t.Fatalf("expected 2 rules after disabling plain-b, got %d", len(got))
+	}
+
+	if got[0].ID() != "plain-a" || got[1].ID() != "optin-x" {
+		t.Errorf("expected order preserved [plain-a optin-x], got [%s %s]", got[0].ID(), got[1].ID())
+	}
+}
+
 func TestExitCodeByConfidence_NilReport(t *testing.T) {
 	t.Parallel()
 
