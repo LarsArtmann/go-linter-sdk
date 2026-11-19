@@ -5,11 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-11-19
 
-The post-release tier on master: composition and filtering APIs that make
-`--enable`/`--disable` set logic, immutable rule collections, and finding
-filters first-class, plus an O(1) registry index. No existing signature
+The teaching tier. v0.5.0 made reports truthful; this release makes the SDK
+teach every capability it ships: composition and filtering APIs that make
+`--enable`/`--disable` set logic, immutable rule collections, finding filters,
+declared fixes, and an O(1) registry index first-class. No existing signature
 changed.
 
 ### Added
@@ -20,6 +21,9 @@ changed.
 - **`RuleSet` type** (`ruleset.go`): immutable, order-preserving rule
   collection with O(1) `Get`/`Has` ID lookup, `ToRegistry` for registry
   interop, and fail-fast `Check`.
+- **`SelectRules(all, enable, disable)`**: `FilterRules` for a `[]Rule`
+  slice — OptIn-wrapped rules ride through, so the registration gate can key
+  off `IsEnabledByDefault()` instead of comparing rule IDs.
 - **`NewRegistryFromRules(rules, opts...)`**: bulk registry constructor with
   the same duplicate/identity validation as per-rule `Register`.
 - **`ExitCodeFromFindings(findings)`**: binary exit-code convention for a raw
@@ -31,6 +35,15 @@ changed.
   Benchmarks: `Get` ~15 ns/op flat (15.1/15.0/15.3 ns at 100/500/1000 rules,
   0 allocs); `BenchmarkRegistry_Run_Coverage` ~709 ns/op (10 coverage rules,
   50 files each).
+- **Declared fixes taught** (`examples/oops-redundant-guard`): the oops rule
+  now attaches `WithEdits` + `FixStrategyDirect` to each finding — one
+  `TextEdit` per redundant guard (ADR 0002: declaration only, application
+  stays host-side). README documents the three host-side application lanes
+  (`ApplySimpleFixes`, pipeline `FixApplier`, toolsdk `Repairer`).
+- **cli-triage ergonomics**: `--help`/`-h` (usage, exit 0), comma-separated
+  `--enable=r1,r2` / `--disable=r1,r2`, named exit constants, and
+  `SelectRules`-based registration (the OptIn composition workaround is
+  gone).
 
 ### Changed
 
@@ -38,6 +51,10 @@ changed.
   distinct from triage (2) and must-fix (1) — CI can tell "findings below
   threshold" from "the tool crashed". Contract documented in the example's
   godoc and asserted by integration tests.
+- **Library coverage 100.0%** (measured 2026-11-19): DetectV2 error paths,
+  `ContinueOnError` × `CoverageReporter`, `wrapRuleError` pass-through and
+  re-wrap branches, and `collectRuleErrors` nil-leaf termination now tested;
+  the README's stale 98.7% claim is replaced with the measured number.
 
 ### Documentation
 
@@ -45,7 +62,9 @@ changed.
   declaration teaching (`WithEdits` in examples).
 - ADR 0003: `RuleFunc` generics evaluation — DECLINED, sketch
   compile-checked.
-- Fleet-audit template + sweep baseline under `docs/review/libs/`.
+- Fleet-audit template + sweep baseline under `docs/review/libs/`; FEATURES
+  inventory rebuilt (v0.5.0 + master tier); dashboard stat corrected to 6/6
+  declines with a vision-verified render gate on the final PNG bytes.
 
 ## [0.5.0] - 2026-11-19
 
