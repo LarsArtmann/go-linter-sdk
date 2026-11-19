@@ -244,6 +244,43 @@ return []finding.Finding{
 | `FixStrategyDirect`  | Can auto-fix programmatically |
 | `FixStrategyAI`      | Requires AI to generate a fix |
 
+### Applying fixes (host-side)
+
+The SDK **declares** fixes, it never applies them (ADR 0002): a rule that
+knows a safe mechanical edit attaches `TextEdit` list to the finding at
+emission time, and the finding is then authoritative for its own fix.
+
+```go
+return []finding.Finding{
+    rule.NewFinding("redundant nil guard", pos).
+        WithConfidence(finding.ConfidenceHigh).
+        WithFixStrategy(finding.FixStrategyDirect).            // machine-applicable
+        WithEdits(finding.TextEdit{                            // variadic
+            Start:   finding.Pos(file, guardLine, 1),
+            End:     finding.Pos(file, nilRetLine+1, 1),       // exclusive
+            NewText: "return oops.Wrap(err)",
+        }).
+        MustBuild(),
+}, nil
+```
+
+See `examples/oops-redundant-guard` for a complete rule that declares one
+`TextEdit` per finding. **Application is host-side, three lanes:**
+
+1. **Simple host:** `finding.ApplySimpleFixes(findings)` (go-finding root
+   module) applies one text replacement per finding and refuses multi-edit
+   findings rather than half-applying them.
+2. **go-finding/pipeline:** the pipeline module's `FixApplier` handles
+   multi-edit `Edits` lists inside a detect → fix → verify loop, with
+   per-finding outcomes.
+3. **go-finding/toolsdk:** BuildFlow-integrated linters can expose a
+   `Repairer` so the orchestrator's fix steps run the linter's own repair
+   logic; see the toolsdk module docs.
+
+Which lane fits depends on your host: pick (1) for CLI auto-fix on
+single-edit findings, (2) for pipeline-orchestrated remediation, (3) when
+BuildFlow drives the loop.
+
 ### Data flow
 
 Rules emit `finding.Finding` directly — no intermediate type. The SDK aggregates, reports, and maps to exit codes:

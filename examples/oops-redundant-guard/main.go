@@ -21,6 +21,13 @@
 // (0.85), message, and suggestion text match the original for suppression and
 // output compatibility.
 //
+// Each finding also DECLARes a machine-applicable fix (WithEdits +
+// FixStrategyDirect): one TextEdit replacing the guard block and the trailing
+// `return nil` with a single `return oops.Wrap*(err)`. Per ADR 0002 the SDK
+// never APPLIES fixes — hosts do, via go-finding's ApplySimpleFixes or the
+// go-finding/pipeline FixEngine. Declaration here keeps the finding
+// authoritative for its own fix without breaking the library's layering.
+//
 // Run:
 //
 //	go run ./examples/oops-redundant-guard [dir]
@@ -94,6 +101,7 @@ func main() {
 type redundantGuardMatch struct {
 	ifStmt  *ast.IfStmt
 	wrapRet *ast.ReturnStmt
+	nilRet  *ast.ReturnStmt
 	errName string
 }
 
@@ -133,7 +141,8 @@ func checkRedundantGuards(rule linter.RuleFunc, dir string) ([]finding.Finding, 
 
 			for _, m := range findRedundantGuards(block) {
 				line := fset.Position(m.ifStmt.Pos()).Line
-				findings = append(findings, newFinding(rule, path, line, m))
+				nilLine := fset.Position(m.nilRet.Pos()).Line
+				findings = append(findings, newFinding(rule, path, line, nilLine, m))
 			}
 
 			return true
@@ -178,6 +187,7 @@ func findRedundantGuards(block *ast.BlockStmt) []redundantGuardMatch {
 		matches = append(matches, redundantGuardMatch{
 			ifStmt:  ifStmt,
 			wrapRet: ret,
+			nilRet:  nextRet,
 			errName: errName,
 		})
 	}
@@ -339,7 +349,10 @@ func wrapMethodName(ret *ast.ReturnStmt) string {
 
 // newFinding builds the finding the original violation detector produced:
 // same ID, severity (warning), confidence (0.85), message, and suggestion.
-func newFinding(rule linter.RuleFunc, path string, line int, match redundantGuardMatch) finding.Finding {
+// It also declares the mechanical fix as one TextEdit spanning the guard
+// block (line) through the trailing `return nil` (nilLine) (ADR 0002:
+// declaration only — application is host-side).
+func newFinding(rule linter.RuleFunc, path string, line, nilLine int, match redundantGuardMatch) finding.Finding {
 	method := wrapMethodName(match.wrapRet)
 
 	message := fmt.Sprintf(
@@ -352,13 +365,23 @@ func newFinding(rule linter.RuleFunc, path string, line int, match redundantGuar
 		method, match.errName,
 	)
 
+	// The replacement keeps the surrounding indentation shape: the guard
+	// block's body line is replaced by the single return, and the trailing
+	// tab closes the enclosing function body line the `return nil` occupied.
+	fix := fmt.Sprintf("\t\treturn oops.%s(%s)\n\t", method, match.errName)
+
 	return rule.NewFinding(
 		message,
 		finding.Pos(finding.FilePath(path), line, 0),
 	).
 		WithConfidence(0.85).
-		WithFixStrategy(finding.FixStrategySuggest).
+		WithFixStrategy(finding.FixStrategyDirect).
 		WithSuggestion(suggestion).
+		WithEdits(finding.TextEdit{
+			Start:   finding.Pos(finding.FilePath(path), line, 1),
+			End:     finding.Pos(finding.FilePath(path), nilLine+1, 1),
+			NewText: fix,
+		}).
 		WithMetadata(map[string]string{
 			"filePath": path,
 			"line":     strconv.Itoa(line),
