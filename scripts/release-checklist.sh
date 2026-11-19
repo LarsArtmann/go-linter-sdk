@@ -31,6 +31,7 @@ echo "[1/6] FEATURES.md covers the release's new exported symbols"
 symbols=$(awk '/^## \[/{n++} n==1 && /^### Added/{f=1; next} n==1 && /^### /{f=0} f' CHANGELOG.md |
 	grep -E '^- \*\*`' |
 	sed -E 's/^- \*\*`([A-Za-z]+).*/\1/' |
+	grep -E '^[A-Z]' |
 	sort -u || true)
 missing_features=""
 if [ -z "$symbols" ]; then

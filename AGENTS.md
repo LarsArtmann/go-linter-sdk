@@ -403,3 +403,45 @@ BuildFlow were back on v0.4.x); see `docs/ADOPTION.md` 2026-11-19 snapshot.
   `FLEET-AUDIT-TEMPLATE.md`, and `FLEET-SWEEP-BASELINE.md`; every report
   carries the standardized re-review footer. go-finding score re-derived to
   85/100 post-remediation (addendum in the report).
+
+## v0.6.0 release + post-plan truth/teaching tier (2026-11-19)
+
+The post-v0.5.0 Pareto plan (P1–P27) executed to completion in one session;
+v0.6.0 ("the teaching tier") is TAGGED and live (CI green on `20aa772`, tag
+pushed on that exact green commit; proxy + pkg.go.dev @latest verified — the
+frozen README now renders `SelectRules`, the cli-triage example line, and the
+100% coverage claim). Consumer wave: all 8 module locations at v0.6.0,
+LOCAL ONLY (pushes owner-gated, TODO #31). **BuildFlow was found decayed back
+to v0.4.1 at wave time — the "all 8 at v0.5.0" line in the ADOPTION snapshot
+was wrong for BuildFlow within hours of being written; second recorded decay
+instance, same day.** Re-grep go.mod at every wave; never trust a snapshot.
+
+- **Library coverage is 100.0%** (measured 2026-11-19): DetectV2 error paths,
+  ContinueOnError×CoverageReporter, wrapRuleError's two branches, and
+  collectRuleErrors' nil-leaf all tested. Keep it there — the release
+  checklist now compares the README claim against the measured number.
+- **New API on master AFTER the tag** (ships next release): cli-triage
+  `--format=json` (interchange lane via `finding.ReportFromJSON` round-trip),
+  `scripts/release-checklist.sh`, `scripts/fleet-sweep.sh`, RuleSet/Filter
+  benches. See CHANGELOG [Unreleased].
+- **SelectRules, not FilterRulesRules:** the `[]Rule` variant of FilterRules
+  is named `SelectRules` (the plan's literal `FilterRulesRules` reads like a
+  typo; godoc cross-links keep discoverability). OptIn rules ride through —
+  the cli-triage registration gate keys off `IsEnabledByDefault()` instead of
+  ID comparison.
+- **Corpus drained:** all 24 historical unharvested items carry inline
+  verdicts; `.docs-gates.json` ratchet is at **0** (any future unharvested
+  item gates red immediately). The accepted verdict vocabulary is
+  `done/decided/NOT-DO` — "routed" alone fails the annotate gate (see
+  crush-config lessons: the CLOSED vocabulary lesson).
+- **Upstream filings (own repos, verify-before-filing passed):**
+  samber-linter#5 (workspace-shadow test premise broken), BuildFlow#112
+  (providers suite flake: FAIL→PASS on identical bytes). The docs-gates
+  legend false positive was ALREADY FIXED upstream (`73f5eac`) — Gate 5
+  (does it exist?) saved a dead issue. BuildFlow's em-dash/oversize audit
+  findings were fixed by that repo's own session before we filed.
+- **Release checklist dogfooded:** first run of
+  `scripts/release-checklist.sh` caught a genuinely missing FEATURES row
+  (`SelectRules`) and stale dashboard PNGs — both fixed in the same session.
+- **Drafts live in `docs/drafts/`** (github-voice procedure): the two filed
+  issues' full drafts are kept at `docs/drafts/2026-11-19_*.md`.
