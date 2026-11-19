@@ -110,9 +110,11 @@ startup, not silently at runtime.
 - **Thread safety:** `sync.RWMutex`; `Register` writes, `All`/`Run` read.
 - **Beyond registration and `Run`:** `Get`/`Has` lookup, `Deregister` for
   runtime removal (snapshot semantics mid-run), `NewRegistry(WithToolName(...))`
-  to stamp tool identity onto findings and the report, `FilterRules` for
+  to stamp tool identity onto findings and the report, `FilterRules` (for
+  `[]RuleFunc` slices) and `SelectRules` (for `[]Rule`, OptIn-safe) for
   `--enable`/`--disable` set logic, and `ExitCodeFromReport` /
-  `ExitCodeByConfidence` to map a report to process exit codes.
+  `ExitCodeFromFindings` / `ExitCodeByConfidence` to map a report or finding
+  slice to process exit codes.
 
 ### RuleError
 
@@ -168,7 +170,69 @@ errors into `*RuleError`.
 
 - **Lives at:** `registry.go`
 
-## Borrowed vocabulary (go-finding)
+### CoverageReporter
+
+An optional `Rule` extension for rules that can measure their own scan
+coverage: `Coverage(ctx, dir)` returns how many files the rule actually
+examined and which nested module roots it deliberately skipped. The registry
+and both detector adapters fold this evidence into the report
+(`Summary.FilesScanned` / `Summary.SkippedModules`) through go-finding's
+`DetectResult` channel.
+
+Coverage is **evidence, not a filter** — it changes nothing about which
+findings a rule emits. Its reason to exist: without it every report renders
+`filesScanned: 0`, and a fleet dashboard cannot tell "clean tree" from
+"scanned nothing". Implement it on any rule that walks a directory tree.
+
+- **Lives at:** `rule.go` — `type CoverageReporter`
+- **Called once per rule per run, after `Check`** — return evidence for the
+  most recent scan.
+- **Known gap:** `OptIn` wraps the `RuleFunc` value, so an opt-in rule cannot
+  carry coverage through the wrapper (relevant to TODO_LIST #29 fleet
+  adoption; opt-in rules stay coverage-silent).
+
+### RuleSet
+
+An immutable, order-preserving rule collection with O(1) ID lookup — the
+mutex-free alternative to [Registry](#registry) for consumers that assemble
+a fixed rule set once and never mutate it. Same validation contract as
+`Register` (panics on duplicate IDs or empty identity fields); the input
+slice is copied.
+
+RuleSet holds data, not execution: `Check(ctx, dir)` runs the mutex-free
+findings-only path (Relativize-normalized, fail-fast), while
+`ToRegistry(opts...)` converts to a mutable registry when a full
+`*finding.Report` with coverage evidence is needed. Execution logic lives in
+exactly one place — the registry — never duplicated here.
+
+- **Lives at:** `ruleset.go` — `type RuleSet` (`NewRuleSet`, `Get`, `Has`,
+  `Rules`, `Len`, `ToRegistry`, `Check`)
+- **Measured:** `Get` ~7–10 ns/op flat to 1000 rules (≈ half of Registry's
+  map+mutex lookup); `Check` 0 allocs end-to-end.
+
+### Filter
+
+A severity/category gate over finding slices (`Apply`/`Keep`), distinct from
+`SelectRules`/`FilterRules` — those choose WHICH RULES run, the Filter
+chooses WHICH FINDINGS survive. The zero value keeps everything; criteria
+compose (`MinSeverity`, `Categories` as a set-literal map for O(1)
+per-finding membership). `Apply` never mutates its input.
+
+- **Lives at:** `filter.go` — `type Filter`
+
+### SelectRules
+
+The `--enable`/`--disable` set logic over a `[]Rule` slice — the OptIn-safe
+sibling of `FilterRules` (which takes `[]RuleFunc`). `OptIn` returns an
+unexported wrapper type, so opt-in rules cannot ride a `[]RuleFunc`;
+`SelectRules` accepts them and lets the caller gate registration off
+`IsEnabledByDefault()` instead of comparing rule IDs. Disable wins over
+enable; order is preserved.
+
+- **Lives at:** `registry.go` — `func SelectRules(all []Rule, enable,
+  disable map[string]bool) []Rule`
+- **Named over the plan's `FilterRulesRules`** (rejected: reads like a
+  typo/stutter) — decision recorded in CHANGELOG and docs/decisions/.
 
 The SDK's output side is `go-finding`'s vocabulary. Rules emit these types
 directly; the SDK never translates them. Definitions below mirror the pinned

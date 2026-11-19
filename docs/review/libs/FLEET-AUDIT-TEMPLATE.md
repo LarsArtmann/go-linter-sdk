@@ -70,6 +70,12 @@
   (`--headless=new --screenshot`), and vision-verify the PNGs with a
   capable model (record which model; this run's gemini/zai attempts failed —
   see the session log for the workaround).
+- **Byte-binding (post-mtime era, 2026-11-19):** a vision verdict binds to
+  the artifact BYTES, not the file's mtime — re-shooting a PNG after the
+  verdict invalidates it. Record the sha256 of each verified PNG beside the
+  verdict line in the verify appendix, and re-run vision whenever those
+  bytes change. mtime proves recency; only the hash proves the verdict is
+  about the current artifact.
 
 ## Point-in-time discipline
 

@@ -19,12 +19,22 @@
 
 ## Bump wave executed 2026-11-19 (F13.5)
 
-All 8 module locations bumped to `go-linter-sdk v0.5.0` with `go get` +
+All 8 module locations were bumped to `go-linter-sdk v0.5.0` with `go get` +
 `go build ./...` green; `go test ./...` gates recorded in the session log.
 Note: project-meta/linter and BuildFlow's three modules were still on
 v0.4.0/v0.4.1 BEFORE this wave — the 2026-10-15 "all six at v0.4.0" snapshot
 had silently gone stale (found and fixed here; ADOPTION refresh F13.6
 records the corrected table).
+
+**Correction (2026-11-19, second wave):** the "all 8 at v0.5.0" statement
+above decayed within the day — BuildFlow was found back on v0.4.1 when the
+v0.6.0 wave ran (its go.mod/go.sum had been reverted by local operations in
+that repo). The wave-time discovery and the honest correction live in
+docs/ADOPTION.md's "2026-11-19 later (v0.6.0 bump wave, LOCAL ONLY)"
+snapshot; this historical section is left as-written per the annotate
+convention (the correction travels with the newer record, not by rewriting
+history). Reader lesson: an "all N at version X" claim is only true until
+the next local mutation — re-grep go.mod before trusting it.
 
 ## What changes with v0.5.0 without consumer code
 
