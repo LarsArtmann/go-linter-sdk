@@ -277,3 +277,20 @@ and `erraudit`. Converter deletion is **verified at the source level
 (2026-10-11)**: no consumer retains a custom Issue/Violation converter layer
 (4 MIGRATED, 2 PARTIAL with documented deliberate adapters). Per-repo evidence,
 verdicts, and the refresh procedure: `docs/ADOPTION.md`.
+
+## Library fleet review (2026-11-19)
+
+`docs/review/libs/` holds point-in-time utilization reports for seven
+first-party libraries; `index.html` is the dashboard and each `.md` records
+the exact version reviewed. Verdicts: **go-finding ADOPTED 65/100** — three
+channels missed at the pinned tag (`DetectorV2`/`AddDetectResult` coverage
+evidence, `Relativize` path normalization, direct-fix `Edits`), version
+currency perfect; **self-audit 72/100** — tests/godoc/stranger-CI superb,
+the four `examples/` binaries one generation behind the API; **five
+NOT-ADOPTED** (linter-autoconfigure-sdk, go-policy-dsl, go-dag-app,
+go-compliance, go-finding/toolsdk), each with a named flip trigger — all
+protect the single-dep policy or sit at the wrong integration layer.
+Follow-ups routed at write time: TODO_LIST #20-#27 plus ROADMAP lines
+(coverage-aware Run, rule-level fix representation targeting the toolsdk
+Repairer contract). Re-review triggers: next go-finding minor bump after
+v1.15.1, or the release that picks up TODO #24/#25.

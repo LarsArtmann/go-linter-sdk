@@ -23,10 +23,6 @@ Raw ideas:
   (today all three are O(n) linear scans; fine for <100 rules, quadratic if a
   consumer calls Has in a hot loop at scale)
 - Evaluate whether `RuleFunc` should use generics for type-safe rule definitions
-- Coverage-aware Run: `Registry.Run` feeding
-  `report.AddDetectResult` per rule (go-finding's `DetectorV2` contract) so
-  every SDK linter's report is coverage-checkable (`filesScanned` ≠ 0) —
-  from the 2026-11-19 fleet review, `docs/review/libs/go-finding.md`
 - Rule-level fix representation: an optional `Fixer` surface on rules emitting
   `finding.TextEdit` via `WithEdits`/`FixStrategyDirect`, bridging SDK linters
   to go-finding's direct-fix pipeline (the oops pilot port deleted erraudit's
