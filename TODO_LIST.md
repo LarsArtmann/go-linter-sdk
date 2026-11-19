@@ -59,22 +59,14 @@ shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
 
 ### From the v0.5.0 execution (2026-11-19, Pareto plan M-series)
 
-- **#29 IN_PROGRESS — CoverageReporter adoption at consumers (fleet AFTER targets).**
-  Each walking-rule linter implements `CoverageReporter` on its tree-walking
-  rules so fleet dashboards get `filesScanned ≠ 0`. Progress 2026-11-19:
-  **this repo's flagship example done** (cli-triage's default-on walking rule
-  reports evidence; OptIn-stripping caveat documented) and **BuildFlow's V2
-  bridge done** (`dtool.DetectorV2FromFinding` folds DetectResult scan
-  evidence into FindingReport.Summary; `ToolFromSpec` prefers the V2 lane).
-  Remaining per-repo targets, in order:
-  `go-structure-linter` → `samber-linter` → `go-humanize-linter` →
-  `cmdguard/lint` → `project-meta/linter` (adoption sessions dispatched
-  2026-11-19). Before-state + AFTER table (all 0 refs at v0.6.0):
-  `docs/review/libs/FLEET-SWEEP-BASELINE.md`; re-measure with
-  `bash scripts/fleet-sweep.sh` after each landing.
-  (#28 the WithEdits declaration teaching shipped 2026-11-19: oops example
-  carries `WithEdits` + `FixStrategyDirect`, README documents the three
-  host-side lanes; row removed per the DONE legend.)
+None open. (#29 CoverageReporter fleet adoption completed 2026-11-19: all
+five walking-rule linters report coverage evidence plus BuildFlow's V2
+bridge (`dtool.DetectorV2FromFinding`, preferred by `ToolFromSpec`); the
+first non-zero sweep is recorded as "AFTER sweep 2" in
+`docs/review/libs/FLEET-SWEEP-BASELINE.md` and logged in the [Unreleased]
+CHANGELOG entry. (#28 the WithEdits declaration teaching shipped
+2026-11-19: oops example carries `WithEdits` + `FixStrategyDirect`, README
+documents the three host-side lanes; row removed per the DONE legend.))
 
 ### Quality hardening
 

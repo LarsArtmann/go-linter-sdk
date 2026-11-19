@@ -47,6 +47,18 @@ example-level and tooling tiers a PATCH; no exported SDK surface changed.
 
 ### Changed
 
+- **TODO #29 fleet adoption landed — the coverage channel is live fleet-wide
+  (first non-zero sweep)**: all five walking-rule linters report
+  `filesScanned` evidence (go-structure-linter via a counting-project
+  decorator at its SDK adapter; samber-linter via driver-level scanCoverage;
+  go-humanize-linter via a per-Check context sink through its shared walker;
+  cmdguard/lint via a tree-walking wrapper over all 8 rules; project-meta
+  via honest per-scan counters) and BuildFlow consumes the SDK adapters'
+  `DetectorV2` results through a new `dtool.DetectorV2FromFinding` bridge
+  preferred by `ToolFromSpec`. Recorded as "AFTER sweep 2" in
+  `docs/review/libs/FLEET-SWEEP-BASELINE.md`; BuildFlow decay instance #4
+  (a concurrent session clobbered the uncommitted bridge; re-applied and
+  daemon-committed) recorded there and in ADOPTION.
 - **golangci-lint action pin v2.14.0 → v2.15.0**: CI's downloaded binary was
   a minor behind the flake's (live drift caught by the new #32 guard); the
   pin comment now states the lockstep rule.
