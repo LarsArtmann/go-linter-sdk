@@ -11,7 +11,7 @@
 | TODO        | Not started. Needs doing.                                   |
 | IN_PROGRESS | Actively being worked on.                                   |
 | BLOCKED     | Cannot proceed, external dependency or decision needed.     |
-| DONE        | Completed. Remove from this list and log in `CHANGELOG.md`. |
+| `DONE`      | Completed. Remove from this list and log in `CHANGELOG.md`. |
 
 ## Open work
 

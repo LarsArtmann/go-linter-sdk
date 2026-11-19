@@ -408,7 +408,7 @@ All changes are additive — zero removals, zero signature breaks.
 - `Registry.Register` now panics on any empty identity field (ID, Name,
   Description, Category), not just empty ID. Callers with complete `RuleMeta`
   are unaffected.
-- `Registry.Run` accepts variadic `RunOption`s (source-compatible: existing
+- `Registry.Run` accepts variadic `RunOption` values (source-compatible: existing
   `Run(ctx, dir)` calls keep compiling).
 - `validateRuleIdentity` and `RuleMeta.Validate` share a single
   `validateIdentityFields` function, eliminating duplication between the

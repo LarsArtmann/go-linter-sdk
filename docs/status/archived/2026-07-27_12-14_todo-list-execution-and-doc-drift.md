@@ -92,7 +92,7 @@ documentation discipline was not.
     Handles the `replace ../go-finding` directive via sibling clone. All
     actions pinned to commit SHAs (BuildFlow caught my initial `@v16`/`@v9`
     tag pins — I fixed them).
-13. **Proved the fresh-clone BuildFlow claim.** Actually `git clone`d to
+13. **Proved the fresh-clone BuildFlow claim.** Actually ran `git clone` into
     `/tmp`, cloned `go-finding` as a sibling, ran `nix develop --command
 buildflow` → 35/36. `reports/.gitkeep` survived. This was the #1 item
     flagged as "theoretical" across sessions 2, 3, and 4.

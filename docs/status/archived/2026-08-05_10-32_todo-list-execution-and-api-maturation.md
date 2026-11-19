@@ -94,7 +94,7 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 
 ### Code quality observations
 
-1. ~~**`Get` and `Has` are O(n) linear scans.** The registry stores `[]Rule`, not `map[string]Rule`. For the current scale (~20-50 rules per linter) this is fine, but `Get`/`Has`/`Deregister` all do independent linear scans. If a consumer registers 500 rules and calls `Has` in a hot loop, this becomes quadratic. A `map[string]int` index alongside the slice would make all three O(1). Not urgent, but worth a ROADMAP note.~~ routed to ROADMAP Theme 1 (map index idea) — docs-health pass, 2026-08-08
+1. ~~**`Get` and `Has` are O(n) linear scans.** The registry stores `[]Rule`, not `map[string]Rule`. For the current scale (~20-50 rules per linter) this is fine, but `Get`/`Has`/`Deregister` all do independent linear scans. If a consumer registers 500 rules and calls `Has` in a hot loop, this becomes quadratic. A `map[string]int` index alongside the slice would make all three O(1). Not urgent, but worth a ROADMAP note.~~ **done at `4c86cef`** — routed to ROADMAP Theme 1 (map index idea) on 2026-08-08; O(1) `Get`/`Has` ID index shipped 2026-11-19, `Deregister` kept O(n) by design (registration order).
 
 2. **`Deregister` during `Run` has a subtle semantics gap.** `Run` calls `All()` which snapshots the slice, so a concurrent `Deregister` won't crash. But the doc comment claims "Safe to call concurrently with Run" without documenting that a rule deregistered after the snapshot but before its execution will still run. This is the right behavior (the snapshot is intentional), but the doc could be more precise. — routed to TODO_LIST #4 (test + document snapshot semantics) — docs-health pass, 2026-08-08
 
@@ -192,7 +192,7 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 45. Consider `Registry.RegisterAll(rules ...Rule)` for bulk registration
 46. Make `runConfig` fields exported or provide constructors if the config grows
 47. Add a `Registry.Clone()` method for testing isolation
-48. Consider whether `DetectorFromRegistry` should accept `RunOption`s
+48. Consider whether `DetectorFromRegistry` should accept `RunOption` values
 49. Document the `errors.Join` contract for `ContinueOnError` in the godoc
 50. Audit all doc comments for accuracy after this session's API expansion
 

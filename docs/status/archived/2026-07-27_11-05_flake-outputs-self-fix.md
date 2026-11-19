@@ -60,7 +60,7 @@ Nothing. The fix itself is binary — either the flake evaluates or it doesn't.
 Nothing catastrophic. But two process failures worth calling out:
 
 1. ~~**Verification was incomplete on first pass.**~~ done — the "run the ORIGINAL failing command" lesson stuck: later sessions run BuildFlow/CI as the gate (green on `487d254`)
-2. **Didn't flag the coverage path discrepancy I noticed.** The AGENTS.md documents `nix run .#coverage # go test ./... -coverprofile=reports/coverage.out` but the actual flake.nix app writes to `coverage.out` (no `reports/` prefix). The `clean` app also `trash-put`s `coverage.out` at root. This is a real documentation/code mismatch that I saw but didn't report. Previous session reports flagged similar gaps — I should have maintained that standard.
+2. **Didn't flag the coverage path discrepancy I noticed.** The AGENTS.md documents `nix run .#coverage # go test ./... -coverprofile=reports/coverage.out` but the actual flake.nix app writes to `coverage.out` (no `reports/` prefix). The `clean` app also runs `trash-put` on `coverage.out` at root. This is a real documentation/code mismatch that I saw but didn't report. Previous session reports flagged similar gaps — I should have maintained that standard.
 
 ---
 

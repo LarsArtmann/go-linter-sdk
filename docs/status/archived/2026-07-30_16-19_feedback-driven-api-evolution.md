@@ -135,7 +135,7 @@ The updated example uses `ID: "no-fmt-println"` and `Name: "no-fmt-println"` —
 8. ~~**`RuleMeta.Validate()` is still not implemented.** Empty-ID panics at registration (done this session), but there's no validation for empty Name, empty Description, or empty Category. ROADMAP Theme 1.~~ done — shipped (v0.2.0, all four identity fields)
 9. ~~**No examples in `examples/` directory.** The README promises a pattern but there's no runnable example. ROADMAP Theme 2.~~ done — `examples/minimal-linter` + `examples/no-go-mod` (v0.2.0)
 10. ~~**No `ExampleRegistry_Run` / `ExampleDetectorsFromRegistry` testable examples.** ROADMAP Theme 5.~~ done — 7 `Example*` functions in `example_test.go`
-11. ~~**The `ireturn` allow-list approach is growing.** We now allow `finding.Detector` and `Rule`. Each new interface-returning function needs an allow-list entry. Consider whether `ireturn` is pulling its weight or just creating maintenance overhead.~~ **Stable — two entries (`finding.Detector`, `Rule`); kept, revisit only on consumer request.**
+11. ~~**The `ireturn` allow-list approach is growing.** We now allow `finding.Detector` and `Rule`. Each new interface-returning function needs an allow-list entry. Consider whether `ireturn` is pulling its weight or just creating maintenance overhead.~~ **Stable — decided: two entries (`finding.Detector`, `Rule`); kept, revisit only on consumer request.**
 
 ### Architecture observations from the feedback analysis
 

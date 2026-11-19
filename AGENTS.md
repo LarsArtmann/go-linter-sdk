@@ -139,7 +139,7 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
 - **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
   setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.27"`
   can resolve an older patch than `go.mod` requires (`go: go.mod requires go
-  > = 1.27`). Only a STEP-level`env:`takes precedence over the`GITHUB_ENV`injection — every go step in`ci.yml`pins`GOTOOLCHAIN: go1.27.0` so Go
+  > = 1.27`). Only a STEP-level `env:` takes precedence over the `GITHUB_ENV` injection — every go step in `ci.yml` pins `GOTOOLCHAIN: go1.27.0` so Go
   > downloads the exact patch.
 - **The coverage gate measures library packages only.** `examples/` are
   exercised via `exec.Command` from integration tests, so their statements

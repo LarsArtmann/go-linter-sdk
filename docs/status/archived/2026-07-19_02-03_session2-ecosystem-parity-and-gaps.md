@@ -56,7 +56,7 @@
 
 ## (c) NOT STARTED
 
-1. **Fresh-clone verification.** I claim `reports/.gitkeep` makes the buildflow `test-coverage` step work on a fresh clone. I never actually `git clone`d to a temp directory and ran `nix develop --command buildflow` to prove it. The `check-ignore` test only proves the file is _trackable_, not that the downstream step works.
+1. **Fresh-clone verification.** I claim `reports/.gitkeep` makes the buildflow `test-coverage` step work on a fresh clone. I never actually ran `git clone` into a temp directory and ran `nix develop --command buildflow` to prove it. The `check-ignore` test only proves the file is _trackable_, not that the downstream step works.
 2. **AGENTS.md update for this session's changes.** Doesn't mention `.golangci.yml`, the `reports/.gitkeep` pattern, or the lint-clean state. The `nix run .#coverage` line still references `reports/coverage.out` which is correct but the broader docs don't explain the `.gitkeep` mechanism.
 3. **Concurrent registry test.** `Registry` uses `sync.RWMutex` but no test exercises `Register`/`All`/`Run` concurrently. `-race` passes vacuously.
 4. **Benchmarks.** No `Benchmark*` functions exist. For an SDK called on every lint run, this is a real gap.
