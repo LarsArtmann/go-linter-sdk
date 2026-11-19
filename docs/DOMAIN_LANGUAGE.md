@@ -222,18 +222,33 @@ Rule (interface)
  ├── Name() → display name (mutable)
  ├── RuleFunc (adapter) ── RuleMeta (identity) + Run (closure)
  │                        ├── ID (required)
- │                        ├── Category (open string type)
+ │                        ├── Category (open string type, shape-validated)
+ │                        ├── ToolName (stamped onto NewFinding output)
+ │                        ├── NewFinding() → pre-stamped finding.Builder
  │                        └── finding.Severity (from go-finding)
+ ├── OptIn(RuleFunc) → disabled-by-default rule
  └── Check() → []finding.Finding (output, from go-finding)
+
+CoverageReporter (optional Rule extension)
+ └── Coverage() → (filesScanned, skippedModules) → report coverage evidence
 
 Registry ──holds──→ []Rule
  ├── Run() → *finding.Report              (standalone CLI path)
+ │     └── findings pass through finding.Relativize (portable IDs)
+ │     └── per-rule DetectResult feeds report.AddDetectResult
  ├── DetectorFromRegistry() → finding.Detector     (BuildFlow DAG path)
  └── DetectorsFromRegistry() → []finding.Detector  (pipeline path, per-rule)
+       └── both adapters ALSO satisfy finding.DetectorV2 (coverage channel)
 
 RuleError ──wraps──→ rule failure (carries RuleID)
 ErrRuleFailed ──sentinel matched by──→ errors.Is
+ErrMissingFields ──sentinel──→ empty identity fields at registration
+ErrInvalidCategory ──sentinel──→ malformed Category shape
 ```
+
+The output vocabulary (`Finding`, `Report`, `Detector`, `DetectResult`,
+`Relativize`) is `go-finding`'s, borrowed verbatim — the SDK never
+translates it.
 
 ## What is NOT in this domain
 

@@ -83,56 +83,100 @@ package main
 
 import (
     "context"
+    "fmt"
     "os"
 
     "github.com/larsartmann/go-finding"
     "github.com/larsartmann/go-linter-sdk"
 )
 
-var registry = linter.NewRegistry()
+const toolName = "my-linter"
 
-func init() {
-    registry.Register(linter.RuleFunc{
+func main() {
+    var noFmtPrintln linter.RuleFunc
+
+    noFmtPrintln = linter.RuleFunc{
         Meta: linter.RuleMeta{
             ID:          "no-fmt-println",
             Name:        "no fmt.Println in libraries",
             Description: "fmt.Println is banned in libraries; use a logger",
             Cat:         linter.CategoryStyle,
             Sev:         finding.SeverityWarning,
+            ToolName:    toolName,
         },
         Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
             // ... scan dir for fmt.Println; emit findings directly ...
             return []finding.Finding{
-                finding.NewBuilder("no-fmt-println", "my-linter",
+                noFmtPrintln.NewFinding(
                     "fmt.Println is banned in libraries; use a logger",
-                    finding.SeverityWarning,
-                    finding.Pos(finding.FilePath("example.go"), 1, 1)).
-                    MustBuild(),
+                    finding.Pos(finding.FilePath("example.go"), 1, 1),
+                ).WithSuggestion("use a logger instead").MustBuild(),
             }, nil
         },
-    })
-}
+    }
 
-func main() {
+    registry := linter.NewRegistry(linter.WithToolName(toolName))
+    registry.Register(noFmtPrintln)
+
     report, err := registry.Run(context.Background(), ".")
     if err != nil {
         panic(err) // a rule failed (see "Errors" for attribution)
     }
+
+    fmt.Fprintf(os.Stderr, "%d finding(s), %d file(s) scanned\n",
+        report.Len(), report.Summary.FilesScanned)
     os.Exit(linter.ExitCodeFromReport(report))
 }
 ```
 
 > A complete, runnable version lives at [`examples/minimal-linter`](examples/minimal-linter) — run it with `go run ./examples/minimal-linter [dir]`.
+>
+> `rule.NewFinding(message, pos)` pre-fills the rule ID, tool name, severity, and category from `RuleMeta` — set identity once, not per finding.
 
-### Plug into BuildFlow's DAG
+### Plug into BuildFlow's DAG (toolsdk recipe)
+
+BuildFlow consumes tools declaratively via `toolsdk.Spec` — the same module the fleet's own tools register through. A registry-based linter wires in with ~10 lines:
 
 ```go
-detector := linter.DetectorFromRegistry(registry, "my-linter")
-// Pass `detector` to toolsdk.Spec{ Detect: detector, ... } or directly to
-// BuildFlow's domain.DetectorFromFinding(detector, toolName).
+package mylinter
+
+import (
+    "github.com/larsartmann/go-finding"
+    "github.com/larsartmann/go-finding/toolsdk"
+    "github.com/larsartmann/go-linter-sdk"
+)
+
+// NewDetector returns the BuildFlow-facing detector for this linter.
+func NewDetector() finding.Detector {
+    registry := linter.NewRegistry(linter.WithToolName("my-linter"))
+    registry.Register(noFmtPrintln) // your RuleFunc
+
+    return linter.DetectorFromRegistry(registry, "my-linter")
+}
+
+func init() {
+    toolsdk.Register(toolsdk.Spec{
+        Name:        "my-linter",
+        Description: "bans fmt.Println in libraries",
+        Trigger:     toolsdk.Trigger{Files: []string{"**/*.go"}, Language: "go"},
+        Detect:      NewDetector(),
+    })
+}
 ```
 
-The working directory is read via `finding.WorkingDirFromContext(ctx)`, so module fan-out and per-directory runs work transparently.
+Registration happens at `init()` time; the host binary imports the rule
+package for its side effect (the blank import):
+
+```go
+import _ "example.com/mylinter" // registers its toolsdk.Spec at init
+```
+
+The detector reads the working directory from the context
+(`finding.WorkingDirFromContext`), so module fan-out and per-directory runs
+work transparently. The returned detector also implements
+`finding.DetectorV2`, so BuildFlow receives coverage evidence
+(`FilesScanned` / `SkippedModules`) from `CoverageReporter` rules and
+host-portable finding IDs (see below).
 
 ### Plug into go-finding/pipeline (per-rule parallelism)
 
@@ -146,16 +190,41 @@ detectors := linter.DetectorsFromRegistry(registry)
 // attributes timing and errors to individual rules.
 ```
 
+Both adapters also implement `finding.DetectorV2`, so hosts using
+`finding.RunDetect` receive coverage evidence alongside findings.
+
+### Coverage evidence and portable finding IDs
+
+Every execution path normalizes findings through `finding.Relativize` against
+the target directory, so finding IDs are stable whether the target was absolute
+or relative — IDs never embed host paths like `/home/...`.
+
+Rules that can measure their own scan coverage implement the optional
+`CoverageReporter` interface; the report then carries real evidence
+(`Summary.FilesScanned` / `Summary.SkippedModules`) instead of a meaningless
+zero:
+
+```go
+type goFilesRule struct {
+    linter.RuleFunc
+    scanned int
+}
+
+func (r *goFilesRule) Coverage(_ context.Context, _ string) (int, []string) {
+    return r.scanned, nil
+}
+```
+
 ### Building findings with Confidence and FixStrategy
 
-Each finding carries its own `Confidence` and `FixStrategy`, set via
-`finding.NewBuilder(...)`. This is strictly more expressive than rule-level
-defaults: a single rule can emit findings with different confidence levels and
-fix strategies depending on the matched pattern.
+Each finding carries its own `Confidence` and `FixStrategy`, set by chaining
+on the builder `rule.NewFinding(...)` returns. This is strictly more expressive
+than rule-level defaults: a single rule can emit findings with different
+confidence levels and fix strategies depending on the matched pattern.
 
 ```go
 return []finding.Finding{
-    finding.NewBuilder(ruleID, toolName, "unused variable", severity, pos).
+    rule.NewFinding("unused variable", pos).
         WithConfidence(finding.ConfidenceHigh).
         WithFixStrategy(finding.FixStrategyDirect).
         MustBuild(),
@@ -381,10 +450,22 @@ two physically deleted their converter code, one keeps a documented
 ## Status
 
 Early but adopted. The `Rule`/`Registry`/`Detector` core is stable, and the
-migration story is proven twice over: by the three pilot ports under
+migration story is proven twice over: by the pilot ports under
 [`examples/`](examples/) and, since 2026-10-11, by source-level verification
 that no direct consumer retains a custom Issue/Violation converter layer (see
 [Consumers](#consumers) and [`docs/ADOPTION.md`](docs/ADOPTION.md)).
+
+## Project docs
+
+Deeper material lives under [`docs/`](docs/):
+
+| Doc | What it holds |
+| --- | --- |
+| [`docs/DOMAIN_LANGUAGE.md`](docs/DOMAIN_LANGUAGE.md) | Ubiquitous-language glossary: Rule, Registry, dual identity, what is deliberately NOT here |
+| [`docs/migration-guide.md`](docs/migration-guide.md) | Step-by-step migration from a hand-rolled linter (converter deletion) |
+| [`docs/ADOPTION.md`](docs/ADOPTION.md) | Consumer adoption evidence, verdicts, and the refresh procedure |
+| [`docs/review/libs/index.html`](docs/review/libs/index.html) | Library utilization reviews (one `.md` per first-party dependency, scored) |
+| [`TODO_LIST.md`](TODO_LIST.md) / [`ROADMAP.md`](ROADMAP.md) | Open work items / long-term direction |
 
 ## Support & security
 

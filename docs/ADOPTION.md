@@ -87,3 +87,11 @@ Tracked snapshots; update alongside the refresh procedure.
 3. Update the table and this header's verification date.
 4. Record new consumers via the module proxy "Imported by" count on
    pkg.go.dev plus the sibling-repo scan used in the 2026-10-11 session.
+
+## Related
+
+Point-in-time utilization reviews of every first-party library this SDK
+touches (including this SDK's own self-audit) live in
+[`docs/review/libs/`](review/libs/index.html) — start at the dashboard,
+`index.html`; each report records the exact version reviewed and its
+re-review trigger.

@@ -99,3 +99,13 @@ Conventions:
 
 Please use [GitHub Issues](https://github.com/larsartmann/go-linter-sdk/issues)
 to report bugs or request features.
+
+## Version-pinned references
+
+Docs that name dependency or tool versions must point at `go.mod` (the single
+source of truth) rather than hardcoding versions — `scripts/check-doc-versions.sh`
+(CI job `doc-drift`) enforces this on the living docs. Point-in-time snapshot
+reports (status, reviews, plans) may stamp the version they reviewed; the
+library-utilization reviews additionally record a "version reviewed" line and a
+re-review trigger — follow that convention when adding a report under
+`docs/review/libs/`.
