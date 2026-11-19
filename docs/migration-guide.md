@@ -112,6 +112,24 @@ LOC, erraudit's 1,214 LOC of converters) the deletion dominates.
 - `linter.DetectorsFromRegistry(registry)` — one detector per rule for
   go-finding/pipeline with per-rule parallelism, timeouts, and isolation.
 
+Both adapters also satisfy `finding.DetectorV2`, so `RunDetect`-shaped hosts
+receive coverage evidence (`DetectResult`) plus root-relative finding IDs —
+`Registry.Run` feeds `CoverageReporter` rules' scan counts into the report
+and passes findings through `finding.Relativize` automatically.
+
+**Newer capabilities worth reaching for while you migrate** (all post-v0.5.0;
+see the README API table for signatures):
+
+- `linter.Filter` — gate findings by severity/category without hand-rolled
+  slices.
+- `linter.RuleSet` / `linter.SelectRules` — immutable rule collections and
+  `--enable`/`--disable` set logic that accept `OptIn`-wrapped rules.
+- `rule.NewFinding(...).WithEdits(finding.TextEdit{...})` +
+  `WithFixStrategy(finding.FixStrategyDirect)` — declare a mechanical fix on
+  the finding (ADR 0002: declaration only; hosts apply via
+  `finding.ApplySimpleFixes`, the pipeline `FixApplier`, or the toolsdk
+  `Repairer`).
+
 ## Common pitfalls
 
 - **Do not invent new rule IDs.** Suppressions (`//tool:ignore ID`) in users'
