@@ -88,14 +88,34 @@ else
 	)"
 fi
 
-echo "[4/7] Review-corpus render gate (PNGs newer than index.html)"
+echo "[4/7] Review-corpus render gate (sha256-bound vision verdict)"
 html=docs/review/libs/index.html
 if [ -f "$html" ]; then
-	stale=$(find docs/review/libs/assets -name '*.png' ! -newer "$html" 2>/dev/null | head -3)
-	if [ -z "$stale" ]; then
-		pass "screenshots newer than the dashboard HTML"
+	hash_line=$(grep -o 'render-gate: sha256 .*' "$html" | head -1)
+	if [ -n "$hash_line" ]; then
+		for pair in full:index-render-full.png top:index-render-top.png; do
+			key="${pair%%:*}"
+			file="${pair#*:}"
+			expected=$(printf '%s' "$hash_line" | grep -oE "$key=[0-9a-f]{64}" | cut -d= -f2)
+			if [ -z "$expected" ]; then
+				warn "render-gate line missing the '$key=' hash"
+				continue
+			fi
+			actual=$(sha256sum "docs/review/libs/assets/$file" | cut -d' ' -f1)
+			if [ "$actual" = "$expected" ]; then
+				pass "vision verdict matches $key bytes (sha256)"
+			else
+				miss "$key PNG bytes changed since the vision verdict (sha256 mismatch) — re-shoot and re-verify, then update the render-gate hash line"
+			fi
+		done
 	else
-		warn "stale PNGs (older than index.html): re-shoot and vision-verify on the FINAL bytes before release"
+		stale=$(find docs/review/libs/assets -name '*.png' ! -newer "$html" 2>/dev/null | head -3)
+		if [ -z "$stale" ]; then
+			pass "screenshots newer than the dashboard HTML"
+		else
+			warn "stale PNGs (older than index.html): re-shoot and vision-verify on the FINAL bytes before release"
+		fi
+		warn "no render-gate hash line in index.html — add '<!-- render-gate: sha256 full=... top=... -->' so the gate binds verdicts to bytes, not mtimes"
 	fi
 	if grep -q 'vision-checked' "$html"; then
 		pass "vision verdict recorded in the dashboard"

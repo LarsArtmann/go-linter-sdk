@@ -7,30 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Post-v0.6.0 additions on master (example/tooling tier; no SDK API change).
+Post-v0.6.0 additions on master (example/tooling/docs tier; no SDK API change).
+Release slot decision (2026-11-19): PATCH — the 2026-09-09 slot rules make
+example-level and tooling tiers a PATCH; no exported SDK surface changed.
 
 ### Added
 
 - **`examples/cli-triage --format=json`**: print the full go-finding Report
   as JSON — the machine-readable interchange lane, parseable back with
-  `finding.ReportFromJSON`; round-trip-tested.
-- **`scripts/release-checklist.sh`**: release-time truth gates (FEATURES
-  symbol coverage from the CHANGELOG, README coverage claim vs measured,
-  dead test-helper sweep, render-gate freshness + vision-verdict presence,
-  build/vet/race/doc gates). Caught two real drifts on its first run.
-- **`scripts/fleet-sweep.sh`**: mechanized 3-channel × 7-module-root
-  consumer sweep (post-v0.6.0 run recorded in FLEET-SWEEP-BASELINE.md: all
-  roots at v0.6.0, channel adoption still 0).
+  `finding.ReportFromJSON`; round-trip-tested (findings and clean-dir both).
+- **cli-triage coverage evidence**: the default-on walking rule now
+  implements `CoverageReporter`, so its reports carry real `filesScanned` —
+  the flagship example dogfoods the TODO #29 adoption pattern (note: OptIn
+  wraps the RuleFunc value, so the opt-in rule stays coverage-silent).
+- **cli-triage `--format` validation**: an unknown `--format=x` prints usage
+  on stderr and exits 3 (tool failure), instead of silently falling through
+  to the directory argument.
+- **`ExampleNewRuleSet` / `ExampleRuleSet_Check`**: pkg.go.dev-visible godoc
+  examples for the RuleSet type.
+- **`BenchmarkRuleSet_Check` + matched `BenchmarkRegistry_Run`**: the
+  end-to-end pairing over the same 50-rule workload — ~560 ns/op 0 allocs
+  (mutex-free findings-only path) vs ~3.5 µs/op 9 allocs (locks per rule +
+  Report + coverage evidence), ~6x by design.
+- **`golangci-version-sync` flake check** (TODO #32): eval-time assertion
+  that ci.yml's golangci-lint-action `version:` pin equals the flake's
+  `pkgs.golangci-lint` — fires on every flake evaluation, including
+  `nix flake check --no-build`. Caught live drift on its first run.
+- **shellcheck for `scripts/*.sh`** (TODO #33): a flake check (hermetic,
+  builds in `nix flake check`) plus a CI job; all four repo scripts now
+  pass shellcheck clean.
+- **CI coverage gate raised ≥90% → ≥98%**: the library measured 100.0% on
+  2026-11-19; the gate locks the bar against silent erosion.
+- **Byte-bound render gate**: `release-checklist.sh` now verifies the
+  dashboard's vision verdict against the PNGs' recorded sha256
+  (`<!-- render-gate: sha256 ... -->` in index.html) — a verdict binds to
+  artifact bytes, not mtimes.
+- **ADR 0004** (`docs/decisions/2026-11-19_selectrules-naming.md`): the
+  `SelectRules` naming decision made durable.
 
 ### Changed
 
-- Benchmarks: `RuleSet.Get` (~7 ns/op flat, mutex-free) and
-  `Filter.Apply` (~47 µs/op for 1000 findings, 1 alloc).
+- **golangci-lint action pin v2.14.0 → v2.15.0**: CI's downloaded binary was
+  a minor behind the flake's (live drift caught by the new #32 guard); the
+  pin comment now states the lockstep rule.
+- **release-checklist.sh**: `nix flake check --no-build` step added as gate
+  [7/7]; the manual-steps footer prints current HEAD so the daemon race
+  between "CI green" and "git tag" is visible at tag time; the dead-code
+  sweep covers every `_test.go` in the repo (root + examples), not just the
+  root package.
+- **Benchmarks baseline refreshed** (`reports/benchmarks-baseline.txt`):
+  post-O(1)-index numbers measured on an idle machine (Registry.Get ~17 ns
+  flat, RuleSet.Get ~8.4 ns flat, Deregister O(n) visible, Run_Coverage
+  ~1.15 µs; Filter.Apply discrepancy vs the v0.6.0 entry recorded honestly).
+- **Docs corpus**: DOMAIN_LANGUAGE.md gained glossary terms for
+  `CoverageReporter`, `RuleSet`, `Filter`, and `SelectRules`; README Types
+  table parity (RuleSet/Filter/CoverageReporter) + the example-tier exit
+  contract (0/1/2/3); ADOPTION gained a per-repo Push-state column with a
+  refresh-procedure step; CONTRIBUTING documents the `.docs-gates.json`
+  `audit_max` ratchet semantics; FLEET-SWEEP-BASELINE's stale "all 8 at
+  v0.5.0" paragraph carries the correction pointer; FLEET-AUDIT-TEMPLATE
+  encodes the byte-binding rule.
+
+### Changed (previously on master, carried in this tier)
+
+- Benchmarks: `RuleSet.Get` (~7–10 ns/op flat, mutex-free) and
+  `Filter.Apply` (single-alloc copy for 1000 findings).
 - Corpus drain: all 24 historical unharvested items carry inline verdicts;
   `.docs-gates.json` ratchet lowered 33 → 0. Upstream filings:
   samber-linter#5 (workspace-shadow test premise), BuildFlow#112 (providers
   suite flake); the docs-gates legend false positive was already fixed
   upstream (`73f5eac`).
+
+### Removed
+
+- **`scripts/release-checklist.sh` mtime render gate** in favor of the
+  sha256 gate above (mtime fallback retained for pages without a hash line,
+  with a WARN pointing at the hash-line format).
 
 ## [0.6.0] - 2026-11-19
 
