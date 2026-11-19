@@ -1,6 +1,6 @@
 // Command no-go-mod is a pilot port of go-structure-linter's NoGoModRule,
 // rewritten to use go-linter-sdk. It validates the converter-deletion claim:
-// a rule emits finding.Finding directly via finding.NewBuilder(...), with no
+// a rule emits finding.Finding directly via rule.NewFinding(...), with no
 // intermediate Violation/Issue type and no converter layer.
 //
 // Original (go-structure-linter, ~40 LOC + LinterRule base + types.Project):
@@ -31,21 +31,29 @@ import (
 	"github.com/larsartmann/go-linter-sdk"
 )
 
+const (
+	ruleID   = "no-go-mod"
+	toolName = "no-go-mod"
+)
+
 func main() {
 	dir := "."
 	if len(os.Args) > 1 {
 		dir = os.Args[1]
 	}
 
-	registry := linter.NewRegistry()
+	registry := linter.NewRegistry(linter.WithToolName(toolName))
 
-	registry.Register(linter.RuleFunc{
-		Meta: linter.RuleMeta{ //nolint:exhaustruct_v5 // example
-			ID:          "no-go-mod",
+	var goModRule linter.RuleFunc
+
+	goModRule = linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          ruleID,
 			Name:        "missing go.mod",
 			Description: "ensures go.mod exists for Go module management",
 			Cat:         linter.CategoryStructure,
 			Sev:         finding.SeverityCritical,
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, d string) ([]finding.Finding, error) {
 			if _, err := os.Stat(filepath.Join(d, "go.mod")); err == nil {
@@ -53,10 +61,8 @@ func main() {
 			}
 
 			return []finding.Finding{
-				finding.NewBuilder(
-					"no-go-mod", "no-go-mod",
+				goModRule.NewFinding(
 					"Missing go.mod file. Go modules are mandatory for dependency management since Go 1.16.",
-					finding.SeverityCritical,
 					finding.Pos(finding.FilePath("go.mod"), 0, 0),
 				).
 					WithConfidence(finding.ConfidenceHigh).
@@ -65,11 +71,13 @@ func main() {
 					MustBuild(),
 			}, nil
 		},
-	})
+	}
+
+	registry.Register(goModRule)
 
 	report, err := registry.Run(context.Background(), dir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "no-go-mod: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%s: %v\n", toolName, err)
 
 		os.Exit(2)
 	}

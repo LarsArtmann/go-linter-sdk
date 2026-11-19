@@ -53,9 +53,11 @@ func main() {
 		dir = os.Args[1]
 	}
 
-	registry := linter.NewRegistry()
+	registry := linter.NewRegistry(linter.WithToolName(toolName))
 
-	registry.Register(linter.RuleFunc{
+	var oopsGuardRule linter.RuleFunc
+
+	oopsGuardRule = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          ruleID,
 			Name:        "redundant nil guard before oops.Wrap",
@@ -65,9 +67,11 @@ func main() {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, target string) ([]finding.Finding, error) {
-			return checkRedundantGuards(target)
+			return checkRedundantGuards(oopsGuardRule, target)
 		},
-	})
+	}
+
+	registry.Register(oopsGuardRule)
 
 	report, err := registry.Run(context.Background(), dir)
 	if err != nil {
@@ -94,7 +98,7 @@ type redundantGuardMatch struct {
 }
 
 // checkRedundantGuards walks dir's Go files and emits one finding per match.
-func checkRedundantGuards(dir string) ([]finding.Finding, error) {
+func checkRedundantGuards(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
 	findings := make([]finding.Finding, 0)
 
 	fset := token.NewFileSet()
@@ -129,7 +133,7 @@ func checkRedundantGuards(dir string) ([]finding.Finding, error) {
 
 			for _, m := range findRedundantGuards(block) {
 				line := fset.Position(m.ifStmt.Pos()).Line
-				findings = append(findings, newFinding(path, line, m))
+				findings = append(findings, newFinding(rule, path, line, m))
 			}
 
 			return true
@@ -335,7 +339,7 @@ func wrapMethodName(ret *ast.ReturnStmt) string {
 
 // newFinding builds the finding the original violation detector produced:
 // same ID, severity (warning), confidence (0.85), message, and suggestion.
-func newFinding(path string, line int, match redundantGuardMatch) finding.Finding {
+func newFinding(rule linter.RuleFunc, path string, line int, match redundantGuardMatch) finding.Finding {
 	method := wrapMethodName(match.wrapRet)
 
 	message := fmt.Sprintf(
@@ -348,9 +352,8 @@ func newFinding(path string, line int, match redundantGuardMatch) finding.Findin
 		method, match.errName,
 	)
 
-	return finding.NewBuilder(
-		ruleID, toolName, message,
-		finding.SeverityWarning,
+	return rule.NewFinding(
+		message,
 		finding.Pos(finding.FilePath(path), line, 0),
 	).
 		WithConfidence(0.85).

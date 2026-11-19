@@ -7,8 +7,9 @@
 //	type and DetectionsToFindings converter existed only to bridge to
 //	finding.Finding.
 //
-//	Ported (go-linter-sdk, self-contained): one RuleFunc whose Run closure
-//	emits finding.Finding directly. No Detection type, no converter.
+// Ported (go-linter-sdk, self-contained): one RuleFunc whose Run closure
+// emits finding.Finding directly via rule.NewFinding. No Detection type, no
+// converter.
 //
 // Detection logic is a faithful port: flag naked `return` statements
 // (return with zero result expressions) inside functions that declare named
@@ -47,9 +48,11 @@ func main() {
 		dir = os.Args[1]
 	}
 
-	registry := linter.NewRegistry()
+	registry := linter.NewRegistry(linter.WithToolName(toolName))
 
-	registry.Register(linter.RuleFunc{
+	var nakedReturnRule linter.RuleFunc
+
+	nakedReturnRule = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          ruleID,
 			Name:        "naked return in long function",
@@ -59,9 +62,11 @@ func main() {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, target string) ([]finding.Finding, error) {
-			return checkNakedReturns(target)
+			return checkNakedReturns(nakedReturnRule, target)
 		},
-	})
+	}
+
+	registry.Register(nakedReturnRule)
 
 	report, err := registry.Run(context.Background(), dir)
 	if err != nil {
@@ -78,8 +83,8 @@ func main() {
 }
 
 // checkNakedReturns is the faithful port of branching-flow's nakedreturn
-// Analyzer.AnalyzeFile loop plus DetectionsToFindings emission.
-func checkNakedReturns(dir string) ([]finding.Finding, error) {
+// Analyzer.AnalyzeFile loop plus emission via rule.NewFinding.
+func checkNakedReturns(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
 	findings := make([]finding.Finding, 0)
 
 	fset := token.NewFileSet()
@@ -106,7 +111,7 @@ func checkNakedReturns(dir string) ([]finding.Finding, error) {
 			return fmt.Errorf("parse %s: %w", path, parseErr)
 		}
 
-		findings = append(findings, scanFile(fset, file, path)...)
+		findings = append(findings, scanFile(rule, fset, file, path)...)
 
 		return nil
 	}); walkErr != nil {
@@ -117,7 +122,7 @@ func checkNakedReturns(dir string) ([]finding.Finding, error) {
 }
 
 // scanFile inspects one parsed file for naked returns in long functions.
-func scanFile(fset *token.FileSet, file *ast.File, path string) []finding.Finding {
+func scanFile(rule linter.RuleFunc, fset *token.FileSet, file *ast.File, path string) []finding.Finding {
 	findings := make([]finding.Finding, 0)
 
 	ast.Inspect(file, func(n ast.Node) bool {
@@ -145,7 +150,7 @@ func scanFile(fset *token.FileSet, file *ast.File, path string) []finding.Findin
 
 			line := fset.Position(retStmt.Pos()).Line
 
-			findings = append(findings, newFinding(path, line, fnDecl.Name.Name, bodyLen))
+			findings = append(findings, newFinding(rule, path, line, fnDecl.Name.Name, bodyLen))
 
 			return true
 		})
@@ -156,14 +161,12 @@ func scanFile(fset *token.FileSet, file *ast.File, path string) []finding.Findin
 	return findings
 }
 
-// newFinding builds the finding that DetectionsToFindings produced in the
-// original: same ID, message, severity (Info), confidence (0.85), and
-// metadata keys.
-func newFinding(path string, line int, function string, functionLen int) finding.Finding {
-	return finding.NewBuilder(
-		ruleID, toolName,
+// newFinding builds the finding via the rule's identity: same ID, message,
+// severity (Info), confidence (0.85), and metadata keys as the original's
+// DetectionsToFindings output.
+func newFinding(rule linter.RuleFunc, path string, line int, function string, functionLen int) finding.Finding {
+	return rule.NewFinding(
 		fmt.Sprintf("naked return in %s() (%d lines), use explicit return values", function, functionLen),
-		finding.SeverityInfo,
 		finding.Pos(finding.FilePath(path), line, 0),
 	).
 		WithConfidence(0.85).
