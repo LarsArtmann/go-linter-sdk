@@ -57,6 +57,19 @@ jobs:
         run: ${{ steps.get_actionlint.outputs.executable }} -color
         shell: bash
 
+  # Mirrors the flake's shellcheck check (TODO #33); ubuntu-latest ships
+  # shellcheck, so no install step. scripts/ is the repo's only ungated shell.
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Shellcheck repo scripts
+        run: |
+          for script in scripts/*.sh; do
+            shellcheck -x "$script"
+          done
+    timeout-minutes: 5
+
   test:
     strategy:
       fail-fast: false
@@ -93,8 +106,8 @@ jobs:
         run: |
           total=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | tr -d '%')
           echo "Total coverage: ${total}%"
-          if (( $(echo "$total < 90.0" | bc -l) )); then
-            echo "::error::Coverage ${total}% is below 90% threshold"
+          if (( $(echo "$total < 98.0" | bc -l) )); then
+            echo "::error::Coverage ${total}% is below 98% threshold (library measured 100.0% on 2026-11-19; the gate locks the bar against silent erosion)"
             exit 1
           fi
         env:

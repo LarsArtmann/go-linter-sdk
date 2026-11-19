@@ -18,6 +18,9 @@
 #      - flake.nix:            pkgs.go_1_M
 #      - ci.yml:               GOTOOLCHAIN: go1.M.P and go-version: "1.M"
 #      - .golangci.yml:        run.go: 1.M.P
+#   4. ci.yml must pin a golangci-lint version under golangci-lint-action
+#      (shape only; the flake's eval-time assertion enforces the semantic
+#      match with pkgs.golangci-lint — TODO #32).
 #
 # Escape hatch: append the marker `docguard:allow` to a line to exempt it.
 # Use sparingly; every use is a promise to revisit that line on the next bump.
@@ -128,6 +131,14 @@ fi
 if grep -qE '^  go: 1\.[0-9]+' .golangci.yml 2>/dev/null; then
 	pin="$(grep -E '^  go: 1\.[0-9]+' .golangci.yml | grep -oE '1\.[0-9]+' | cut -d. -f2)"
 	[ "$pin" = "$go_minor" ] || die ".golangci.yml run.go pins 1.$pin but go.mod requires go $go_major.$go_minor."
+fi
+
+# Rule 4: the lint action must keep an explicit version pin (its removal
+# would silently download "latest", breaking Go-compatibility guarantees).
+if [ -f .github/workflows/ci.yml ]; then
+	if ! grep -qE '^ *version: v[0-9]+\.[0-9]+\.[0-9]+$' .github/workflows/ci.yml; then
+		die ".github/workflows/ci.yml lost its golangci-lint version pin (expected 'version: vX.Y.Z'). Restore it — the flake's #32 assertion pairs it with pkgs.golangci-lint."
+	fi
 fi
 
 if [ "$fail" -ne 0 ]; then

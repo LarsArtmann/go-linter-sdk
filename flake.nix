@@ -72,6 +72,21 @@
             runHook postInstall
           '';
 
+          # TODO #32: the golangci-lint binary CI downloads must match the
+          # flake's pkgs.golangci-lint, or `nix run .#lint` and CI's lint job
+          # disagree on findings (live drift caught 2026-11-19: ci.yml pinned
+          # v2.14.0 while nixpkgs served v2.15.0). Eval-time assertion: fires
+          # on every flake evaluation, including `nix flake check --no-build`.
+          golangciActionPin =
+            let
+              ci = builtins.readFile ./.github/workflows/ci.yml;
+              match = builtins.match ".*\n[ ]*version: (v[0-9]+[.][0-9]+[.][0-9]+)\n.*" ci;
+            in
+            if match == null then
+              throw "ci.yml no longer pins a golangci-lint version (expected `version: vX.Y.Z` under golangci-lint-action); restore the pin or update the #32 guard"
+            else
+              builtins.head match;
+
           mkApp = name: description: script: {
             type = "app";
             program = "${
@@ -147,6 +162,39 @@
           checks = {
             # go build + go test ./... in the network-less sandbox.
             go-test = mkCheckModule { };
+
+            # TODO #32: forced at eval (assert fires before the derivation
+            # builds); the derivation itself just records the synced version.
+            golangci-version-sync =
+              assert golangciActionPin == "v${pkgs.golangci-lint.version}";
+              pkgs.runCommand "golangci-version-sync-check"
+                {
+                  nativeBuildInputs = [ pkgs.bash ];
+                }
+                ''
+                  echo "golangci-lint in sync: flake v${pkgs.golangci-lint.version} == ci.yml pin ${golangciActionPin}"
+                  touch $out
+                '';
+
+            # TODO #33: every repo script must pass shellcheck. (The flake
+            # apps are already checked by writeShellApplication; scripts/ was
+            # the ungated gap.)
+            shellcheck =
+              pkgs.runCommand "shellcheck-scripts-check"
+                {
+                  nativeBuildInputs = [
+                    pkgs.shellcheck
+                    pkgs.bash
+                  ];
+                }
+                ''
+                  cd ${src}
+                  for script in scripts/*.sh; do
+                    echo "shellcheck $script"
+                    ${pkgs.shellcheck}/bin/shellcheck -x "$script"
+                  done
+                  touch $out
+                '';
 
             go-vet = (mkCheckModule { doCheck = false; }).overrideAttrs (_: {
               pname = "go-linter-sdk-vet";
