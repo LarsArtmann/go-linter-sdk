@@ -62,8 +62,12 @@ shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
 - **#29 TODO — CoverageReporter adoption at consumers (fleet AFTER targets).**
   Each walking-rule linter implements `CoverageReporter` on its tree-walking
   rules so fleet dashboards get `filesScanned ≠ 0`; BuildFlow/execution
-  consumes `DetectorV2` from the SDK adapters. Before-state and per-repo
-  targets: `docs/review/libs/FLEET-SWEEP-BASELINE.md`.
+  consumes `DetectorV2` from the SDK adapters. Per-repo targets, in order:
+  `go-structure-linter` → `samber-linter` → `go-humanize-linter` →
+  `cmdguard/lint` → `project-meta/linter` (all five walking-rule linters),
+  then BuildFlow/execution. Before-state + AFTER table (all 0 refs at
+  v0.6.0): `docs/review/libs/FLEET-SWEEP-BASELINE.md`; re-measure with
+  `bash scripts/fleet-sweep.sh` after each landing.
   (#28 the WithEdits declaration teaching shipped 2026-11-19: oops example
   carries `WithEdits` + `FixStrategyDirect`, README documents the three
   host-side lanes; row removed per the DONE legend.)
@@ -110,3 +114,8 @@ item gates red immediately. One routed item minted as #32 below.)
   `flake.nix`'s golangci-lint package version; extend
   `scripts/check-doc-versions.sh` (or a sibling check) to compare them.
   Routed from archived 2026-09-09_05-23 item 8 during the #30 drain.
+- **#33 TODO — Add a `shellcheck` flake check + CI job; fix findings in
+  `scripts/*.sh`.** The scripts directory now carries three authored scripts
+  (`check-doc-versions.sh`, `bump-checklist.sh`, `release-checklist.sh`) plus
+  `fleet-sweep.sh`; none are shellcheck-gated. Routed from archived
+  2026-10-11_10-50 item 3 (resurfaced when the scripts grew).
