@@ -10,7 +10,7 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 **[pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)**
 
-> **Status: Early, adopted, proven.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.7% coverage, race-clean), and six LarsArtmann repositories already import it. The value proposition — eliminating converter code — is **verified at the source level** (2026-10-11): no consumer retains a custom Issue/Violation converter layer; one deleted its violation hierarchy (~4,700 LOC), three were born native. Details and per-repo evidence: [`docs/ADOPTION.md`](docs/ADOPTION.md).
+> **Status: Early, adopted, proven.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.3% coverage measured 2026-11-19, race-clean), and six LarsArtmann repositories already import it. The value proposition — eliminating converter code — is **verified at the source level** (2026-10-11): no consumer retains a custom Issue/Violation converter layer; one deleted its violation hierarchy (~4,700 LOC), three were born native. Details and per-repo evidence: [`docs/ADOPTION.md`](docs/ADOPTION.md).
 
 ---
 
@@ -369,6 +369,7 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 | `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`  | Severity/category-based finding filtering; zero value keeps everything, input never mutated           |
 | `NewRegistryFromRules(rules, opts)` | `*Registry`              | Bulk constructor with the same validation as per-rule `Register`                                      |
 | `RuleSet` (type)                    | `NewRuleSet`, `Check`, `ToRegistry` | Immutable, order-preserving, mutex-free rule collection with O(1) ID lookup                 |
+| `CoverageReporter` (optional iface) | `Coverage()` returns file counts | Rules that report `filesScanned`/`skippedModules`; `Run` feeds them into the report — real coverage evidence per finding run |
 | `AllCategories()`                   | `[]Category`             | Fresh copy of the eleven recommended categories                                                       |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
 | `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`       | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                       |
@@ -435,6 +436,7 @@ Example consumers in this repo:
 - `examples/no-go-mod` — pilot port of `go-structure-linter`'s `NoGoModRule`
 - `examples/naked-return-guard` — pilot port of `branching-flow`'s `nakedreturn` rule (156 LOC of analyzer + Detection type + converter became one self-contained `RuleFunc`)
 - `examples/oops-redundant-guard` — pilot port of `erraudit`'s `oops_redundant_guard` rule (detection core + go/analysis autofixer + violation bridge became one self-contained `RuleFunc`)
+- `examples/cli-triage` — discovery + triage demo: `FilterRules` (--enable/--disable), `OptIn` gating, tiered exit codes (0 clean / 1 must-fix / 2 triage / 3 tool failure)
 
 Direct consumers in the LarsArtmann ecosystem (verified 2026-10-11; integration
 pattern and converter status per repo in [`docs/ADOPTION.md`](docs/ADOPTION.md)):
