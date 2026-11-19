@@ -294,3 +294,23 @@ Follow-ups routed at write time: TODO_LIST #20-#27 plus ROADMAP lines
 (coverage-aware Run, rule-level fix representation targeting the toolsdk
 Repairer contract). Re-review triggers: next go-finding minor bump after
 v1.15.1, or the release that picks up TODO #24/#25.
+
+## Tooling: golangci config converge workflow (documented 2026-11-19)
+
+`.golangci.yml` is NOT hand-rolled in isolation — it is converged against the
+fleet baseline with `golangci-lint-auto-configure` (the tool built on
+`linter-autoconfigure-sdk`; see `docs/review/libs/linter-autoconfigure-sdk.md`
+for the verdict that the LIBRARY stays unimported while the TOOL is used).
+
+```bash
+# 1. inspect (no writes):
+golangci-lint-auto-configure analyze --dry-run --no-color
+# 2. review the proposed diff, then apply:
+golangci-lint-auto-configure analyze --diff --no-color
+# 3. validate the result still compiles under the pinned Go:
+nix run .#lint
+```
+
+Verified 2026-11-19: analyze reports 0 critical/high/medium/optional findings
+(106 enabled, 9 disabled) on this repo's config. A converge commit lands as
+`chore(config): converge ...` (precedent `56b667e`).
