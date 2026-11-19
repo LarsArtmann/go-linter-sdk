@@ -176,3 +176,5 @@ Sorted by impact. Category: Bug / Feature / Quality / Cleanup / Docs / Process.
 ---
 
 _Reported 2026-10-11 07:11 · grounded in this session only · no new research performed_
+
+> **Live remainder:** none unharvested — docs-gates routing verified 0 unrouted open rows on 2026-11-19 (plan M27). Living truth: TODO_LIST.md, ROADMAP.md, CHANGELOG.md, docs/ADOPTION.md.

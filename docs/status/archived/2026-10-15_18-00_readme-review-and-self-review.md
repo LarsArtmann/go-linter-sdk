@@ -227,3 +227,5 @@ README Errors snippet mirrors a tested Example function.
 
 _Point-in-time snapshot. Written 2026-10-15 18:00 after session-close; the
 auto-commit daemon picks up the file (no manual commit per harness contract)._
+
+> **Live remainder:** none unharvested — docs-gates routing verified 0 unrouted open rows on 2026-11-19 (plan M27). Living truth: TODO_LIST.md, ROADMAP.md, CHANGELOG.md, docs/ADOPTION.md.

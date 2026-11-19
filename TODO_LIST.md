@@ -87,3 +87,12 @@ derivations. #18 the bump checklist is encoded in
   - Deduplicate by semantic intent, not by text match.
   - Vague / long-term items belong in ROADMAP.md, not here.
 -->
+
+### Docs corpus debt (ratchet-pinned 2026-11-19)
+
+- **#30 TODO — Drain the audit-all corpus debt (33 historical unharvested
+  items across 27 archived reports, July–Oct sessions).** Each item needs an
+  inline verdict (`done at <hash>` / NOT-DO / routed) per docs-health
+  ANNOTATE mode. `.docs-gates.json` pins `audit_max: 33` — the ratchet only
+  goes DOWN; every drain pass lowers it toward strict (-1). Evidence:
+  `docs-gates run` audit-all replay.

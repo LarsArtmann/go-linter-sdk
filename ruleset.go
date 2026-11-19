@@ -41,13 +41,13 @@ func NewRuleSet(rules []Rule) *RuleSet {
 			panic(err)
 		}
 
-		id := rule.ID()
-		if _, exists := set.byID[id]; exists {
-			panic("linter: duplicate rule ID " + id)
+		ruleID := rule.ID()
+		if _, exists := set.byID[ruleID]; exists {
+			panic("linter: duplicate rule ID " + ruleID)
 		}
 
 		set.rules = append(set.rules, rule)
-		set.byID[id] = rule
+		set.byID[ruleID] = rule
 	}
 
 	return set

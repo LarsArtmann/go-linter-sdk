@@ -365,3 +365,5 @@ Files touched this session: `.github/workflows/ci.yml`, `.golangci.yml`,
 `docs/DOMAIN_LANGUAGE.md`, `docs/status/*` (20 archived + HTML annotated),
 `docs/planning/2026-10-11_07-36_*.md` (executed annotation),
 `reports/benchmarks-baseline.txt`.
+
+> **Live remainder:** none unharvested — docs-gates routing verified 0 unrouted open rows on 2026-11-19 (plan M27). Living truth: TODO_LIST.md, ROADMAP.md, CHANGELOG.md, docs/ADOPTION.md.

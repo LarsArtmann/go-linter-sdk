@@ -136,13 +136,13 @@ func TestRuleSet_ToRegistry(t *testing.T) {
 		t.Fatalf("expected registry to preserve order, got %d rules", len(all))
 	}
 
-	rf, ok := all[0].(linter.RuleFunc)
+	extracted, ok := all[0].(linter.RuleFunc)
 	if !ok {
 		t.Fatalf("expected RuleFunc, got %T", all[0])
 	}
 
-	if rf.Meta.ToolName != "from-set" {
-		t.Errorf("expected option to apply, got %q", rf.Meta.ToolName)
+	if extracted.Meta.ToolName != "from-set" {
+		t.Errorf("expected option to apply, got %q", extracted.Meta.ToolName)
 	}
 
 	reg.Register(makeRule("s3", nil))

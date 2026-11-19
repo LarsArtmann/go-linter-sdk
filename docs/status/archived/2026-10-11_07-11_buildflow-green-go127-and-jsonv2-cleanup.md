@@ -175,3 +175,5 @@ buildflow -s securitymd --format finding                                       â
 ## Files touched this session
 
 `flake.nix`, `.buildflow.yml`, `.golangci.yml`, `.github/workflows/ci.yml`, `SECURITY.md`, `AGENTS.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `README.md`, `FEATURES.md`, `examples/{minimal-linter,naked-return-guard,no-go-mod,oops-redundant-guard}/main.go`.
+
+> **Live remainder:** none unharvested â€” docs-gates routing verified 0 unrouted open rows on 2026-11-19 (plan M27). Living truth: TODO_LIST.md, ROADMAP.md, CHANGELOG.md, docs/ADOPTION.md.

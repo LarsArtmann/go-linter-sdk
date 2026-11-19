@@ -196,3 +196,5 @@ Brainstorm, sorted roughly by impact — items 1–12 are the real queue; the re
 
 _Snapshot ends. Point-in-time report — annotate, don't rewrite (docs-health ANNOTATE). Section (f) items 1–12 are the
 HARVEST candidates; the tail needs routing rigor before becoming commitments._
+
+> **Live remainder:** none unharvested — docs-gates routing verified 0 unrouted open rows on 2026-11-19 (plan M27). Living truth: TODO_LIST.md, ROADMAP.md, CHANGELOG.md, docs/ADOPTION.md.
