@@ -227,7 +227,11 @@ func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*fin
 			errs = append(errs, wrapped)
 		}
 
-		res := finding.DetectResult{Findings: finding.Relativize(findings, dir)}
+		res := finding.DetectResult{
+			Findings:       finding.Relativize(findings, dir),
+			FilesScanned:   0,
+			SkippedModules: nil,
+		}
 		if cov, ok := rule.(CoverageReporter); ok {
 			res.FilesScanned, res.SkippedModules = cov.Coverage(ctx, dir)
 		}
@@ -311,6 +315,7 @@ func (d *registryDetector) DetectV2(ctx context.Context) (finding.DetectResult, 
 		if cov, ok := rule.(CoverageReporter); ok {
 			files, skipped := cov.Coverage(ctx, dir)
 			res.FilesScanned += files
+
 			for _, module := range skipped {
 				if !slices.Contains(res.SkippedModules, module) {
 					res.SkippedModules = append(res.SkippedModules, module)
@@ -375,7 +380,11 @@ func (d *ruleDetector) DetectV2(ctx context.Context) (finding.DetectResult, erro
 		return finding.DetectResult{}, wrapRuleError(d.rule.ID(), err)
 	}
 
-	res := finding.DetectResult{Findings: finding.Relativize(findings, dir)}
+	res := finding.DetectResult{
+		Findings:       finding.Relativize(findings, dir),
+		FilesScanned:   0,
+		SkippedModules: nil,
+	}
 	if cov, ok := d.rule.(CoverageReporter); ok {
 		res.FilesScanned, res.SkippedModules = cov.Coverage(ctx, dir)
 	}
