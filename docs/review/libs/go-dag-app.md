@@ -2,7 +2,7 @@
 
 - **Reviewed:** 2026-11-19 by fleet audit Group C (sub-agent; orchestrated session)
 - **Library:** github.com/larsartmann/go-dag-app
-- **Sub-modules:** single module at repo root (`/home/lars/projects/go-dag-app/go.mod`, Go 1.26 directive, sole dep `github.com/samber/do/v2 v2.1.0` + one indirect). Consumer is single-module; layouts match, but that is the only thing that matches.
+- **Sub-modules:** single module at repo root (`/home/lars/projects/go-dag-app/go.mod`, Go 1.27 directive, sole dep `github.com/samber/do/v2 v2.1.0` + one indirect). Consumer is single-module; layouts match, but that is the only thing that matches.
 - **Version reviewed:** library repo `v0.1.1` (git describe; HEAD `d9934c8` 2026-11-02, tag sits on HEAD); consumer pin: none (not in go.mod); point-in-time snapshot
 - **Verdict:** NOT-ADOPTED — a 3-function DI-container bootstrap for long-running `samber/do` apps; go-linter-sdk is a pure library with no injector to bootstrap, and adopting it would pull the exact `samber-do` transitive tree the SDK's layering decision explicitly refuses
 - **Score:** no score (not adopted)
