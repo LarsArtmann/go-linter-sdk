@@ -7,16 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-19
+
+The report-truthfulness release. The SDK's execution paths now feed
+go-finding's coverage channel and normalize finding IDs, so every consumer's
+report becomes checkable (`filesScanned ≠ 0`) and host-portable (no
+`/home/...` in finding IDs). The changes below are deliberate and
+MINOR-slotted per the 2026-09-09 version rules; no signature changed.
+
+### Added
+
+- **`CoverageReporter` optional Rule interface** (`rule.go`): rules that can
+  measure their own scan coverage implement
+  `Coverage(ctx, dir) (filesScanned int, skippedModules []string)`.
+  `Registry.Run` feeds the evidence into the report via
+  `report.AddDetectResult` (go-finding's `DetectResult` channel), so
+  `Summary.FilesScanned` / `Summary.SkippedModules` carry real measurements
+  instead of a meaningless zero.
+- **`finding.DetectorV2` support in both adapters**: `DetectorFromRegistry`
+  and `DetectorsFromRegistry` now return detectors that also satisfy
+  `finding.DetectorV2` — hosts using `finding.RunDetect` receive findings
+  plus coverage evidence; plain `Detect` callers keep working untouched
+  (fallback contract of go-finding's `RunDetect`).
+- **`ErrInvalidCategory` sentinel** (`rule.go`): registering a rule whose
+  `Category` is non-empty but malformed (not lowercase-hyphenated, e.g.
+  `"Bogus Cat"`) now fails fast at registration via
+  `finding.Category.IsValid()`. Custom categories remain welcome — only the
+  shape is enforced, so the SDK taxonomy and the finding layer's can never
+  disagree.
+- **`examples/cli-triage`**: fifth example demonstrating `FilterRules`
+  (`--enable`/`--disable`), `OptIn` gating, and `ExitCodeByConfidence`
+  (0 clean / 1 must fix / 2 triage), with integration tests.
+- **README "Project docs" section** linking the domain language, migration
+  guide, adoption evidence, and the library-review corpus
+  (`docs/review/libs/`).
+- **README toolsdk recipe**: copy-pasteable `toolsdk.Register(Spec{...})`
+  BuildFlow wiring, standalone-compile-verified against
+  `go-finding/toolsdk` v1.16.0.
+- **`go-error-family` review report** (`docs/review/libs/go-error-family.md`):
+  the 8th first-party library audited (transitive-only, deliberate).
+
 ### Changed
 
-- **`go-finding` bumped to v1.15.0** (transitive `go-error-family` v0.11.0 →
-  v0.12.0) on master after the v0.4.0 tag. Source-compatible upstream change:
-  go-finding v1.15.0 adds the `DetectorV2` coverage channel (`DetectResult`
-  carrying `FilesScanned`/`SkippedModules`); the plain `Detector` interface
-  this SDK implements is unchanged, so no SDK API moved. CI green on the bump
-  commit (`154c20a`, 2026-10-15). Recorded here because the bump arrived via
-  an auto-commit with no narrative; `go.mod` remains the single version
+- **Finding IDs are host-portable (behavior change):** all three execution
+  paths (`Registry.Run`, `DetectorFromRegistry`, `DetectorsFromRegistry`)
+  normalize findings through `finding.Relativize` against the target
+  directory. Absolute-path runs produce root-relative paths and regenerated
+  IDs, so a finding seen via the CLI lane and the orchestrator lane gets the
+  same ID and no host path leaks into shared reports. Consumers that persist
+  findings keyed by ID will see IDs change for absolute-dir invocations —
+  that is the fix, not a regression.
+- **`Run` aggregates via `AddDetectResult`** instead of `AddFindings`:
+  identical finding behavior, plus coverage accumulation. `ComputeSummary`
+  does not touch coverage fields, so evidence survives summary recomputation.
+- **All four pilot examples teach the modern pattern**: `WithToolName` on the
+  registry, explicit `ToolName` in `RuleMeta`, and `rule.NewFinding(...)`
+  emission — no raw `finding.NewBuilder` calls with hand-repeated identity
+  remain in `examples/`.
+- **README quickstart and godoc examples** synced to the same modern pattern;
+  godoc examples now demonstrate coverage evidence and `DetectorV2`.
+- **`go-finding` pinned at v1.15.1** (transitive `go-error-family` v0.11.0 →
+  v0.12.0), bumped on master after the v0.4.0 tag. Source-compatible upstream
+  change: go-finding v1.15.0 added the `DetectorV2` coverage channel
+  (`DetectResult` carrying `FilesScanned`/`SkippedModules`) and v1.15.1 added
+  `Relativize` — exactly the channels this release wires. CI green on the
+  bump commit (`154c20a`, 2026-10-15); `go.mod` remains the single version
   source of truth.
+
+### Fixed
+
+- DOMAIN_LANGUAGE relationships diagram now shows `NewFinding`, `OptIn`,
+  `CoverageReporter`, `DetectorV2`, and the `Relativize` pass, which the
+  2026-11-19 fleet audit found predating the API.
+
+## [0.4.1] - 2026-10-15
+
+Docs-only PATCH: pkg.go.dev renders the README frozen at the tag, so this
+release refreshed it without any API movement. See the git history for the
+tagged README delta; the v0.4.0-era Unreleased note about the go-finding
+bump (v1.15.0) was superseded by the [0.5.0] entry above.
 
 ## [0.4.0] - 2026-10-11
 

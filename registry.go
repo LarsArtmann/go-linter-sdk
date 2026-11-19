@@ -261,8 +261,8 @@ func workingDir(ctx context.Context) string {
 
 // DetectorFromRegistry adapts a registry to the canonical finding.Detector
 // interface, so a linter plugs into BuildFlow's DAG with zero glue (via the
-// tool-sdk Spec.Detect field). The working directory is read from ctx via
-// finding.WorkingDirFromContext.
+// Spec.Detect field of the go-finding/toolsdk module). The working directory
+// is read from ctx via finding.WorkingDirFromContext.
 //
 // The returned value also implements finding.DetectorV2: hosts that use
 // finding.RunDetect receive findings plus coverage evidence (rules
