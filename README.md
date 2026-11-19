@@ -10,7 +10,7 @@ Every Go linter reinvents the same scaffolding — a rule interface, a registry,
 
 **[pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/go-linter-sdk)**
 
-> **Status: Early, adopted, proven.** The `Rule`/`Registry`/`Detector` core is stable and tested (98.3% coverage measured 2026-11-19, race-clean), and six LarsArtmann repositories already import it. The value proposition — eliminating converter code — is **verified at the source level** (2026-10-11): no consumer retains a custom Issue/Violation converter layer; one deleted its violation hierarchy (~4,700 LOC), three were born native. Details and per-repo evidence: [`docs/ADOPTION.md`](docs/ADOPTION.md).
+> **Status: Early, adopted, proven.** The `Rule`/`Registry`/`Detector` core is stable and tested (100% library coverage measured 2026-11-19, race-clean), and six LarsArtmann repositories already import it. The value proposition — eliminating converter code — is **verified at the source level** (2026-10-11): no consumer retains a custom Issue/Violation converter layer; one deleted its violation hierarchy (~4,700 LOC), three were born native. Details and per-repo evidence: [`docs/ADOPTION.md`](docs/ADOPTION.md).
 
 ---
 

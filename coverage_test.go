@@ -3,6 +3,7 @@ package linter_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -461,5 +462,121 @@ func TestRegistry_Run_ContinueOnError_KeepsCoverageFromPassingRules(t *testing.T
 
 	if report.Len() != 1 {
 		t.Errorf("expected the passing rule's finding to survive, got %d findings", report.Len())
+	}
+}
+
+// preWrappedRule is a custom Rule (not RuleFunc) whose Check returns an
+// already-wrapped *RuleError, exercising wrapRuleError's pass-through branch.
+type preWrappedRule struct{}
+
+func (preWrappedRule) ID() string                 { return "pre-wrapped" }
+func (preWrappedRule) Name() string               { return "pre-wrapped" }
+func (preWrappedRule) Description() string        { return "returns a wrapped error" }
+func (preWrappedRule) Category() linter.Category  { return linter.CategoryDesign }
+func (preWrappedRule) Severity() finding.Severity { return finding.SeverityWarning }
+func (preWrappedRule) IsEnabledByDefault() bool   { return true }
+func (preWrappedRule) Check(context.Context, string) ([]finding.Finding, error) {
+	return nil, linter.NewRuleError("pre-wrapped", errSentinel)
+}
+
+func TestRegistry_Run_PreWrappedRuleErrorNotDoubleWrapped(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(preWrappedRule{})
+
+	_, err := r.Run(context.Background(), ".")
+	if err == nil {
+		t.Fatal("expected the rule's error")
+	}
+
+	ruleErrs := linter.RuleErrors(err)
+	if len(ruleErrs) != 1 {
+		t.Fatalf("expected exactly one RuleError (no double wrap), got %d", len(ruleErrs))
+	}
+
+	if ruleErrs[0].RuleID != "pre-wrapped" {
+		t.Errorf("expected rule ID pre-wrapped, got %q", ruleErrs[0].RuleID)
+	}
+}
+
+func TestRuleErrors_SingleChainReachingNil(t *testing.T) {
+	t.Parallel()
+
+	wrapped := fmt.Errorf("layer: %w", errSentinel)
+	if linter.RuleErrors(wrapped) != nil {
+		t.Error("expected nil for a chain with no RuleError leaves")
+	}
+
+	if linter.RuleErrors(nil) != nil {
+		t.Error("expected nil for nil input")
+	}
+}
+
+func TestDetectorFromRegistry_NameReturnsToolName(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	detector := linter.DetectorFromRegistry(r, "named-tool")
+	if detector.Name() != "named-tool" {
+		t.Errorf("expected detector name named-tool, got %q", detector.Name())
+	}
+}
+
+func TestRuleFunc_SeverityReturnsMetaSev(t *testing.T) {
+	t.Parallel()
+
+	rule := makeRule("sev-rule", nil)
+	if rule.Severity() != finding.SeverityWarning {
+		t.Errorf("expected SeverityWarning from meta, got %v", rule.Severity())
+	}
+}
+
+// rawErrorRule is a custom Rule whose Check returns a plain (unwrapped)
+// error, exercising wrapRuleError's re-wrap branch for non-RuleFunc rules.
+type rawErrorRule struct{}
+
+func (rawErrorRule) ID() string                 { return "raw-error" }
+func (rawErrorRule) Name() string               { return "raw-error" }
+func (rawErrorRule) Description() string        { return "returns a raw error" }
+func (rawErrorRule) Category() linter.Category  { return linter.CategoryDesign }
+func (rawErrorRule) Severity() finding.Severity { return finding.SeverityWarning }
+func (rawErrorRule) IsEnabledByDefault() bool   { return true }
+func (rawErrorRule) Check(context.Context, string) ([]finding.Finding, error) {
+	return nil, errSentinel
+}
+
+func TestRegistry_Run_RawRuleErrorGetsWrapped(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+	r.Register(rawErrorRule{})
+
+	_, err := r.Run(context.Background(), ".")
+	if err == nil {
+		t.Fatal("expected the rule's error")
+	}
+
+	ruleErrs := linter.RuleErrors(err)
+	if len(ruleErrs) != 1 {
+		t.Fatalf("expected exactly one RuleError, got %d", len(ruleErrs))
+	}
+
+	if ruleErrs[0].RuleID != "raw-error" {
+		t.Errorf("expected rule ID raw-error, got %q", ruleErrs[0].RuleID)
+	}
+}
+
+type nilUnwrapError struct{}
+
+func (nilUnwrapError) Error() string { return "wrapper with nil inner" }
+func (nilUnwrapError) Unwrap() error { return nil }
+
+func TestRuleErrors_NilUnwrapLeafTerminates(t *testing.T) {
+	t.Parallel()
+
+	if linter.RuleErrors(nilUnwrapError{}) != nil {
+		t.Error("expected nil for a chain ending in a nil unwrap")
 	}
 }

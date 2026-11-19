@@ -15,8 +15,8 @@
 
 > A feature earns `FULLY_FUNCTIONAL` only when you can point to the code that
 > delivers it AND confirm it works. Re-verified 2026-11-19: `golangci-lint`
-> (0 issues), `go test -race` (clean), library coverage 98.3% (measured
-> 2026-11-19; DetectV2 error paths untested — see TODO_LIST).
+> (0 issues), `go test -race` (clean), library coverage 100.0% (measured
+> 2026-11-19, every statement covered).
 >
 > **One-home rule:** this file tracks only what EXISTS in code today.
 > Not-yet-built capabilities live in `ROADMAP.md` until they graduate to

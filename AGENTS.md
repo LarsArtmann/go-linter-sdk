@@ -143,8 +143,8 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
   > downloads the exact patch.
 - **The coverage gate measures library packages only.** `examples/` are
   exercised via `exec.Command` from integration tests, so their statements
-  never attribute (`./...` totals ~44%; the library alone is 98.3% measured
-  2026-11-19, target ≥ 98.7% — DetectV2 error paths untested, see TODO_LIST). CI runs
+  never attribute (`./...` totals ~44%; the library alone is 100.0% measured
+  2026-11-19 — every statement covered, incl. DetectV2 error paths). CI runs
   `go list ./... | grep -v /examples/ | xargs go test ...` — don't "fix" this
   back to `./...`.
 - **Released versions: v0.3.0 (2026-09-08), v0.3.1 (2026-09-09).** Tag only
