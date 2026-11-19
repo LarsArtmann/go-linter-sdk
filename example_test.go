@@ -10,70 +10,87 @@ import (
 )
 
 // ExampleRegistry_Run demonstrates the standalone execution path: register
-// rules, run them against a directory, and read the aggregated report.
+// rules, run them against a directory, and read the aggregated report. Rules
+// emit findings via rule.NewFinding, and a rule that can measure its own
+// scan coverage implements CoverageReporter so the report carries evidence
+// (Summary.FilesScanned) instead of a meaningless zero.
 func ExampleRegistry_Run() {
-	registry := linter.NewRegistry()
+	var rule linter.RuleFunc
 
-	registry.Register(linter.RuleFunc{
+	rule = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          "demo-rule",
 			Name:        "demo rule",
 			Description: "emits a single finding for demonstration",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
+			ToolName:    "example-linter",
 		},
 		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
 			return []finding.Finding{
-				finding.NewBuilder("demo-rule", "example", "found a style issue",
-					finding.SeverityWarning,
+				rule.NewFinding("found a style issue",
 					finding.Pos(finding.FilePath("demo.go"), 1, 1)).
+					WithSuggestion("consider using a constant").
 					MustBuild(),
 			}, nil
 		},
-	})
+	}
+
+	registry := linter.NewRegistry(linter.WithToolName("example-linter"))
+	registry.Register(coverageRule{RuleFunc: rule, files: 12})
 
 	report, _ := registry.Run(context.Background(), ".")
 
 	fmt.Println("findings:", report.Len())
-	// Output: findings: 1
+	fmt.Println("files scanned:", report.Summary.FilesScanned)
+	// Output:
+	// findings: 1
+	// files scanned: 12
 }
 
 // ExampleDetectorsFromRegistry demonstrates the go-finding/pipeline execution
 // path: each rule becomes its own Detector, enabling per-rule parallelism,
-// timeouts, and error isolation.
+// timeouts, and error isolation. Detectors also implement finding.DetectorV2,
+// so coverage-aware hosts receive scan evidence alongside findings.
 func ExampleDetectorsFromRegistry() {
-	registry := linter.NewRegistry()
+	var rule linter.RuleFunc
 
-	registry.Register(linter.RuleFunc{
+	rule = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          "pipe-rule",
 			Name:        "pipeline rule",
 			Description: "demonstrates the per-rule detector path",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityInfo,
+			ToolName:    "example-linter",
 		},
 		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
 			return []finding.Finding{
-				finding.NewBuilder("pipe-rule", "example", "pipeline finding",
-					finding.SeverityInfo,
+				rule.NewFinding("pipeline finding",
 					finding.Pos(finding.FilePath("main.go"), 10, 1)).
 					MustBuild(),
 			}, nil
 		},
-	})
+	}
+
+	registry := linter.NewRegistry(linter.WithToolName("example-linter"))
+	registry.Register(coverageRule{RuleFunc: rule, files: 7})
 
 	detectors := linter.DetectorsFromRegistry(registry)
 
 	fmt.Println("detectors:", len(detectors))
 	fmt.Println("name:", detectors[0].Name())
 
-	findings, _ := detectors[0].Detect(context.Background())
+	v2 := detectors[0].(finding.DetectorV2)
+	res, _ := v2.DetectV2(context.Background())
 
-	fmt.Println("findings:", len(findings))
+	fmt.Println("findings:", len(res.Findings))
+	fmt.Println("files scanned:", res.FilesScanned)
 	// Output:
 	// detectors: 1
 	// name: pipe-rule
 	// findings: 1
+	// files scanned: 7
 }
 
 // ExampleRuleFunc_NewFinding demonstrates the rule.NewFinding factory: it
@@ -172,25 +189,28 @@ func ExampleOptIn() {
 // failure policy: all rules run regardless of individual failures, partial
 // findings are collected, and errors are joined.
 func ExampleRegistry_Run_continueOnError() {
-	registry := linter.NewRegistry()
+	var good linter.RuleFunc
 
-	registry.Register(linter.RuleFunc{
+	good = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          "good",
 			Name:        "good rule",
 			Description: "always succeeds",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
+			ToolName:    "example-linter",
 		},
 		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
 			return []finding.Finding{
-				finding.NewBuilder("good", "example", "partial result",
-					finding.SeverityWarning,
+				good.NewFinding("partial result",
 					finding.Pos(finding.FilePath("a.go"), 1, 1)).
 					MustBuild(),
 			}, nil
 		},
-	})
+	}
+
+	registry := linter.NewRegistry(linter.WithToolName("example-linter"))
+	registry.Register(good)
 
 	registry.Register(linter.RuleFunc{
 		Meta: linter.RuleMeta{

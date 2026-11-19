@@ -95,3 +95,27 @@ func BenchmarkRegistry_Deregister(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkRegistry_Run_Coverage(b *testing.B) {
+	reg := linter.NewRegistry()
+
+	for i := range 10 {
+		reg.Register(coverageRule{RuleFunc: makeRule("bench-run-"+itoa(i), nil), files: 50})
+	}
+
+	ctx := context.Background()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for b.Loop() {
+		report, err := reg.Run(ctx, ".")
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		if report.Summary.FilesScanned != 500 {
+			b.Fatalf("expected 500 files scanned, got %d", report.Summary.FilesScanned)
+		}
+	}
+}

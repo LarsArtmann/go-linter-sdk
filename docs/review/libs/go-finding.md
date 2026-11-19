@@ -130,3 +130,29 @@ sed -n '5,7p' /home/lars/projects/go-linter-sdk/examples/oops-redundant-guard/ma
 sed -n '15,50p' "$(go env GOMODCACHE)/github.com/larsartmann/go-finding@v1.15.1/detect_result.go"
 sed -n '1,30p' "$(go env GOMODCACHE)/github.com/larsartmann/go-finding@v1.15.1/relativize.go"
 ```
+
+## Addendum 2026-11-19 (post-audit, same session): rows 6, 9, 10 remediated
+
+TODO #24/#25/#26 were executed the same day as this audit. The SDK now wires:
+
+- **Row 6 (coverage channel): ADOPTED.** `Registry.Run` feeds
+  `report.AddDetectResult` (registry.go, `Run`); rules may implement the new
+  optional `linter.CoverageReporter` interface to supply `FilesScanned` /
+  `SkippedModules`. Both adapters (`DetectorFromRegistry`,
+  `DetectorsFromRegistry`) return detectors that also satisfy
+  `finding.DetectorV2`, so `finding.RunDetect` hosts receive coverage evidence.
+- **Row 9 (Relativize): ADOPTED — semantics verified from source first**
+  (copy-in/copy-out, passthrough for relative/out-of-root paths). All three
+  execution paths (`Run`, both adapters) run findings through
+  `finding.Relativize` against the target dir, so finding IDs no longer embed
+  host paths and match across the CLI and orchestrator lanes.
+- **Row 10 (category shape validation): ADOPTED.** `validateIdentityFields`
+  now rejects malformed categories via `finding.Category.IsValid()` (new
+  sentinel `linter.ErrInvalidCategory`; custom lowercase-hyphenated categories
+  still welcome).
+
+Score impact: rows 6 and 9 move Missed → Fully, row 10 Partial → Fully.
+Recomputed: 10 of 13 applicable rows fully leveraged → **85/100**. The
+remaining gap is row 11 (fix representation — ROADMAP theme 1, plan M15).
+Behavior change to note for consumers: finding IDs for absolute-dir runs
+change (relativization); that is the intended MINOR-release fix (v0.5.0).
