@@ -102,6 +102,36 @@ type Rule interface {
 	Check(ctx context.Context, dir string) ([]finding.Finding, error)
 }
 
+// CoverageReporter is an optional Rule extension for rules that can measure
+// their own scan coverage. A rule that implements it lets Registry.Run and the
+// Detector adapters populate the report's coverage evidence
+// (Summary.FilesScanned / Summary.SkippedModules) via go-finding's
+// DetectResult channel — without it, reports render filesScanned: 0 and fleet
+// dashboards cannot tell "clean tree" from "scanned nothing".
+//
+// Coverage is evidence, not a filter: implementing it changes nothing about
+// which findings a rule emits or which rules run. Implement it when the rule
+// walks a directory tree and can honestly count what it examined:
+//
+//	type goFilesRule struct {
+//	    linter.RuleFunc
+//	    scanned int
+//	}
+//
+//	func (r *goFilesRule) Coverage(_ context.Context, _ string) (int, []string) {
+//	    return r.scanned, nil
+//	}
+//
+// FilesScanned counts every file the rule actually examined, including clean
+// ones; zero is legal evidence (an empty target tree). SkippedModules lists
+// nested module roots the rule deliberately did not descend into.
+type CoverageReporter interface {
+	// Coverage reports how many files the rule examined in dir and which
+	// nested module roots it skipped. Called once per rule per run, after
+	// Check; return the evidence for the most recent scan.
+	Coverage(ctx context.Context, dir string) (filesScanned int, skippedModules []string)
+}
+
 // RuleFunc adapts a function to the Rule interface, filling in the identity
 // fields from the supplied RuleMeta. This is the common case: most rules are a
 // metadata header plus a check closure.
@@ -138,11 +168,25 @@ type RuleMeta struct {
 //	}
 var ErrMissingFields = errors.New("linter: rule has missing required field(s)")
 
-// Validate returns nil if all required fields are non-empty, or an error
-// listing every missing field. ID, Name, Description, and Cat are required;
-// Sev defaults to the zero value (empty string) which is a valid — if
-// imprecise — severity for rules that set severity per-finding via the
-// Builder.
+// ErrInvalidCategory is the sentinel error returned by RuleMeta.Validate and
+// Register when a rule's Category is non-empty but malformed: it must be a
+// lowercase-hyphenated string ("best-practice", "api") — "Bogus Cat" or
+// "SOME_CATEGORY" fail. Custom categories are welcome; only the SHAPE is
+// enforced, via finding.Category.IsValid, so the SDK's taxonomy and the
+// finding layer's can never disagree about what a well-formed category is.
+// Use errors.Is to check:
+//
+//	if errors.Is(err, linter.ErrInvalidCategory) {
+//	    // rule Category is non-empty but not lowercase-hyphenated
+//	}
+var ErrInvalidCategory = errors.New("linter: rule category is malformed")
+
+// Validate returns nil if all required fields are non-empty and well-formed,
+// or an error listing every missing field. ID, Name, Description, and Cat are
+// required; Sev defaults to the zero value (empty string) which is a valid —
+// if imprecise — severity for rules that set severity per-finding via the
+// Builder. A non-empty Cat must be lowercase-hyphenated (finding.Category
+// .IsValid) or the returned error wraps [ErrInvalidCategory].
 //
 // Call this during rule construction to fail fast on misconfigured rules
 // before they reach the registry:
@@ -162,7 +206,8 @@ func validateRuleIdentity(r Rule) error {
 }
 
 // validateIdentityFields is the shared validation core for RuleMeta.Validate
-// and validateRuleIdentity. Returns an error listing every empty field by name.
+// and validateRuleIdentity. Returns an error listing every empty field by name,
+// or wrapping [ErrInvalidCategory] when a non-empty category is malformed.
 func validateIdentityFields(id, name, description string, cat Category) error {
 	var missing []string
 
@@ -184,6 +229,10 @@ func validateIdentityFields(id, name, description string, cat Category) error {
 
 	if len(missing) > 0 {
 		return fmt.Errorf("%w: %s", ErrMissingFields, strings.Join(missing, ", "))
+	}
+
+	if !finding.Category(cat).IsValid() {
+		return fmt.Errorf("%w: %q (want lowercase-hyphenated, e.g. \"best-practice\")", ErrInvalidCategory, string(cat))
 	}
 
 	return nil

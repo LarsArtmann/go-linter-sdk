@@ -3,6 +3,7 @@ package linter
 import (
 	"context"
 	"errors"
+	"slices"
 	"sync"
 
 	"github.com/larsartmann/go-finding"
@@ -177,9 +178,16 @@ func ContinueOnError() RunOption {
 	return func(c *runConfig) { c.continueOnError = true }
 }
 
-// Run executes every rule against dir, aggregating findings. This is the
-// standalone execution path (the linter's own CLI). The BuildFlow integration
-// path uses DetectorFromRegistry instead.
+// Run executes every rule against dir, aggregating findings and coverage
+// evidence. This is the standalone execution path (the linter's own CLI). The
+// BuildFlow integration path uses DetectorFromRegistry instead.
+//
+// Rules implementing the optional [CoverageReporter] interface contribute
+// their scan evidence (Summary.FilesScanned / Summary.SkippedModules) via
+// go-finding's DetectResult channel; rules that do not contribute findings
+// only, with coverage zeroed. Findings are normalized through
+// finding.Relativize against dir, so finding IDs never embed host paths and
+// are identical whether dir was absolute or relative.
 //
 // By default Run fails fast: the first rule error aborts the run and returns
 // (nil, err). Pass ContinueOnError() to run all rules regardless of
@@ -219,7 +227,12 @@ func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*fin
 			errs = append(errs, wrapped)
 		}
 
-		report.AddFindings(findings)
+		res := finding.DetectResult{Findings: finding.Relativize(findings, dir)}
+		if cov, ok := rule.(CoverageReporter); ok {
+			res.FilesScanned, res.SkippedModules = cov.Coverage(ctx, dir)
+		}
+
+		report.AddDetectResult(res)
 	}
 
 	report.ComputeSummary()
@@ -231,34 +244,82 @@ func (r *Registry) Run(ctx context.Context, dir string, opts ...RunOption) (*fin
 	return report, nil
 }
 
+// workingDir resolves the target directory from ctx, defaulting to "." when
+// no working directory was supplied.
+func workingDir(ctx context.Context) string {
+	dir := finding.WorkingDirFromContext(ctx)
+	if dir == "" {
+		dir = "."
+	}
+
+	return dir
+}
+
 // DetectorFromRegistry adapts a registry to the canonical finding.Detector
 // interface, so a linter plugs into BuildFlow's DAG with zero glue (via the
 // tool-sdk Spec.Detect field). The working directory is read from ctx via
 // finding.WorkingDirFromContext.
 //
+// The returned value also implements finding.DetectorV2: hosts that use
+// finding.RunDetect receive findings plus coverage evidence (rules
+// implementing [CoverageReporter] contribute their scan counts), and findings
+// are normalized through finding.Relativize against the working directory so
+// IDs match the standalone Registry.Run lane. Plain Detect callers keep
+// working untouched.
+//
 // For go-finding/pipeline integration with per-rule parallelism, use
 // DetectorsFromRegistry instead — it returns one detector per rule rather
 // than collapsing all rules into a single opaque detector.
 func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector {
-	return finding.NamedDetectorFunc(toolName, func(ctx context.Context) ([]finding.Finding, error) {
-		dir := finding.WorkingDirFromContext(ctx)
-		if dir == "" {
-			dir = "."
+	return &registryDetector{registry: registry, name: toolName}
+}
+
+// registryDetector adapts a whole Registry as one Detector/DetectorV2.
+type registryDetector struct {
+	registry *Registry
+	name     string
+}
+
+func (d *registryDetector) Name() string { return d.name }
+
+// Detect implements finding.Detector, returning the run's findings.
+func (d *registryDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
+	res, err := d.DetectV2(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Findings, nil
+}
+
+// DetectV2 implements finding.DetectorV2, returning findings plus the summed
+// coverage evidence of every CoverageReporter rule. Detect and DetectV2 agree
+// on the findings they return for the same run.
+func (d *registryDetector) DetectV2(ctx context.Context) (finding.DetectResult, error) {
+	dir := workingDir(ctx)
+
+	var res finding.DetectResult
+
+	for _, rule := range d.registry.All() {
+		findings, err := rule.Check(ctx, dir)
+		if err != nil {
+			return finding.DetectResult{}, wrapRuleError(rule.ID(), err)
 		}
 
-		var all []finding.Finding
+		res.Findings = append(res.Findings, finding.Relativize(findings, dir)...)
 
-		for _, rule := range registry.All() {
-			findings, err := rule.Check(ctx, dir)
-			if err != nil {
-				return nil, wrapRuleError(rule.ID(), err)
+		if cov, ok := rule.(CoverageReporter); ok {
+			files, skipped := cov.Coverage(ctx, dir)
+			res.FilesScanned += files
+			for _, module := range skipped {
+				if !slices.Contains(res.SkippedModules, module) {
+					res.SkippedModules = append(res.SkippedModules, module)
+				}
 			}
-
-			all = append(all, findings...)
 		}
+	}
 
-		return all, nil
-	})
+	return res, nil
 }
 
 // DetectorsFromRegistry returns one finding.Detector per registered rule,
@@ -270,6 +331,10 @@ func DetectorFromRegistry(registry *Registry, toolName string) finding.Detector 
 // detector, this function preserves per-rule granularity. The working directory
 // is read from ctx via finding.WorkingDirFromContext.
 //
+// Every returned detector also implements finding.DetectorV2 (coverage
+// evidence from [CoverageReporter] rules, Relativize-normalized findings),
+// matching DetectorFromRegistry's contract.
+//
 // pipeline.Detector is a type alias for finding.Detector, so the returned slice
 // plugs directly into pipeline.New(config, rootDir, detectors...).
 func DetectorsFromRegistry(registry *Registry) []finding.Detector {
@@ -277,27 +342,45 @@ func DetectorsFromRegistry(registry *Registry) []finding.Detector {
 	detectors := make([]finding.Detector, 0, len(all))
 
 	for _, rule := range all {
-		detectorName := rule.ID()
-
-		detectors = append(detectors, finding.NamedDetectorFunc(
-			detectorName,
-			func(ctx context.Context) ([]finding.Finding, error) {
-				dir := finding.WorkingDirFromContext(ctx)
-				if dir == "" {
-					dir = "."
-				}
-
-				findings, err := rule.Check(ctx, dir)
-				if err != nil {
-					return nil, wrapRuleError(rule.ID(), err)
-				}
-
-				return findings, nil
-			},
-		))
+		detectors = append(detectors, &ruleDetector{rule: rule})
 	}
 
 	return detectors
+}
+
+// ruleDetector adapts a single Rule as one Detector/DetectorV2.
+type ruleDetector struct {
+	rule Rule
+}
+
+func (d *ruleDetector) Name() string { return d.rule.ID() }
+
+// Detect implements finding.Detector, returning the rule's findings.
+func (d *ruleDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
+	res, err := d.DetectV2(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Findings, nil
+}
+
+// DetectV2 implements finding.DetectorV2 for a single rule: findings plus
+// that rule's coverage evidence, if it implements [CoverageReporter].
+func (d *ruleDetector) DetectV2(ctx context.Context) (finding.DetectResult, error) {
+	dir := workingDir(ctx)
+
+	findings, err := d.rule.Check(ctx, dir)
+	if err != nil {
+		return finding.DetectResult{}, wrapRuleError(d.rule.ID(), err)
+	}
+
+	res := finding.DetectResult{Findings: finding.Relativize(findings, dir)}
+	if cov, ok := d.rule.(CoverageReporter); ok {
+		res.FilesScanned, res.SkippedModules = cov.Coverage(ctx, dir)
+	}
+
+	return res, nil
 }
 
 // ExitCodeFromReport returns the process exit code for a lint run: 0 when
