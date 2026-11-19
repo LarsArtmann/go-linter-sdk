@@ -40,9 +40,11 @@ deliberate adapters. Per-repo evidence and the refresh procedure live in
 
 Raw ideas:
 
-- Full migration of `go-structure-linter` to native `linter.RuleFunc` rules
-  (its rule-level adapter is permanent by its own ADR-003; this idea is about
-  going further than that ADR wants)
+- ~~Full migration of `go-structure-linter` to native `linter.RuleFunc` rules~~
+  RETIRED 2026-11-19: `go-structure-linter`'s own ADR-003 makes its rule-level
+  adapter permanent — this idea proposed overriding a decision that repo
+  already made; the converter-deletion claim it served is already verified at
+  source level without it (ADOPTION 2026-10-11)
 - Spread the SDK to the ~31 repos still on older `go-finding` releases
 - When `go-compliance` core tags its first release (v0.1) and a standalone
   (non-BuildFlow) linter wants fleet visibility, add a short docs note:

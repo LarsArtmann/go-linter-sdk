@@ -86,13 +86,15 @@ derivations. #18 the bump checklist is encoded in
   - Vague / long-term items belong in ROADMAP.md, not here.
 -->
 
-- **#31 QUESTION (BLOCKED on owner) — Commit/push the consumer v0.5.0 bumps.**
-  All 8 consumer module locations are bumped and gate-green LOCALLY; the
-  commits/pushes in the 6 consumer repos were not made by this session (their
-  daemons' behavior unobserved; BuildFlow runs concurrent sessions). Owner
-  call: push all six now, or leave each repo to its own session's
-  end-of-session push. Context: docs/ADOPTION.md 2026-11-19 snapshot;
-  question g-1 of docs/status/2026-11-19_14-43.
+- **#31 QUESTION (BLOCKED on owner) — Commit/push the consumer bumps (v0.5.0
+  AND v0.6.0 waves, both local-only).** All 8 consumer module locations are at
+  **v0.6.0** and gate-green LOCALLY (2026-11-19 second wave; BuildFlow was
+  found decayed back to v0.4.1 and re-bumped — see the ADOPTION 2026-11-19
+  "later" snapshot). Nothing pushed by any session. Owner call: push all six
+  repos now, or leave each repo to its own session's end-of-session push.
+  Context: docs/ADOPTION.md 2026-11-19 snapshots; question g-1 of
+  docs/status/2026-11-19_14-43; upstream filings landed during the wave
+  (samber-linter#5, BuildFlow#112) are separate from this decision.
 
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 

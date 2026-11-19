@@ -77,7 +77,11 @@ Core types in package `linter`:
   `unusedItoa` was flagged "unused" by gopls for the WHOLE session while
   `golangci-lint` stayed silent, and vice versa. When a diagnostic and the CLI
   disagree, re-run `golangci-lint run ./...` and trust THAT; never burn cycles
-  "fixing" a warning the CLI does not reproduce.
+  "fixing" a warning the CLI does not reproduce. Dead-code policy: gopls
+  `unusedfunc` stays an editor-only hint — the mechanical gate is the
+  single-mention sweep in `scripts/release-checklist.sh` step 3 (it is what
+  actually catches ghost test helpers; golangci `unused` misses `_test.go`-only
+  scaffolding).
 - **Daemon-commit review ritual.** The auto-commit daemon groups working-tree
   changes into heuristic commits within seconds. Before pushing: inspect the
   day's daemon commits (`git log --oneline`, `git show --stat`) and confirm
@@ -348,7 +352,14 @@ Verified 2026-11-19: analyze reports 0 critical/high/medium/optional findings
   `finding.NewBuilder`, bare `NewRegistry()`). This was the known cost of the
   tag-on-green rule; the v0.5.0 tag released the same day refreshes it, so no
   docs-only PATCH was spent. Re-check after every release (post-release
-  habit, AGENTS.md).
+  habit, AGENTS.md). **v0.6.0 verified live 2026-11-19** (proxy + @latest
+  render + new README content all confirmed).
+- **Imported-by trend cadence (armed 2026-11-19):** read the pkg.go.dev
+  "Imported by" count at every release's post-release check (it was 3 at the
+  v0.5.0 wave). Only ACT when it moves by a real step (3 → 10+ or 3 → 0):
+  growth = check the new importers for ADOPTION + breakage; zero = investigate
+  proxy visibility before assuming abandonment. No mid-release polling —
+  the number only moves on proxy activity anyway.
 
 ## v0.5.0 release + post-plan API surface (2026-11-19)
 

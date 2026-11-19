@@ -78,6 +78,7 @@ Exit codes:
 
 func main() {
 	var dir string
+
 	var asJSON bool
 
 	enable := map[string]bool{}

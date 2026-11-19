@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Post-v0.6.0 additions on master (example/tooling tier; no SDK API change):
+
+- **`examples/cli-triage --format=json`**: print the full go-finding Report
+  as JSON — the machine-readable interchange lane, parseable back with
+  `finding.ReportFromJSON`; round-trip-tested.
+- **`scripts/release-checklist.sh`**: release-time truth gates (FEATURES
+  symbol coverage from the CHANGELOG, README coverage claim vs measured,
+  dead test-helper sweep, render-gate freshness + vision-verdict presence,
+  build/vet/race/doc gates). Caught two real drifts on its first run.
+- Benchmarks: `RuleSet.Get` (~7 ns/op flat, mutex-free) and
+  `Filter.Apply` (~47 µs/op for 1000 findings, 1 alloc).
+- Corpus drain: all 24 historical unharvested items carry inline verdicts;
+  `.docs-gates.json` ratchet lowered 33 → 0. Upstream filings:
+  samber-linter#5 (workspace-shadow test premise), BuildFlow#112 (providers
+  suite flake); the docs-gates legend false positive was already fixed
+  upstream (`73f5eac`). Fleet sweep mechanized: `scripts/fleet-sweep.sh`
+  (post-v0.6.0 run: all 7 module roots at v0.6.0, channel adoption still 0).
+
 ## [0.6.0] - 2026-11-19
 
 The teaching tier. v0.5.0 made reports truthful; this release makes the SDK
