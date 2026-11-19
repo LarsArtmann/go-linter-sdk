@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/larsartmann/go-finding"
 )
 
 // buildExample compiles an example binary and returns its path.
@@ -449,5 +451,35 @@ func TestExampleCLITriage_CommaSeparatedEnable(t *testing.T) {
 
 	if !strings.Contains(stdout, "TODO comment found") {
 		t.Errorf("expected TODO finding, got %q", stdout)
+	}
+}
+
+func TestExampleCLITriage_JSONOutputRoundTrips(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "mixed.go",
+		"package a\n\n// TODO: think\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, stderr, code := runExampleArgs(t, bin, dir, "--enable=no-todos", "--format=json")
+	if code != 2 {
+		t.Errorf("expected exit 2 in JSON mode too, got %d (stderr: %s)", code, stderr)
+	}
+
+	report, _, err := finding.ReportFromJSON([]byte(stdout))
+	if err != nil {
+		t.Fatalf("output does not parse as a go-finding Report: %v\n%s", err, stdout)
+	}
+
+	if report.Len() != 1 {
+		t.Errorf("expected 1 finding after round-trip, got %d", report.Len())
+	}
+
+	for f := range report.All() {
+		if f.Rule != "no-todos" {
+			t.Errorf("expected rule no-todos after round-trip, got %q", f.Rule)
+		}
 	}
 }

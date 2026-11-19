@@ -20,10 +20,11 @@
 //
 // Run:
 //
-//	go run ./examples/cli-triage [dir] [--enable=r1,r2] [--disable=r3] [--help]
+//	go run ./examples/cli-triage [dir] [--enable=r1,r2] [--disable=r3] [--format=json] [--help]
 //
-// --enable/--disable accept comma-separated rule IDs. --help prints usage and
-// exits 0.
+// --enable/--disable accept comma-separated rule IDs. --format=json prints
+// the full go-finding Report (machine-readable interchange lane: parse it
+// back with finding.ReportFromJSON). --help prints usage and exits 0.
 package main
 
 import (
@@ -63,6 +64,7 @@ Usage:
 Flags:
   --enable=r1,r2   run only these rules (comma-separated IDs)
   --disable=r1,r2  never run these rules (comma-separated IDs)
+  --format=json    print the full go-finding Report as JSON (interchange lane)
   -h, --help       show this help and exit
 
 Rules:
@@ -76,6 +78,7 @@ Exit codes:
 
 func main() {
 	var dir string
+	var asJSON bool
 
 	enable := map[string]bool{}
 	disable := map[string]bool{}
@@ -86,6 +89,8 @@ func main() {
 			fmt.Print(usageText())
 
 			os.Exit(exitClean)
+		case arg == "--format=json":
+			asJSON = true
 		case strings.HasPrefix(arg, "--enable="):
 			for id := range strings.SplitSeq(strings.TrimPrefix(arg, "--enable="), ",") {
 				enable[id] = true
@@ -124,13 +129,26 @@ func main() {
 		os.Exit(exitToolFailure)
 	}
 
-	for _, f := range report.ActiveFindings() {
-		fmt.Printf("%s:%d: [%s] %s\n", f.Position.File, f.Position.Line, f.Rule, f.Message)
+	if asJSON {
+		json, jsonErr := report.PrettyJSON()
+		if jsonErr != nil {
+			fmt.Fprintf(os.Stderr, "%s: serialize report: %v\n", toolName, jsonErr)
+
+			os.Exit(exitToolFailure)
+		}
+
+		fmt.Println(json)
+	} else {
+		for _, f := range report.ActiveFindings() {
+			fmt.Printf("%s:%d: [%s] %s\n", f.Position.File, f.Position.Line, f.Rule, f.Message)
+		}
 	}
 
 	code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh)
-	fmt.Fprintf(os.Stderr, "%s: %d finding(s), exit %d (0 clean, 1 must fix, 2 triage, 3 tool failure)\n",
-		toolName, report.Len(), code)
+	if !asJSON {
+		fmt.Fprintf(os.Stderr, "%s: %d finding(s), exit %d (0 clean, 1 must fix, 2 triage, 3 tool failure)\n",
+			toolName, report.Len(), code)
+	}
 
 	os.Exit(code)
 }

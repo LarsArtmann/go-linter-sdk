@@ -72,6 +72,27 @@ Core types in package `linter`:
 
 ## Gotchas & conventions
 
+- **Lint authority = `golangci-lint run ./...`, never editor diagnostics.**
+  (2026-11-19) gopls/LSP diagnostics went stale mid-session repeatedly —
+  `unusedItoa` was flagged "unused" by gopls for the WHOLE session while
+  `golangci-lint` stayed silent, and vice versa. When a diagnostic and the CLI
+  disagree, re-run `golangci-lint run ./...` and trust THAT; never burn cycles
+  "fixing" a warning the CLI does not reproduce.
+- **Daemon-commit review ritual.** The auto-commit daemon groups working-tree
+  changes into heuristic commits within seconds. Before pushing: inspect the
+  day's daemon commits (`git log --oneline`, `git show --stat`) and confirm
+  each grouping carries only what you authored. Before editing ANY file read
+  more than a few minutes ago, re-read it (the daemon races edits: "file has
+  been modified since it was last read"). Daemon commits are never rewritten.
+- **Release-time truth gates are mechanical now** (2026-11-19):
+  `scripts/release-checklist.sh` runs before a release push and catches the
+  four repeat offenders — FEATURES.md missing the release's symbols (parser:
+  CHANGELOG `### Added` bullets shaped `- **\`Symbol\`...`), README coverage
+  claims drifting below the measured number, ghost test helpers
+  (single-mention sweep over `_test.go`), and stale dashboard screenshots
+  (PNGs must be newer than `index.html` + carry a recorded vision verdict).
+  It dogfooded green on v0.6.0 prep and caught two real drifts on its first
+  run. Companion to `scripts/bump-checklist.sh` (dependency bumps).
 - **Flake `outputs` and the `self` argument.** The `outputs` lambda uses the
   flake-parts `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict
   argument checking on `@`-patterns, so a bare multi-argument `outputs` that
