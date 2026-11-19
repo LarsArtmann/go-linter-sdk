@@ -66,6 +66,21 @@ None open. (#15 benchmarks re-run 2026-10-11 — every measured op improved
   tags a stable v1** (its ROADMAP explicitly names this SDK as prospective
   secondary consumer; pre-v1 breaking changes make an earlier mention a
   liability). Evidence: `docs/review/libs/go-policy-dsl.md`.
+- **#24 TODO — Adopt go-finding DetectorV2 coverage evidence in
+  `Registry.Run`** (feed `report.AddDetectResult` per rule; today every SDK
+  linter reports `filesScanned: 0`). Evidence:
+  `docs/review/libs/go-finding.md` opportunity 1.
+- **#25 TODO — Relativize finding paths in the Detector adapters**
+  (`DetectorFromRegistry`/`DetectorsFromRegistry` should pass findings through
+  `finding.Relativize(findings, dir)`; today BuildFlow-lane IDs embed host
+  paths). Evidence: `docs/review/libs/go-finding.md` opportunity 2.
+- **#26 TODO — Shape-validate `RuleMeta.Cat` via `finding.Category.IsValid()`**
+  in `validateIdentityFields` (rule.go). Evidence:
+  `docs/review/libs/go-finding.md` opportunity 4.
+- **#27 TODO — Add the BuildFlow-provider registration recipe to README**
+  (complete copy-pasteable `toolsdk.Register(toolsdk.Spec{...})` snippet with
+  the blank-import note; docs-only, no go.mod change). Evidence:
+  `docs/review/libs/go-finding-toolsdk.md` opportunity 1.
 
 ### Quality hardening
 

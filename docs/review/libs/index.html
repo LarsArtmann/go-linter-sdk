@@ -826,11 +826,10 @@
     </style>
   </head>
   <body>
-    <!-- Full-bleed top bar (optional — remove for quieter reports) -->
     <div class="top-bar">
-      <span>REPORT TYPE</span>
-      <span>YYYY-MM-DD</span>
-      <span>AUTHOR / TEAM</span>
+      <span>LIBRARY FLEET REVIEW</span>
+      <span>2026-11-19</span>
+      <span>go-linter-sdk · 3 sub-agent groups + orchestrator self-audit</span>
     </div>
 
     <div class="layout">
@@ -839,10 +838,11 @@
         <nav>
           <div class="label">Contents</div>
           <a href="#summary">Summary</a>
-          <a href="#findings">Findings</a>
-          <a href="#issues">Issue Cards</a>
-          <a href="#proposal">Proposal</a>
-          <a href="#plan">Plan</a>
+          <a href="#findings">Fleet findings</a>
+          <a href="#issues">Top issues</a>
+          <a href="#verdicts">Verdicts</a>
+          <a href="#followups">Follow-ups</a>
+          <a href="#verify">Verify</a>
         </nav>
       </aside>
 
@@ -855,10 +855,13 @@
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="hero-badge">Report Type</div>
-          <h1>Report Title</h1>
+          <div class="hero-badge">Fleet utilization audit · point-in-time snapshot</div>
+          <h1>Library fleet review — go-linter-sdk</h1>
           <p class="hero-subtitle">
-            One-sentence description of what this report covers.
+            Seven first-party libraries audited for superb leverage: the single
+            adopted dependency scored, the SDK self-audited, and five non-adoptions
+            declined with named flip triggers. Per-library evidence lives in the
+            linked reports next to this page.
           </p>
         </div>
 
@@ -867,10 +870,11 @@
           <h3>Contents</h3>
           <ul>
             <li><a href="#summary">Summary</a></li>
-            <li><a href="#findings">Findings</a></li>
-            <li><a href="#issues">Issue Cards</a></li>
-            <li><a href="#proposal">Proposal</a></li>
-            <li><a href="#plan">Plan</a></li>
+            <li><a href="#findings">Fleet findings</a></li>
+            <li><a href="#issues">Top issues</a></li>
+            <li><a href="#verdicts">Verdicts</a></li>
+            <li><a href="#followups">Follow-ups</a></li>
+            <li><a href="#verify">Verify</a></li>
           </ul>
         </nav>
 
@@ -878,68 +882,96 @@
         <h2 id="summary"><span class="num">00</span>Summary</h2>
         <div class="stat-grid">
           <div class="stat-card">
-            <div class="stat-value">42</div>
-            <div class="stat-label">Total Items</div>
-          </div>
-          <div class="stat-card stat-bad">
             <div class="stat-value">7</div>
-            <div class="stat-label">Critical</div>
+            <div class="stat-label">Libraries reviewed</div>
           </div>
           <div class="stat-card stat-warn">
-            <div class="stat-value">12</div>
-            <div class="stat-label">Warnings</div>
+            <div class="stat-value">65</div>
+            <div class="stat-label">go-finding adoption — moderate</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">72</div>
+            <div class="stat-label">Self-leverage — high</div>
           </div>
           <div class="stat-card stat-good">
-            <div class="stat-value">35</div>
-            <div class="stat-label">Resolved</div>
+            <div class="stat-value">5/5</div>
+            <div class="stat-label">Declines justified, with flip triggers</div>
           </div>
         </div>
 
         <!-- Findings as Cards -->
-        <h2 id="findings"><span class="num">01</span>Findings</h2>
+        <h2 id="findings"><span class="num">01</span>Fleet findings</h2>
 
         <div class="card card-problem">
-          <h4>Critical Issue</h4>
-          <p>Description of the problem and its impact.</p>
+          <h4>Three missed channels on the one adopted dependency</h4>
+          <p>
+            go-finding v1.15.1 already ships the coverage-evidence channel
+            (<code>DetectorV2</code>/<code>AddDetectResult</code>), path
+            normalization (<code>Relativize</code>), and the direct-fix surface
+            (<code>Edits</code>/<code>TextEdit</code>) — the SDK references none of
+            them. Every report renders <code>filesScanned: 0</code>; BuildFlow-lane
+            finding IDs embed absolute paths; the Direct-fix pipeline is
+            unreachable. Each fix is a one-file change inherited by all six
+            consumers.
+          </p>
         </div>
 
         <div class="card card-solution">
-          <h4>Recommended Fix</h4>
-          <p>Description of the solution with rationale.</p>
+          <h4>Every decline is a justified no</h4>
+          <p>
+            The five non-adoptions all protect the single-dependency policy
+            (go-finding root only) or sit at the wrong layer — and each names
+            the concrete condition that would flip it. The fleet already
+            receives four of these libraries' value through the correct
+            integration points (BuildFlow, the auto-configure tools, the
+            compliance hub's frozen JSON contract) with zero coupling here.
+          </p>
         </div>
 
         <!-- Issue Cards -->
-        <h2 id="issues"><span class="num">02</span>Issue Cards</h2>
+        <h2 id="issues"><span class="num">02</span>Top issues</h2>
 
         <div class="issue issue-critical">
-          <span class="severity severity-critical">Blocking</span>
-          <h3>Critical finding title</h3>
-          <div class="where">path/to/file.go:42-58</div>
+          <span class="severity severity-critical">High impact</span>
+          <h3>Coverage evidence never reported — filesScanned is always 0</h3>
+          <div class="where">go-finding detect_result.go:39,72 (pinned tag) vs zero SDK references</div>
           <p>
-            Describe the problem and cite the code or behavior that proves it.
+            The SDK's <code>Registry.Run</code> builds reports via
+            <code>AddFindings</code> only; <code>DetectResult</code> (files scanned,
+            skipped modules, duration) exists in the pinned version precisely for
+            this and is never called. The team noticed and deferred it
+            (CHANGELOG.md:14-19).
           </p>
           <div class="callout callout-solution">
             <strong>Fix</strong>
-            State the concrete recommended action.
+            Have <code>DetectorFromRegistry</code>/<code>DetectorsFromRegistry</code>
+            implement <code>DetectorV2</code> and feed one
+            <code>DetectResult</code> per rule. Routed via
+            <a href="go-finding.md">go-finding.md</a>.
           </div>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Important</span>
-          <h3>Important finding title</h3>
-          <div class="where">path/to/another.go:12-19</div>
+          <h3>Absolute paths leak into finding IDs</h3>
+          <div class="where">examples pass raw WalkDir paths; go-finding Relativize (relativize.go:30) unused</div>
           <p>
-            Explain the risk and why a careful reviewer would hesitate before
-            shipping.
+            <code>Relativize</code> was added in the pinned release exactly for the
+            CLI-vs-orchestrator path mismatch; without it, BuildFlow lanes see
+            IDs like <code>/home/.../file.go</code> instead of repo-relative ones,
+            breaking dedup and suppression across runners.
           </p>
         </div>
 
         <div class="issue issue-nice">
           <span class="severity severity-nice">Nice to have</span>
-          <h3>Polish suggestion</h3>
-          <div class="where">docs/ or config</div>
+          <h3>Teaching examples are one generation behind the API</h3>
+          <div class="where">examples/*/main.go — 4/4 bare NewRegistry(), 0/4 NewFinding</div>
           <p>
-            Minor documentation gaps or future-proofing suggestions go here.
+            All four example binaries hand-roll builder boilerplate the SDK's own
+            helpers (<code>NewFinding</code>, <code>WithToolName</code>) exist to
+            delete, and two leak the default tool name into the report header.
+            Examples are the adoption funnel — every consumer copies them.
           </p>
         </div>
 
@@ -949,84 +981,169 @@
           <div class="strength">
             <div class="check">+</div>
             <div class="text">
-              <strong>Specific strength</strong>
-              <span>Explain why it matters and what it enables.</span>
+              <strong>Perfect version currency on the adopted dep</strong>
+              <span>Pin v1.15.1 is the latest published root tag; the 110 unreleased local-HEAD commits are compile-compatible tightenings, not API drift.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Single-dep policy held under audit pressure</strong>
+              <span>All five decline verdicts trace back to it; no transitive tree entered the published API during this review.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Every report carries a replayable verify block</strong>
+              <span>Citations were spot-checked by the orchestrator (groups B and C) or re-executed live (group A, self-audit); one stale Go-version claim was caught and fixed.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Findings routed at write time</strong>
+              <span>Four TODO_LIST rows (#20-#23) and one ROADMAP line exist before this dashboard shipped; nothing waits in a report for a later pass.</span>
             </div>
           </div>
         </div>
 
         <!-- Table with Badges -->
-        <h2>Issue Table</h2>
+        <h2 id="verdicts"><span class="num">03</span>Verdicts</h2>
         <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Severity</th>
-              <th>Issue</th>
-              <th>Status</th>
+              <th>Library</th>
+              <th>Verdict</th>
+              <th>Why</th>
+              <th>Version reviewed</th>
+              <th>Report</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>1</td>
-              <td><span class="badge badge-critical">Critical</span></td>
-              <td>Missing error handling</td>
-              <td><span class="badge badge-fixed">Fixed</span></td>
+              <td>go-finding (root)</td>
+              <td><span class="badge badge-fixed">ADOPTED · 65/100</span></td>
+              <td>Spine-to-spine on the only dep; three channels missed at the pinned tag (DetectResult, Relativize, direct-fix Edits)</td>
+              <td>pin v1.15.1 = latest root tag</td>
+              <td><a href="go-finding.md">go-finding.md</a></td>
             </tr>
             <tr>
-              <td>2</td>
-              <td><span class="badge badge-high">High</span></td>
-              <td>Race condition</td>
-              <td><span class="badge badge-low">Open</span></td>
+              <td>go-finding/toolsdk</td>
+              <td><span class="badge badge-low">NOT-ADOPTED</span></td>
+              <td>Registration is a linter-binary concern; the real gap is a 10-line README recipe, not an import</td>
+              <td>toolsdk latest tag v1.16.0, not imported</td>
+              <td><a href="go-finding-toolsdk.md">go-finding-toolsdk.md</a></td>
+            </tr>
+            <tr>
+              <td>linter-autoconfigure-sdk</td>
+              <td><span class="badge badge-low">NOT-ADOPTED</span></td>
+              <td>Value already arrives via the golangci-lint-auto-configure tool; an import would 5× the dep tree</td>
+              <td>v0.8.1-5-gd42d4ff (2026-11-15)</td>
+              <td><a href="linter-autoconfigure-sdk.md">linter-autoconfigure-sdk.md</a></td>
+            </tr>
+            <tr>
+              <td>go-policy-dsl</td>
+              <td><span class="badge badge-low">NOT-ADOPTED</span></td>
+              <td>Policy-declaration DSL, not lint scaffolding; companion-libs mention deferred to its stable v1</td>
+              <td>v0.4.0 (2026-11-02)</td>
+              <td><a href="go-policy-dsl.md">go-policy-dsl.md</a></td>
+            </tr>
+            <tr>
+              <td>go-dag-app</td>
+              <td><span class="badge badge-low">NOT-ADOPTED</span></td>
+              <td>Actually a 3-function samber/do DI bootstrap; nothing to bootstrap here; proprietary license</td>
+              <td>v0.1.1 (2026-11-02)</td>
+              <td><a href="go-dag-app.md">go-dag-app.md</a></td>
+            </tr>
+            <tr>
+              <td>go-compliance</td>
+              <td><span class="badge badge-low">NOT-ADOPTED</span></td>
+              <td>Evidence hub already fed transitively (SDK → BuildFlow → compliance JSON); flip is docs-only</td>
+              <td>untagged HEAD (2026-11-19, moving)</td>
+              <td><a href="go-compliance.md">go-compliance.md</a></td>
+            </tr>
+            <tr>
+              <td>go-linter-sdk (self)</td>
+              <td><span class="badge badge-fixed">SELF · 72/100</span></td>
+              <td>Tests, godoc, stranger-CI superb; the four example binaries lag the API by one generation</td>
+              <td>v0.4.1-5-gd8f9368 (2026-11-19)</td>
+              <td><a href="go-linter-sdk.md">go-linter-sdk.md</a></td>
             </tr>
           </tbody>
         </table>
 
-        <!-- Before/After Comparison -->
-        <h2 id="proposal">Before / After</h2>
-        <div class="compare-header">
-          <div class="compare-before">Before</div>
-          <div class="compare-after">After</div>
-        </div>
-        <div class="compare-row">
-          <div>
-            <pre><code><span class="tok-comment">// Old code</span>
-<span class="tok-keyword">func</span> <span class="tok-func">process</span>(data <span class="tok-type">interface</span>{}) { }</code></pre>
-          </div>
-          <div>
-            <pre><code><span class="tok-comment">// New code</span>
-<span class="tok-keyword">func</span> <span class="tok-func">process</span>[T <span class="tok-type">any</span>](data T) { }</code></pre>
-          </div>
-        </div>
-
-        <!-- ASCII Diagram -->
-        <h2>Dependency Tree</h2>
+        <!-- Module layout -->
+        <h2>Module layout considered</h2>
         <div class="dep-tree">
-          <span class="root">root</span> ├──
-          <span class="ok">wanted-dep</span> └──
-          <span class="unwanted">unwanted-dep</span>
+          <span class="root">go-linter-sdk</span> (single module, examples/ are
+          packages of it) ├── <span class="ok">go-finding v1.15.1 — root module,
+          the only import</span> └── toolsdk · pipeline · analysis · cmd/go-finding
+          — same repo, separately tagged modules, deliberately not in go.mod
         </div>
+        <p>
+          Sub-module layouts were considered in both directions: the consumer is
+          single-module, and each library repo's nested <code>go.mod</code>
+          inventory is recorded in its report header. go-finding and go-compliance
+          are multi-module; the other four are single-module.
+        </p>
 
         <!-- Numbered Steps -->
-        <h2 id="plan"><span class="num">03</span>Migration Plan</h2>
+        <h2 id="followups"><span class="num">04</span>Routed follow-ups</h2>
         <div class="migration-step">
           <div class="migration-num">1</div>
           <div class="migration-content">
-            <h4>Add generic type parameter</h4>
-            <p>Update the function signature to accept a type parameter.</p>
+            <h4>TODO #24 — DetectorV2 coverage evidence in Registry.Run</h4>
+            <p>Feed <code>report.AddDetectResult</code> per rule so <code>filesScanned</code> stops rendering 0 (go-finding.md opportunity 1).</p>
           </div>
         </div>
         <div class="migration-step">
           <div class="migration-num">2</div>
           <div class="migration-content">
-            <h4>Update all call sites</h4>
-            <p>Pass explicit types at each call site for type safety.</p>
+            <h4>TODO #25 — Relativize paths in the Detector adapters</h4>
+            <p>One call in each adapter; stable finding IDs across CLI and BuildFlow lanes (go-finding.md opportunity 2).</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">3</div>
+          <div class="migration-content">
+            <h4>TODO #20/#21 — Modernize and extend the examples</h4>
+            <p>Current-API examples (WithToolName + NewFinding) plus a fifth binary demonstrating OptIn + FilterRules + ExitCodeByConfidence (go-linter-sdk.md rows 2, 3, 6, 12-15).</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">4</div>
+          <div class="migration-content">
+            <h4>TODO #26/#27 + #22/#23 — Validation and documentation</h4>
+            <p>Category shape-validation via <code>finding.Category.IsValid()</code>; the toolsdk registration recipe in README; the auto-configure converge workflow; the go-policy-dsl companion mention (blocked until its stable v1).</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">5</div>
+          <div class="migration-content">
+            <h4>ROADMAP — fix representation and coverage-aware Run</h4>
+            <p>Rule-level <code>TextEdit</code>/Direct surface modeled on the toolsdk Repairer + dry-run contract, and the go-compliance docs snippet (both recorded under Theme 1 / Consumer adoption).</p>
           </div>
         </div>
 
+        <h2 id="verify"><span class="num">05</span>Verify</h2>
+        <p>
+          Every report ships its own replayable verify block — these were
+          executed during the audit. Re-derive the dashboard headline numbers:
+        </p>
+        <pre><code>ls docs/review/libs/                          # 7 reports + index.html
+grep -c '^# ' docs/review/libs/*.md            # one report per library
+rg -c 'DetectorV2|AddDetectResult|Relativize' --glob '*.go' .   # 0 — missed channels
+for r in go-finding linter-autoconfigure-sdk go-policy-dsl go-dag-app go-compliance go-linter-sdk; \
+  do git -C /home/lars/projects/$r describe --tags 2>/dev/null || echo "$r: untagged"; done
+grep -n '#2[0-7]' TODO_LIST.md                  # 8 routed rows (one BLOCKED)
+bash scripts/check-doc-versions.sh             # doc versions OK
+go test ./...                                  # suite green at review HEAD</code></pre>
+
         <footer class="footer">
-          Generated YYYY-MM-DD &middot; All claims verified against source code
-          where noted
+          Generated 2026-11-19 &middot; All claims verified against source code
+          where noted &middot; Reports are point-in-time snapshots — record the
+          version you re-review against
         </footer>
       </main>
     </div>
