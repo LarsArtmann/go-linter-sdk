@@ -24,7 +24,8 @@
 //
 // --enable/--disable accept comma-separated rule IDs. --format=json prints
 // the full go-finding Report (machine-readable interchange lane: parse it
-// back with finding.ReportFromJSON). --help prints usage and exits 0.
+// back with finding.ReportFromJSON). An unknown --format value prints usage
+// on stderr and exits 3 (tool failure). --help prints usage and exits 0.
 package main
 
 import (
@@ -92,6 +93,11 @@ func main() {
 			os.Exit(exitClean)
 		case arg == "--format=json":
 			asJSON = true
+		case strings.HasPrefix(arg, "--format="):
+			fmt.Fprintf(os.Stderr, "%s: unknown --format %q (only json is supported)\n\n%s",
+				toolName, strings.TrimPrefix(arg, "--format="), usageText())
+
+			os.Exit(exitToolFailure)
 		case strings.HasPrefix(arg, "--enable="):
 			for id := range strings.SplitSeq(strings.TrimPrefix(arg, "--enable="), ",") {
 				enable[id] = true

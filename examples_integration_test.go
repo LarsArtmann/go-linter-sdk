@@ -483,3 +483,54 @@ func TestExampleCLITriage_JSONOutputRoundTrips(t *testing.T) {
 		}
 	}
 }
+
+func TestExampleCLITriage_JSONCleanDir(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "a.go", "package a\n\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, stderr, code := runExampleArgs(t, bin, dir, "--format=json")
+	if code != 0 {
+		t.Errorf("expected exit 0 for a clean dir in JSON mode, got %d (stderr: %s)", code, stderr)
+	}
+
+	report, _, err := finding.ReportFromJSON([]byte(stdout))
+	if err != nil {
+		t.Fatalf("clean-dir output does not parse as a go-finding Report: %v\n%s", err, stdout)
+	}
+
+	if report.Len() != 0 {
+		t.Errorf("expected 0 findings after round-trip, got %d", report.Len())
+	}
+
+	if report.Summary.FilesScanned == 0 {
+		t.Error("expected non-zero filesScanned (the walking rule must report coverage evidence)")
+	}
+}
+
+func TestExampleCLITriage_UnknownFormatExits3(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "a.go", "package a\n\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, stderr, code := runExampleArgs(t, bin, dir, "--format=yaml")
+	if code != 3 {
+		t.Errorf("expected exit 3 for an unknown --format, got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout (nothing ran), got %q", stdout)
+	}
+
+	for _, want := range []string{`unknown --format "yaml"`, "Usage:"} {
+		if !strings.Contains(stderr, want) {
+			t.Errorf("expected stderr to contain %q, got:\n%s", want, stderr)
+		}
+	}
+}
