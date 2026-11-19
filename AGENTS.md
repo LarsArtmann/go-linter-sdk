@@ -314,3 +314,16 @@ nix run .#lint
 Verified 2026-11-19: analyze reports 0 critical/high/medium/optional findings
 (106 enabled, 9 disabled) on this repo's config. A converge commit lands as
 `chore(config): converge ...` (precedent `56b667e`).
+
+## go-finding HEAD watch + pkg.go.dev frozen-README status (2026-11-19)
+
+- **Re-audit trigger armed:** the local go-finding checkout sits ~110 commits
+  ahead of its published root tag (`v1.15.1` vs HEAD `498498f`, 2026-11-18).
+  When go-finding ships its next root MINOR, re-run the utilization audit
+  (`docs/review/libs/go-finding.md` footer lists the trigger; plan M25).
+- **pkg.go.dev frozen-README check (v0.4.1, verified 2026-11-19):** the
+  tagged page still renders the pre-helper quickstart (raw
+  `finding.NewBuilder`, bare `NewRegistry()`). This was the known cost of the
+  tag-on-green rule; the v0.5.0 tag released the same day refreshes it, so no
+  docs-only PATCH was spent. Re-check after every release (post-release
+  habit, AGENTS.md).
