@@ -39,6 +39,12 @@ Raw ideas:
   (its rule-level adapter is permanent by its own ADR-003; this idea is about
   going further than that ADR wants)
 - Spread the SDK to the ~31 repos still on older `go-finding` releases
+- When `go-compliance` core tags its first release (v0.1) and a standalone
+  (non-BuildFlow) linter wants fleet visibility, add a short docs note:
+  `compliance.Record` with
+  `GateFindings{"lint": len(report.Findings)}` derived from `ExitCodeFromReport`
+  — docs-only, never a dependency (from the 2026-11-19 libs review,
+  `docs/review/libs/go-compliance.md`)
 - A `cmd/` directory with a production CLI binary wrapping the registry
   (`--enable`/`--disable` flag parsing, `--format` text/JSON/SARIF) — see the
   resolved Q3 for why this is parked

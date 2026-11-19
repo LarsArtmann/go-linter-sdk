@@ -46,6 +46,27 @@ None open. (#15 benchmarks re-run 2026-10-11 — every measured op improved
 20-30% vs the 2026-09-09 baseline, no regressions; baseline refreshed.
 #16 dependabot sweep 2026-10-11: zero open PRs, nothing superseded.)
 
+### Fleet library review follow-ups (2026-11-19, `docs/review/libs/`)
+
+- **#20 TODO — Modernize `examples/` to the current API.** All four example
+  binaries call bare `NewRegistry()` and hand-roll `finding.NewBuilder(...)`;
+  none uses `RuleFunc.NewFinding` or `WithToolName`, and `minimal-linter` /
+  `no-go-mod` leak the default `"linter"` tool name into the report header
+  while their findings carry a different name (identity mismatch). Evidence:
+  `docs/review/libs/go-linter-sdk.md` rows 3, 6, 15.
+- **#21 TODO — Add a fifth example demonstrating the CLI trio.** One `OptIn`
+  rule + `FilterRules(enable, disable)` from `os.Args` + `ExitCodeByConfidence`
+  triage exit — the only SDK capabilities with no runnable example. Evidence:
+  `docs/review/libs/go-linter-sdk.md` rows 2, 12, 13.
+- **#22 TODO — Document the `golangci-lint-auto-configure` converge workflow**
+  (AGENTS.md tooling section): the practice is tribal knowledge visible only in
+  git history (commit `56b667e`) and one status report. Evidence:
+  `docs/review/libs/linter-autoconfigure-sdk.md`.
+- **#23 BLOCKED — Revisit go-policy-dsl README companion-libs mention when it
+  tags a stable v1** (its ROADMAP explicitly names this SDK as prospective
+  secondary consumer; pre-v1 breaking changes make an earlier mention a
+  liability). Evidence: `docs/review/libs/go-policy-dsl.md`.
+
 ### Quality hardening
 
 None open. (#17 flake `checks` for `go test` / `go vet` / `golangci-lint` plus
