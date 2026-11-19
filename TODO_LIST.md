@@ -59,14 +59,18 @@ shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
 
 ### From the v0.5.0 execution (2026-11-19, Pareto plan M-series)
 
-- **#29 TODO — CoverageReporter adoption at consumers (fleet AFTER targets).**
+- **#29 IN_PROGRESS — CoverageReporter adoption at consumers (fleet AFTER targets).**
   Each walking-rule linter implements `CoverageReporter` on its tree-walking
-  rules so fleet dashboards get `filesScanned ≠ 0`; BuildFlow/execution
-  consumes `DetectorV2` from the SDK adapters. Per-repo targets, in order:
+  rules so fleet dashboards get `filesScanned ≠ 0`. Progress 2026-11-19:
+  **this repo's flagship example done** (cli-triage's default-on walking rule
+  reports evidence; OptIn-stripping caveat documented) and **BuildFlow's V2
+  bridge done** (`dtool.DetectorV2FromFinding` folds DetectResult scan
+  evidence into FindingReport.Summary; `ToolFromSpec` prefers the V2 lane).
+  Remaining per-repo targets, in order:
   `go-structure-linter` → `samber-linter` → `go-humanize-linter` →
-  `cmdguard/lint` → `project-meta/linter` (all five walking-rule linters),
-  then BuildFlow/execution. Before-state + AFTER table (all 0 refs at
-  v0.6.0): `docs/review/libs/FLEET-SWEEP-BASELINE.md`; re-measure with
+  `cmdguard/lint` → `project-meta/linter` (adoption sessions dispatched
+  2026-11-19). Before-state + AFTER table (all 0 refs at v0.6.0):
+  `docs/review/libs/FLEET-SWEEP-BASELINE.md`; re-measure with
   `bash scripts/fleet-sweep.sh` after each landing.
   (#28 the WithEdits declaration teaching shipped 2026-11-19: oops example
   carries `WithEdits` + `FixStrategyDirect`, README documents the three
@@ -105,17 +109,9 @@ derivations. #18 the bump checklist is encoded in
 None open. (#30 the audit-all drain completed 2026-11-19 in one pass: all 24
 historical unharvested items carry inline verdicts — done / NOT-DO superseded
 / routed; `.docs-gates.json` ratchet lowered 33 → 0, so any future unharvested
-item gates red immediately. One routed item minted as #32 below.)
-
-### CI hardening
-
-- **#32 TODO — Guard the golangci-lint action version against the flake
-  package pin.** CI's actionlint/download-pinned-version should match
-  `flake.nix`'s golangci-lint package version; extend
-  `scripts/check-doc-versions.sh` (or a sibling check) to compare them.
-  Routed from archived 2026-09-09_05-23 item 8 during the #30 drain.
-- **#33 TODO — Add a `shellcheck` flake check + CI job; fix findings in
-  `scripts/*.sh`.** The scripts directory now carries three authored scripts
-  (`check-doc-versions.sh`, `bump-checklist.sh`, `release-checklist.sh`) plus
-  `fleet-sweep.sh`; none are shellcheck-gated. Routed from archived
-  2026-10-11_10-50 item 3 (resurfaced when the scripts grew).
+item gates red immediately. #32 and #33, both routed from that drain,
+completed 2026-11-19: #32 landed as the flake's eval-time
+`golangci-version-sync` assertion (caught live v2.14.0-vs-v2.15.0 drift on
+its first run) plus a shape rule in check-doc-versions.sh; #33 landed as a
+shellcheck flake check + CI job with all four scripts clean — logged in the
+[Unreleased] CHANGELOG entry.)
