@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -258,5 +259,142 @@ func TestExampleNoGoMod_MissingGoMod(t *testing.T) {
 
 	if !strings.Contains(stdout, "Missing go.mod") {
 		t.Errorf("expected finding in stdout, got %q", stdout)
+	}
+}
+
+// runExampleArgs executes the binary against dir with extra arguments.
+func runExampleArgs(t *testing.T, bin, dir string, args ...string) (string, string, int) {
+	t.Helper()
+
+	full := append([]string{dir}, args...)
+
+	cmd := exec.CommandContext(context.Background(), bin, full...)
+
+	stdoutBuf := &bytes.Buffer{}
+	stderrBuf := &bytes.Buffer{}
+	cmd.Stdout = stdoutBuf
+	cmd.Stderr = stderrBuf
+
+	err := cmd.Run()
+
+	exitCode := 0
+
+	if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
+		exitCode = exitErr.ExitCode()
+	} else if err != nil {
+		t.Fatalf("failed to run example binary: %v", err)
+	}
+
+	return stdoutBuf.String(), stderrBuf.String(), exitCode
+}
+
+func writeCLITRIAGEFixture(t *testing.T, dir, name, src string) {
+	t.Helper()
+
+	if err := os.WriteFile(filepath.Join(dir, name), []byte(src), 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Cli-triage tests.
+func TestExampleCLITriage_CleanDir(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "a.go", "package a\n\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0, got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
+func TestExampleCLITriage_TODOGatedOffByDefault(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "a.go", "package a\n\n// TODO: think\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 0 {
+		t.Errorf("expected exit 0 (opt-in rule must not run by default), got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
+	}
+}
+
+func TestExampleCLITriage_EnabledTODOIsTriage(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "a.go", "package a\n\n// TODO: think\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, _, code := runExampleArgs(t, bin, dir, "--enable=no-todos")
+	if code != 2 {
+		t.Errorf("expected exit 2 (low-confidence findings route to triage), got %d", code)
+	}
+
+	if !strings.Contains(stdout, "TODO comment found") {
+		t.Errorf("expected TODO finding in stdout, got %q", stdout)
+	}
+}
+
+func TestExampleCLITriage_LongFuncIsMustFix(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+
+	body := &strings.Builder{}
+	for i := range 45 {
+		fmt.Fprintf(body, "\t_ = %d\n", i)
+	}
+
+	writeCLITRIAGEFixture(t, dir, "long.go", "package a\n\nfunc big() {\n"+body.String()+"}\n")
+
+	stdout, _, code := runExample(t, bin, dir)
+	if code != 1 {
+		t.Errorf("expected exit 1 (high-confidence findings must fix), got %d", code)
+	}
+
+	if !strings.Contains(stdout, "big() spans") {
+		t.Errorf("expected long-func finding in stdout, got %q", stdout)
+	}
+}
+
+func TestExampleCLITriage_DisableLongFunc(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+
+	body := &strings.Builder{}
+	for i := range 45 {
+		fmt.Fprintf(body, "\t_ = %d\n", i)
+	}
+
+	writeCLITRIAGEFixture(t, dir, "long.go", "package a\n\nfunc big() {\n"+body.String()+"}\n")
+
+	stdout, _, code := runExampleArgs(t, bin, dir, "--disable=long-func")
+	if code != 0 {
+		t.Errorf("expected exit 0 after --disable=long-func, got %d", code)
+	}
+
+	if stdout != "" {
+		t.Errorf("expected empty stdout, got %q", stdout)
 	}
 }

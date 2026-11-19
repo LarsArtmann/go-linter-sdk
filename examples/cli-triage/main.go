@@ -133,24 +133,25 @@ func findLongFuncs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) 
 		var out []finding.Finding
 
 		ast.Inspect(file, func(n ast.Node) bool {
-			fn, ok := n.(*ast.FuncDecl)
-			if !ok || fn.Body == nil {
+			funcDecl, ok := n.(*ast.FuncDecl)
+			if !ok || funcDecl.Body == nil {
 				return true
 			}
 
-			start := fset.Position(fn.Body.Pos()).Line
-			length := fset.Position(fn.Body.End()).Line - start
+			start := fset.Position(funcDecl.Body.Pos()).Line
+			length := fset.Position(funcDecl.Body.End()).Line - start
+
 			if length <= longFuncLines {
 				return true
 			}
 
 			out = append(out, rule.NewFinding(
-				fmt.Sprintf("%s() spans %d lines; split it up", fn.Name.Name, length),
+				fmt.Sprintf("%s() spans %d lines; split it up", funcDecl.Name.Name, length),
 				finding.Pos(finding.FilePath(path), start, 0),
 			).
 				WithConfidence(finding.ConfidenceHigh).
 				WithFixStrategy(finding.FixStrategySuggest).
-				WithSuggestion(fmt.Sprintf("Extract blocks of %s() into named functions", fn.Name.Name)).
+				WithSuggestion(fmt.Sprintf("Extract blocks of %s() into named functions", funcDecl.Name.Name)).
 				MustBuild())
 
 			return true
@@ -189,7 +190,10 @@ func findTODOs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
 
 // walkGoFiles parses every non-test, non-vendor Go file under dir and calls
 // visit per parsed file.
-func walkGoFiles(dir string, visit func(*token.FileSet, *ast.File, string) []finding.Finding) ([]finding.Finding, error) {
+func walkGoFiles(
+	dir string,
+	visit func(*token.FileSet, *ast.File, string) []finding.Finding,
+) ([]finding.Finding, error) {
 	var findings []finding.Finding
 
 	fset := token.NewFileSet()
@@ -228,8 +232,8 @@ func walkGoFiles(dir string, visit func(*token.FileSet, *ast.File, string) []fin
 }
 
 func firstLine(text string) string {
-	if idx := strings.IndexByte(text, '\n'); idx >= 0 {
-		return strings.TrimSpace(text[:idx])
+	if head, _, found := strings.Cut(text, "\n"); found {
+		return strings.TrimSpace(head)
 	}
 
 	return strings.TrimSpace(text)
