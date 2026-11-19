@@ -267,7 +267,7 @@ Ranked by impact. Effort S <30m, M 30m–2h, L >2h.
 | 1  | Verify pkg.go.dev renders v0.4.0; if stale after hours, use "Request a version" (TODO #19)                                                     | Medium | S      |
 | 2  | Bump the six consumer repos v0.3.1 → v0.4.0 (ecosystem bump wave)                                                                              | High   | M      |
 | 3  | Add `shellcheck` flake check + CI job; fix findings in `scripts/*.sh`                                                                          | High   | S      |
-| 4  | Commit a guard self-test (`--self-test` with synthetic fail/pass fixtures)                                                                     | High   | S      |
+| 4  | ~~Commit a guard self-test (`--self-test` with synthetic fail/pass fixtures)~~ decided — docs-gates is a fleet-level tool (lives outside this repo); a `--self-test` mode is an upstream tool ask, not a go-linter-sdk task (2026-11-19) | High   | S      |
 | 5  | Mechanical tag-rule CI check: fail if a pushed tag's commit lacks a green run                                                                  | High   | S      |
 | 6  | Session-lock convention for release scopes (`release-in-progress.md` marker)                                                                   | Medium | S      |
 | 7  | Extend stranger-test to `DetectorsFromRegistry` (pipeline path)                                                                                | Medium | S      |

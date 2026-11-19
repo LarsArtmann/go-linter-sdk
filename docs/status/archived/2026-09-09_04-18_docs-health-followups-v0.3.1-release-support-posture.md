@@ -110,7 +110,7 @@ Each ≤ 12 min. Canonical breakdown with context, acceptance criteria, dependen
 | 29   | Q2  | Package-level lint exclusion for `*_integration_test.go`                               | Low      | 12m    |
 | 30   | Q3  | Pin golangci-lint in devShell (CI pins v2.12.2)                                        | Low      | 10m    |
 | 31   | Q4  | Migrate `exhaustruct` → `exhaustruct_v5`                                               | Low      | 5m     |
-| 32   | Q5  | Generate `go.work.sum`                                                                 | Low      | 2m     |
+| 32   | Q5  | ~~Generate `go.work.sum`~~ NOT-DO — obsolete: `go.work` is a gitignored local convenience, never committed; there is no go.work.sum to maintain | Low      | 2m     |
 | 33   | Q6  | Add actionlint step to CI                                                              | Low      | 12m    |
 | 34   | Q7  | Add dependabot config (go + actions)                                                   | Low      | 12m    |
 | 35   | Q8  | Benchmarks: Get/Has/Deregister at 100+ rules                                           | Low      | 12m    |

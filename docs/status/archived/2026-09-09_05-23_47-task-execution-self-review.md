@@ -102,7 +102,7 @@ Priority-sorted brainstorm (impact first; most of items 20+ are ROADMAP fuel pen
 | 5  | Fix DOMAIN_LANGUAGE "v1.7.0" → v1.9.2 header label                                                                                                                                   | Medium |
 | 6  | Refresh FEATURES CI-row evidence pointer (487d254 → current)                                                                                                                         | Medium |
 | 7  | Restore exhaustruct_v5 exclusion capability via its real (regex) settings model                                                                                                      | Medium |
-| 8  | Add CI guard: golangci-lint action version == flake package version                                                                                                                  | Medium |
+| 8  | ~~Add CI guard: golangci-lint action version == flake package version~~ done — routed to TODO_LIST #32 (minted 2026-11-19 during the corpus drain; the doc-drift script covers Go pins but not the golangci action pin) | Medium |
 | 9  | Add gitleaks to CI (BuildFlow skips it by config; a 10s job closes the gap)                                                                                                          | Medium |
 | 10 | Run R2 habit's first iteration: pkg.go.dev @latest + Imported-by baseline                                                                                                            | Medium |
 | 11 | Re-verify `nix run .#coverage` number after session's additions                                                                                                                      | Medium |

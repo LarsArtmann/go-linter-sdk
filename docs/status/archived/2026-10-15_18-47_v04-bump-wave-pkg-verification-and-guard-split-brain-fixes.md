@@ -129,7 +129,7 @@ Brainstorm, sorted roughly by impact — items 1–12 are the real queue; the re
 | #  | Task                                                                                                                                              | Impact | Size |
 | -- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---- |
 | 1  | Push cmdguard (`2e1c122`, `752a5fc`) and project-meta (`5e527d5`) to origin; confirm their CI goes green                                          | High   | S    |
-| 2  | Diagnose samber-linter `TestGoWorkMultiModule` (HW-1 fixture) at source; fix in samber-linter or file with verified diagnosis                     | High   | M    |
+| 2  | ~~Diagnose samber-linter `TestGoWorkMultiModule` (HW-1 fixture) at source; fix in samber-linter or file with verified diagnosis~~ done — bisect-proven pre-existing 2026-10-15 (workspace-shadow class); upstream filing executed this session per verify-before-filing | High   | M    |
 | 3  | Decide the release vehicle for CHANGELOG `[Unreleased]` (v0.4.1 PATCH now vs accumulate) and cut it per go-release (tag after green CI)           | High   | M    |
 | 4  | Run ADOPTION refresh step 2 fully: converter-deletion re-scan across all six consumers, refresh verdicts                                          | High   | M    |
 | 5  | Post-release: re-verify pkg.go.dev renders the new tag with the refreshed README (frozen-README habit)                                            | Med    | S    |

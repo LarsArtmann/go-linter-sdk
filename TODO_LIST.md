@@ -59,16 +59,14 @@ shipped in or alongside v0.5.0 — see the [0.5.0] CHANGELOG entry and the
 
 ### From the v0.5.0 execution (2026-11-19, Pareto plan M-series)
 
-- **#28 TODO — Teach fix DECLARATION in an example (ADR 0002 GO items).**
-  Extend `examples/oops-redundant-guard` to attach `WithEdits` +
-  `FixStrategyDirect` to its findings (~15 LOC, no application code) and add
-  a README subsection pointing hosts at `finding.ApplySimpleFixes` and the
-  toolsdk `Repairer` recipe. Design: `docs/decisions/2026-11-19_rule-fix-representation.md`.
 - **#29 TODO — CoverageReporter adoption at consumers (fleet AFTER targets).**
   Each walking-rule linter implements `CoverageReporter` on its tree-walking
   rules so fleet dashboards get `filesScanned ≠ 0`; BuildFlow/execution
   consumes `DetectorV2` from the SDK adapters. Before-state and per-repo
   targets: `docs/review/libs/FLEET-SWEEP-BASELINE.md`.
+  (#28 the WithEdits declaration teaching shipped 2026-11-19: oops example
+  carries `WithEdits` + `FixStrategyDirect`, README documents the three
+  host-side lanes; row removed per the DONE legend.)
 
 ### Quality hardening
 
@@ -98,9 +96,15 @@ derivations. #18 the bump checklist is encoded in
 
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
-- **#30 TODO — Drain the audit-all corpus debt (33 historical unharvested
-  items across 27 archived reports, July–Oct sessions).** Each item needs an
-  inline verdict (`done at <hash>` / NOT-DO / routed) per docs-health
-  ANNOTATE mode. `.docs-gates.json` pins `audit_max: 33` — the ratchet only
-  goes DOWN; every drain pass lowers it toward strict (-1). Evidence:
-  `docs-gates run` audit-all replay.
+None open. (#30 the audit-all drain completed 2026-11-19 in one pass: all 24
+historical unharvested items carry inline verdicts — done / NOT-DO superseded
+/ routed; `.docs-gates.json` ratchet lowered 33 → 0, so any future unharvested
+item gates red immediately. One routed item minted as #32 below.)
+
+### CI hardening
+
+- **#32 TODO — Guard the golangci-lint action version against the flake
+  package pin.** CI's actionlint/download-pinned-version should match
+  `flake.nix`'s golangci-lint package version; extend
+  `scripts/check-doc-versions.sh` (or a sibling check) to compare them.
+  Routed from archived 2026-09-09_05-23 item 8 during the #30 drain.

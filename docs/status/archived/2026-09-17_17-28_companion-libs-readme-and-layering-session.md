@@ -91,7 +91,10 @@
 
 1. Push `master` at session end (daemon commits, never pushes — policy (b)).
 2. Commit/land the pending README table-alignment diff (daemon will pick it up).
-3. Get user clarification on the non-mine `flake.nix +1` in `1a7d7c8`.
+3. ~~Get user clarification on the non-mine `flake.nix +1` in `1a7d7c8`.~~
+   decided — parallel sessions on the shared checkout are real and expected
+   (AGENTS.md gotcha, 2026-10-11); investigate unexpected diffs on their
+   merits, never clobber; no further follow-up needed (2026-11-19)
 4. Decide ROADMAP Q3 explicitly (library-only forever vs eventual `cmd/` CLI) and date it.
 5. If library-only: rewrite the ROADMAP `cmd/` raw idea as "consumers use cmdguard" guidance.
 6. Docs-only v0.3.2 tag to refresh pkg.go.dev's frozen README (green CI on the exact commit first — v0.3.0 lesson).
@@ -126,7 +129,9 @@
 29. Decide the markdown-formatting policy once (wire checker into BuildFlow vs documented hand-format).
 30. Keep `GOWORK=off go mod tidy` discipline — a `go.work` sits at repo root right now (R3 tidy-mystery trap).
 31. Confirm CI green on current master before any tag.
-32. Keep the coverage gate excluding examples (documented decision — don't "fix" back to `./...`).
+32. ~~Keep the coverage gate excluding examples (documented decision — don't "fix" back to `./...`).~~
+    done — decision held and documented in AGENTS.md ("The coverage gate
+    measures library packages only"); CI still excludes /examples/ (2026-11-19)
 33. Verify workflow GOTOOLCHAIN pins still match go.mod 1.26.7 if CI files are ever touched (setup-go lag gotcha).
 34. Preserve reports/.gitkeep + .gitignore exception discipline.
 35. Keep branch protection OFF while the daemon pushes to master (documented posture; revisit only if daemon policy changes).

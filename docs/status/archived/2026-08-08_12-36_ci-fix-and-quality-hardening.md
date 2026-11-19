@@ -275,7 +275,7 @@ be cleaner than per-line suppressions.
 
 | #  | Task                                            | Impact | Effort | Notes               |
 | -- | ----------------------------------------------- | ------ | ------ | ------------------- |
-| 27 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ routed — ROADMAP documents the deliberate cmd/ parking decision (layering: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
+| 27 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ decided — cmd/ parking is the documented layering decision (ROADMAP: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
 | 28 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
 | 29 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
 | 30 | Add `--format text` (default)                   | Low    | 10m    |                     |

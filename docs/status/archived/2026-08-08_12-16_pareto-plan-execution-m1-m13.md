@@ -272,7 +272,7 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 | #  | Task                                            | Impact | Effort | Notes               |
 | -- | ----------------------------------------------- | ------ | ------ | ------------------- |
-| 28 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ routed — ROADMAP documents the deliberate cmd/ parking decision (layering: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
+| 28 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ decided — cmd/ parking is the documented layering decision (ROADMAP: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
 | 29 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
 | 30 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
 | 31 | Add `--format text` (default)                   | Low    | 10m    |                     |
