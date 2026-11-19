@@ -88,6 +88,14 @@ derivations. #18 the bump checklist is encoded in
   - Vague / long-term items belong in ROADMAP.md, not here.
 -->
 
+- **#31 QUESTION (BLOCKED on owner) — Commit/push the consumer v0.5.0 bumps.**
+  All 8 consumer module locations are bumped and gate-green LOCALLY; the
+  commits/pushes in the 6 consumer repos were not made by this session (their
+  daemons' behavior unobserved; BuildFlow runs concurrent sessions). Owner
+  call: push all six now, or leave each repo to its own session's
+  end-of-session push. Context: docs/ADOPTION.md 2026-11-19 snapshot;
+  question g-1 of docs/status/2026-11-19_14-43.
+
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
 - **#30 TODO — Drain the audit-all corpus debt (33 historical unharvested
