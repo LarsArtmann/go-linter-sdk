@@ -56,6 +56,9 @@ file.
 - **Lives at:** `rule.go` — `type RuleFunc`
 - **Error wrapping:** if `Run` returns an error, `Check` wraps it into a
   `RuleError` carrying the rule's ID — the single chokepoint.
+- **Helpers:** `RuleFunc.NewFinding(message, pos)` returns a pre-stamped
+  `finding.Builder` carrying the rule's ID, tool name, severity, and category
+  from `RuleMeta`; `OptIn(rf)` wraps a `RuleFunc` as disabled-by-default.
 
 ### RuleMeta
 
@@ -80,9 +83,10 @@ every rule definition and the verbosity cost compounds.
 
 A taxonomy string classifying _what kind of issue_ a rule detects. Used for
 filtering, grouping, and reporting. The type is `type Category string` — an
-**open** type. Eight values are provided as recommendations (`design`,
-`structure`, `error-handling`, `correctness`, `style`, `performance`,
-`security`, `configuration`), but consumers can define their own for
+**open** type. Eleven values are provided as recommendations (`design`,
+`structure`, `error-handling`, `correctness`, `naming`, `documentation`,
+`best-practice`, `style`, `performance`, `security`, `configuration`), but
+consumers can define their own for
 domain-specific taxonomies (e.g., `Category("api")`, `Category("boilerplate")`).
 
 A category is orthogonal to severity: `CategorySecurity` + `SeverityWarning`
@@ -104,6 +108,11 @@ startup, not silently at runtime.
 
 - **Lives at:** `registry.go` — `type Registry`
 - **Thread safety:** `sync.RWMutex`; `Register` writes, `All`/`Run` read.
+- **Beyond registration and `Run`:** `Get`/`Has` lookup, `Deregister` for
+  runtime removal (snapshot semantics mid-run), `NewRegistry(WithToolName(...))`
+  to stamp tool identity onto findings and the report, `FilterRules` for
+  `--enable`/`--disable` set logic, and `ExitCodeFromReport` /
+  `ExitCodeByConfidence` to map a report to process exit codes.
 
 ### RuleError
 
