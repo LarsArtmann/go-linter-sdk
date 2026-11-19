@@ -11,14 +11,19 @@ keeps living docs version-pointered).
 
 ## Consumers
 
-| Repository                             | Integration pattern                                                                                                                                                              | Converter layer                                                                     |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `go-humanize-linter`                   | 11 rules as `linter.RuleFunc` in `linter.Registry`; CLI + golangci plugin                                                                                                        | None — born native                                                                  |
-| `cmdguard` (`cmdguard/lint`)           | Rules as `linter.RuleFunc`; BuildFlow provider via `go-finding/toolsdk` `Spec`                                                                                                   | None — born native                                                                  |
-| `project-meta` (`project-meta/linter`) | `linter.RuleFunc` rules; `linter.Registry`; CLI exit via `linter.ExitCodeByConfidence`                                                                                           | None — born native                                                                  |
-| `BuildFlow` (`tools/providers`)        | Runs sibling registries in-process (`Registry.Run`); deleted its `PrioritizedViolation` hierarchy (~4,737 LOC) and 10 converter files in favor of `finding.Finding`              | Deleted (see `BuildFlow/CHANGELOG.md`)                                              |
-| `go-structure-linter` (pilot)          | SDK registry/detectors under a rule-level adapter (`internal/rules/sdk_adapter.go`); local `types.Issue` is a **type alias** of `finding.Finding`, so no data translation exists | Converter struct deleted; adapter kept **by design** (ADR-003)                      |
-| `samber-linter`                        | Rules are `go/analysis` analyzers (golangci plugin contract); SDK supplies exit-code policy (`linter.ExitCodeByConfidence`)                                                      | Never had one; `analysis.Diagnostic → finding.Finding` mapping is documented design |
+| Repository                             | Integration pattern                                                                                                                                                              | Converter layer                                                                     | Push state (2026-11-19)                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `go-humanize-linter`                   | 11 rules as `linter.RuleFunc` in `linter.Registry`; CLI + golangci plugin                                                                                                        | None — born native                                                                  | Local only (bump commits by its daemon; unpushed)                    |
+| `cmdguard` (`cmdguard/lint`)           | Rules as `linter.RuleFunc`; BuildFlow provider via `go-finding/toolsdk` `Spec`                                                                                                   | None — born native                                                                  | Local only (bump commits by its daemon; unpushed)                    |
+| `project-meta` (`project-meta/linter`) | `linter.RuleFunc` rules; `linter.Registry`; CLI exit via `linter.ExitCodeByConfidence`                                                                                           | None — born native                                                                  | Local only (bump commits by its daemon; unpushed)                    |
+| `BuildFlow` (`tools/providers`)        | Runs sibling registries in-process (`Registry.Run`); deleted its `PrioritizedViolation` hierarchy (~4,737 LOC) and 10 converter files in favor of `finding.Finding`              | Deleted (see `BuildFlow/CHANGELOG.md`)                                              | Local only (bump commits by its daemon; unpushed; filed #112)        |
+| `go-structure-linter` (pilot)          | SDK registry/detectors under a rule-level adapter (`internal/rules/sdk_adapter.go`); local `types.Issue` is a **type alias** of `finding.Finding`, so no data translation exists | Converter struct deleted; adapter kept **by design** (ADR-003)                      | Local only (bump commits by its daemon; unpushed)                    |
+| `samber-linter`                        | Rules are `go/analysis` analyzers (golangci plugin contract); SDK supplies exit-code policy (`linter.ExitCodeByConfidence`)                                                      | Never had one; `analysis.Diagnostic → finding.Finding` mapping is documented design | Local only (README truth fix + bump unpushed; filed #5)              |
+
+Push-state column added 2026-11-19 (harvest of status-report F14.8): all
+consumer-repo work from the v0.5.0/v0.6.0 waves stays unpushed until owner
+question g-1 is answered; this column is re-verified at every refresh
+(see "Refresh procedure" step 5).
 
 ## Verdicts on the core claim
 
@@ -142,6 +147,8 @@ Tracked snapshots; update alongside the refresh procedure.
 3. Update the table and this header's verification date.
 4. Record new consumers via the module proxy "Imported by" count on
    pkg.go.dev plus the sibling-repo scan used in the 2026-10-11 session.
+5. Re-verify the Push-state column per repo (`git status` + whether the
+   bump commits are pushed); update the column's date stamp.
 
 ## Related
 

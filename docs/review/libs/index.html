@@ -1146,14 +1146,19 @@ for r in go-finding linter-autoconfigure-sdk go-policy-dsl go-dag-app go-complia
 grep -n '#2[0-7]' TODO_LIST.md                  # 8 routed rows (one BLOCKED)
 bash scripts/check-doc-versions.sh             # doc versions OK
 go test ./...                                  # suite green at review HEAD</code></pre>
+        <!-- render-gate: sha256 full=670a433cef23950e9dab9fe1a1ee892701d27f452dbe597f0d8b81b86305ca83 top=946a64a40a710173c06725bd76cf9b7637dca5fedf51e50fbecccfd9630bcfba -->
         <p>
-          Render re-verified 2026-11-19 (post 6/6 stat fix): headless chromium
-          152 screenshots at 1440&times;2400 and 1440&times;900
-          (<a href="assets/index-render-full.png">full</a>,
-          <a href="assets/index-render-top.png">top</a>), vision-checked on
-          those exact bytes with zai/glm-4.5v (reasoning off) &mdash; PASS, all
-          four stat cards read correctly (8 scored, 72 self-leverage, 6/6
-          declines justified, 85 avg adopted score).
+          Render re-verified 2026-11-19 (post 6/6 stat fix), bound to artifact
+          bytes: headless chromium 152 screenshots at 1440&times;2400 and
+          1440&times;900 (<a href="assets/index-render-full.png">full</a>,
+          <a href="assets/index-render-top.png">top</a>), vision-checked on the
+          CURRENT sha256-recorded bytes (full:
+          <code>670a433c&hellip;3ca83</code>, top:
+          <code>946a64a4&hellip;bcfba</code>) &mdash; PASS, all four stat cards
+          read correctly (8 scored, 72 self-leverage, 6/6 declines justified,
+          85 avg adopted score). Byte-binding rule: this verdict is void if
+          either PNG's sha256 changes &mdash; mtime proves recency, the hash
+          proves the verdict is about these bytes.
         </p>
 
         <footer class="footer">
