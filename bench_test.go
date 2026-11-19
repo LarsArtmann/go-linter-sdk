@@ -104,3 +104,79 @@ func BenchmarkRegistry_Run_Coverage(b *testing.B) {
 		}
 	}
 }
+
+func benchRuleSet(b *testing.B, n int) *linter.RuleSet {
+	b.Helper()
+
+	rules := make([]linter.Rule, n)
+
+	for i := range n {
+		rules[i] = linter.RuleFunc{
+			Meta: linter.RuleMeta{
+				ID:          "bench-rule-" + string(rune('a'+i%26)) + "-" + strconv.Itoa(i),
+				Name:        "bench rule",
+				Description: "benchmark rule",
+				Cat:         linter.CategoryStyle,
+				Sev:         finding.SeverityInfo,
+			},
+			Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+		}
+	}
+
+	return linter.NewRuleSet(rules)
+}
+
+func BenchmarkRuleSet_Get(b *testing.B) {
+	for _, ruleCount := range []int{100, 500, 1000} {
+		b.Run("rules="+strconv.Itoa(ruleCount), func(b *testing.B) {
+			set := benchRuleSet(b, ruleCount)
+
+			b.ReportAllocs()
+			b.ResetTimer()
+
+			for b.Loop() {
+				if _, ok := set.Get("bench-rule-a-0"); !ok {
+					b.Fatal("expected hit")
+				}
+			}
+		})
+	}
+}
+
+func benchFindings(b *testing.B, n int) []finding.Finding {
+	b.Helper()
+
+	out := make([]finding.Finding, n)
+
+	for i := range n {
+		sev := finding.SeverityInfo
+		if i%2 == 0 {
+			sev = finding.SeverityError
+		}
+
+		out[i] = finding.NewBuilder("filter-bench", "bench", "bench finding", sev,
+			finding.Pos(finding.FilePath("a.go"), i+1, 1)).
+			WithCategory(finding.Category(linter.CategoryStyle)).
+			MustBuild()
+	}
+
+	return out
+}
+
+func BenchmarkFilter_Apply(b *testing.B) {
+	total := 1000
+
+	findings := benchFindings(b, total)
+
+	gate := linter.Filter{MinSeverity: finding.SeverityError}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for b.Loop() {
+		kept := gate.Apply(findings)
+		if len(kept) != total/2 {
+			b.Fatalf("expected %d kept, got %d", total/2, len(kept))
+		}
+	}
+}

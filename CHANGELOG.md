@@ -34,7 +34,9 @@ changed.
   registration order. Race-gated by `TestRegistry_ConcurrentIndexMix`.
   Benchmarks: `Get` ~15 ns/op flat (15.1/15.0/15.3 ns at 100/500/1000 rules,
   0 allocs); `BenchmarkRegistry_Run_Coverage` ~709 ns/op (10 coverage rules,
-  50 files each).
+  50 files each). `RuleSet.Get` ~7 ns/op flat (6.8/6.8/7.7 ns at
+  100/500/1000 — mutex-free, roughly half the registry's cost);
+  `Filter.Apply` ~47 µs/op for 1000 findings, 1 alloc.
 - **Declared fixes taught** (`examples/oops-redundant-guard`): the oops rule
   now attaches `WithEdits` + `FixStrategyDirect` to each finding — one
   `TextEdit` per redundant guard (ADR 0002: declaration only, application
