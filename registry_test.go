@@ -1132,3 +1132,53 @@ func TestRuleFunc_NewFinding_AllowsChaining(t *testing.T) {
 		t.Errorf("expected FixStrategySuggest, got %q", result.FixStrategy)
 	}
 }
+
+// TestRegistry_ConcurrentIndexMix exercises the O(1) ID index under a
+// register/deregister/Get/Has/Run mix — the race gate for the map index
+// (plan M18/F18.4). Run under -race in CI.
+func TestRegistry_ConcurrentIndexMix(t *testing.T) {
+	t.Parallel()
+
+	r := linter.NewRegistry()
+
+	const goroutines = 40
+
+	var wg sync.WaitGroup
+	wg.Add(goroutines * 5)
+
+	for i := range goroutines {
+		name := "mix-" + strconv.Itoa(i)
+
+		go func() {
+			defer wg.Done()
+
+			r.Register(makeRule(name, nil))
+		}()
+		go func() {
+			defer wg.Done()
+
+			r.Deregister(name)
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, _ = r.Get(name)
+		}()
+		go func() {
+			defer wg.Done()
+
+			r.Has(name)
+		}()
+		go func() {
+			defer wg.Done()
+
+			_, _ = r.Run(context.Background(), ".")
+		}()
+	}
+
+	wg.Wait()
+
+	if got := len(r.All()); got != r.ByIDLen() {
+		t.Fatalf("slice/index desync after concurrent mix: %d rules vs %d index entries", got, r.ByIDLen())
+	}
+}

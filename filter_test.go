@@ -138,13 +138,13 @@ func TestFilter_DoesNotMutateInput(t *testing.T) {
 func TestFilter_KeepPredicate(t *testing.T) {
 	t.Parallel()
 
-	f := linter.Filter{MinSeverity: finding.SeverityWarning}
+	gate := linter.Filter{MinSeverity: finding.SeverityWarning}
 
-	if !f.Keep(filterFinding(finding.SeverityWarning, "")) {
+	if !gate.Keep(filterFinding(finding.SeverityWarning, "")) {
 		t.Error("expected Keep true at threshold")
 	}
 
-	if f.Keep(filterFinding(finding.SeverityInfo, linter.CategorySecurity)) {
+	if gate.Keep(filterFinding(finding.SeverityInfo, linter.CategorySecurity)) {
 		t.Error("expected Keep false below threshold")
 	}
 }

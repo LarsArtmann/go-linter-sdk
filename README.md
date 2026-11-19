@@ -364,7 +364,11 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 | `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)          |
 | `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                        |
 | `ExitCodeByConfidence(report, thr)` | `int`                    | 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                                   |
+| `ExitCodeFromFindings(findings)`    | `int`                    | Same binary convention for a plain `[]finding.Finding`, no Report needed                              |
 | `FilterRules(all, enable, disable)` | `[]RuleFunc`             | Standard --enable/--disable filtering for CLI and plugin entry points                                 |
+| `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`  | Severity/category-based finding filtering; zero value keeps everything, input never mutated           |
+| `NewRegistryFromRules(rules, opts)` | `*Registry`              | Bulk constructor with the same validation as per-rule `Register`                                      |
+| `AllCategories()`                   | `[]Category`             | Fresh copy of the eleven recommended categories                                                       |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
 | `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`       | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                       |
 | `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                                |

@@ -15,6 +15,7 @@ import (
 type Registry struct {
 	mu       sync.RWMutex
 	rules    []Rule
+	byID     map[string]Rule
 	toolName finding.ToolName
 }
 
@@ -39,6 +40,7 @@ func NewRegistry(opts ...RegistryOption) *Registry {
 	r := &Registry{ //nolint:exhaustruct_v5 // toolName is set via options
 		mu:    sync.RWMutex{},
 		rules: []Rule{},
+		byID:  map[string]Rule{},
 	}
 
 	for _, opt := range opts {
@@ -80,10 +82,8 @@ func (r *Registry) Register(rule Rule) {
 	}
 
 	ruleID := rule.ID()
-	for _, existing := range r.rules {
-		if existing.ID() == ruleID {
-			panic("linter: duplicate rule ID " + ruleID)
-		}
+	if _, exists := r.byID[ruleID]; exists {
+		panic("linter: duplicate rule ID " + ruleID)
 	}
 
 	// Auto-stamp the registry's tool name onto rules that do not set their own.
@@ -103,6 +103,7 @@ func (r *Registry) Register(rule Rule) {
 	}
 
 	r.rules = append(r.rules, rule)
+	r.byID[ruleID] = rule
 }
 
 // All returns every registered rule, in registration order.
@@ -118,32 +119,25 @@ func (r *Registry) All() []Rule {
 
 // Get returns the rule with the given ID and true, or nil and false if no rule
 // with that ID is registered. Lookup is by the stable ID() (not the display
-// Name()), matching Register's deduplication key.
+// Name()), matching Register's deduplication key. O(1) via the ID index.
 func (r *Registry) Get(id string) (Rule, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	for _, rule := range r.rules {
-		if rule.ID() == id {
-			return rule, true
-		}
-	}
+	rule, ok := r.byID[id]
 
-	return nil, false
+	return rule, ok
 }
 
-// Has reports whether a rule with the given ID is registered.
+// Has reports whether a rule with the given ID is registered. O(1) via the
+// ID index — safe to call in hot loops.
 func (r *Registry) Has(id string) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	for _, rule := range r.rules {
-		if rule.ID() == id {
-			return true
-		}
-	}
+	_, ok := r.byID[id]
 
-	return false
+	return ok
 }
 
 // Deregister removes the rule with the given ID. Returns true if a rule was
@@ -151,13 +145,17 @@ func (r *Registry) Has(id string) bool {
 // concurrently with Run — Run takes a snapshot of the rule list via All()
 // before iterating, so a rule in the snapshot still executes even if it is
 // deregistered mid-run.
-func (r *Registry) Deregister(id string) bool {
+//
+// The removal itself is O(n) in the rule count (the ordered rules slice must
+// shift to preserve registration order); only Get and Has are O(1).
+func (r *Registry) Deregister(ruleID string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	for i, rule := range r.rules {
-		if rule.ID() == id {
+		if rule.ID() == ruleID {
 			r.rules = append(r.rules[:i], r.rules[i+1:]...)
+			delete(r.byID, ruleID)
 
 			return true
 		}

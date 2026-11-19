@@ -29,13 +29,13 @@ func TestNewRegistryFromRules(t *testing.T) {
 		t.Fatal("expected r1 present")
 	}
 
-	rf, ok := rule.(linter.RuleFunc)
+	extracted, ok := rule.(linter.RuleFunc)
 	if !ok {
 		t.Fatalf("expected RuleFunc, got %T", rule)
 	}
 
-	if rf.Meta.ToolName != "bulk" {
-		t.Errorf("expected WithToolName auto-stamp to apply, got %q", rf.Meta.ToolName)
+	if extracted.Meta.ToolName != "bulk" {
+		t.Errorf("expected WithToolName auto-stamp to apply, got %q", extracted.Meta.ToolName)
 	}
 }
 
@@ -43,6 +43,7 @@ func TestNewRegistryFromRules_Empty(t *testing.T) {
 	t.Parallel()
 
 	r := linter.NewRegistryFromRules(nil)
+
 	if len(r.All()) != 0 {
 		t.Fatal("expected empty registry for nil rules")
 	}
@@ -73,6 +74,7 @@ func TestAllCategories(t *testing.T) {
 	}
 
 	cats[0] = "mutated"
+
 	if linter.AllCategories()[0] == "mutated" {
 		t.Error("AllCategories must return a fresh copy, not shared state")
 	}

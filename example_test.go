@@ -233,3 +233,91 @@ func ExampleRegistry_Run_continueOnError() {
 	// findings: 1
 	// has error: true
 }
+
+// ExampleFilter demonstrates severity/category-based finding filtering: the
+// zero value keeps everything; a configured Filter narrows to the criteria
+// set. Apply never mutates its input.
+func ExampleFilter() {
+	var rule linter.RuleFunc
+
+	rule = linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID: "demo", Name: "demo", Description: "demo", Cat: linter.CategoryStyle,
+			Sev: finding.SeverityWarning, ToolName: "example-linter",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+			info := finding.NewBuilder("demo", "example-linter", "info-level",
+				finding.SeverityInfo, finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()
+			errFinding := rule.NewFinding("error-level",
+				finding.Pos(finding.FilePath("b.go"), 2, 1)).MustBuild()
+
+			return []finding.Finding{info, errFinding}, nil
+		},
+	}
+
+	gate := linter.Filter{MinSeverity: finding.SeverityError}
+
+	fmt.Println("kept:", len(gate.Apply([]finding.Finding{})))
+	fmt.Println("zero filter keeps all:", linter.Filter{}.Keep(
+		finding.NewBuilder("demo", "example-linter", "x", finding.SeverityInfo,
+			finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()))
+	// Output:
+	// kept: 0
+	// zero filter keeps all: true
+}
+
+// ExampleAllCategories lists the eleven recommended category values. The
+// returned slice is a fresh copy; custom categories are open-ended and never
+// included.
+func ExampleAllCategories() {
+	for _, cat := range linter.AllCategories() {
+		fmt.Println(cat)
+	}
+	// Output:
+	// design
+	// structure
+	// error-handling
+	// correctness
+	// naming
+	// documentation
+	// best-practice
+	// style
+	// performance
+	// security
+	// configuration
+}
+
+// ExampleExitCodeFromFindings maps a plain finding slice to the ecosystem
+// exit code without building a Report.
+func ExampleExitCodeFromFindings() {
+	rule := linter.RuleFunc{Meta: linter.RuleMeta{
+		ID: "demo", Name: "demo", Description: "demo", Cat: linter.CategoryStyle,
+		Sev:      finding.SeverityWarning,
+		ToolName: "example-linter",
+	}}
+
+	f := rule.NewFinding("issue", finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()
+
+	fmt.Println("clean:", linter.ExitCodeFromFindings(nil))
+	fmt.Println("findings:", linter.ExitCodeFromFindings([]finding.Finding{f}))
+	// Output:
+	// clean: 0
+	// findings: 1
+}
+
+// ExampleNewRegistryFromRules constructs a registry from a pre-built rule
+// slice, with the same validation and option handling as per-rule Register.
+func ExampleNewRegistryFromRules() {
+	rule := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID: "demo", Name: "demo", Description: "demo", Cat: linter.CategoryStyle,
+			ToolName: "example-linter",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	}
+
+	r := linter.NewRegistryFromRules([]linter.Rule{rule}, linter.WithToolName("example-linter"))
+
+	fmt.Println("rules:", len(r.All()))
+	// Output: rules: 1
+}
