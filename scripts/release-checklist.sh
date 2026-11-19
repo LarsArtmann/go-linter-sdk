@@ -14,7 +14,7 @@
 set -uo pipefail
 
 repo="$(git rev-parse --show-toplevel)"
-cd "$repo"
+cd "$repo" || exit 1
 
 fail=0
 pass() { echo "  OK  $1"; }
@@ -27,7 +27,7 @@ warn() { echo "  WARN $1"; }
 echo "Release checklist for $(basename "$repo")"
 echo
 
-echo "[1/6] FEATURES.md covers the release's new exported symbols"
+echo "[1/7] FEATURES.md covers the release's new exported symbols"
 symbols=$(awk '/^## \[/{n++} n==1 && /^### Added/{f=1; next} n==1 && /^### /{f=0} f' CHANGELOG.md |
 	grep -E '^- \*\*`' |
 	sed -E 's/^- \*\*`([A-Za-z]+).*/\1/' |
@@ -49,7 +49,7 @@ else
 	fi
 fi
 
-echo "[2/6] Coverage claim in README matches measured library coverage"
+echo "[2/7] Coverage claim in README matches measured library coverage"
 measured=$(go list ./... | grep -v /examples/ | tr '\n' ' ' |
 	xargs go test -count=1 -coverprofile=/tmp/release-cov.out >/dev/null 2>&1 &&
 	go tool cover -func=/tmp/release-cov.out | tail -1 |
@@ -60,16 +60,22 @@ if [ -z "$measured" ]; then
 elif [ -z "$claimed" ]; then
 	warn "no 'X.X% library coverage' claim found in README (nothing to drift)"
 else
-	awk -v m="$measured" -v c="$claimed" 'BEGIN {
-		if (m + 0 >= c + 0) exit 0; else exit 1
-	}' && pass "README claims ${claimed}%, measured ${measured}%" ||
-		miss "README claims ${claimed}% but measured coverage is ${measured}% — update the claim"
+if awk -v m="$measured" -v c="$claimed" 'BEGIN {
+	if (m + 0 >= c + 0) exit 0; else exit 1
+}'; then
+	pass "README claims ${claimed}%, measured ${measured}%"
+else
+	miss "README claims ${claimed}% but measured coverage is ${measured}% — update the claim"
+fi
 fi
 
-echo "[3/6] Dead code sweep over _test.go helpers"
-dead=$(grep -hoE '^(func|type) [a-z][A-Za-z0-9_]*' *_test.go 2>/dev/null |
-	awk '{print $2}' | sort -u | while read -r sym; do
-		uses=$(grep -hcw "$sym" *_test.go 2>/dev/null | awk '{s+=$1} END {print s+0}')
+echo "[3/7] Dead code sweep over _test.go helpers (root + examples)"
+list_test_files() {
+	find . -name '*_test.go' -not -path './vendor/*' -print0 2>/dev/null
+}
+dead=$(list_test_files | xargs -0 grep -hoE '^(func|type) [a-z][A-Za-z0-9_]*' 2>/dev/null |
+	awk '{print $2}' | sort -u | while IFS= read -r sym; do
+		uses=$(list_test_files | xargs -0 grep -hcw "$sym" 2>/dev/null | awk '{s+=$1} END {print s+0}')
 		if [ "$uses" -le 1 ]; then
 			echo "$sym"
 		fi
@@ -82,7 +88,7 @@ else
 	)"
 fi
 
-echo "[4/6] Review-corpus render gate (PNGs newer than index.html)"
+echo "[4/7] Review-corpus render gate (PNGs newer than index.html)"
 html=docs/review/libs/index.html
 if [ -f "$html" ]; then
 	stale=$(find docs/review/libs/assets -name '*.png' ! -newer "$html" 2>/dev/null | head -3)
@@ -100,16 +106,31 @@ else
 	echo "  --  no review dashboard (skipped)"
 fi
 
-echo "[5/6] Standard gates (build, vet, race)"
-GOWORK=off go build ./... && pass "go build ./..." || miss "go build ./..."
-GOWORK=off go vet ./... && pass "go vet ./..." || miss "go vet ./..."
-GOWORK=off go test . -race -count=1 >/tmp/release-race.log 2>&1 &&
-	pass "go test -race" || miss "go test -race (see /tmp/release-race.log)"
+echo "[5/7] Standard gates (build, vet, race)"
+if GOWORK=off go build ./...; then pass "go build ./..."; else miss "go build ./..."; fi
+if GOWORK=off go vet ./...; then pass "go vet ./..."; else miss "go vet ./..."; fi
+if GOWORK=off go test . -race -count=1 >/tmp/release-race.log 2>&1; then
+	pass "go test -race"
+else
+	miss "go test -race (see /tmp/release-race.log)"
+fi
 
-echo "[6/6] Doc drift"
-scripts/check-doc-versions.sh && pass "check-doc-versions" || miss "check-doc-versions"
-docs-gates run >/tmp/release-docgates.log 2>&1 &&
-	pass "docs-gates run" || miss "docs-gates run (see /tmp/release-docgates.log)"
+echo "[6/7] Doc drift"
+if scripts/check-doc-versions.sh; then pass "check-doc-versions"; else miss "check-doc-versions"; fi
+if docs-gates run >/tmp/release-docgates.log 2>&1; then
+	pass "docs-gates run"
+else
+	miss "docs-gates run (see /tmp/release-docgates.log)"
+fi
+
+echo "[7/7] Flake evaluates (version pins, treefmt, checks graph)"
+if nix flake check --no-build >/tmp/release-flake.log 2>&1; then
+	pass "nix flake check --no-build"
+else
+	miss "nix flake check --no-build (see /tmp/release-flake.log)"
+fi
+
+head_sha="$(git rev-parse --short HEAD)"
 
 echo
 if [ "$fail" -ne 0 ]; then
@@ -120,5 +141,8 @@ fi
 echo "Release gates green. Remaining manual steps:"
 echo "  1. Cut CHANGELOG: [Unreleased] -> [version] with narrative."
 echo "  2. Commit, push, WAIT for CI green on the exact commit."
-echo "  3. Tag ONLY on that green run (never before it finishes)."
+echo "  3. Tag ONLY on that green run (never before it finishes). The daemon"
+echo "     may commit between the green run and the tag: at tag time, verify"
+echo "     the green run's SHA is STILL HEAD (now: $head_sha) or pass the"
+echo "     green SHA explicitly to git tag."
 echo "  4. After tagging: proxy go list -m @version + pkg.go.dev @latest render."

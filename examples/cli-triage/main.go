@@ -169,9 +169,11 @@ func main() {
 // coverage-silent here, while the default-on rule reports evidence.
 type treeWalkingRule struct {
 	linter.RuleFunc
+
 	scanned int
 }
 
+//nolint:unparam // interface shape: skippedModules stays nil because the walk descends everywhere except vendor
 func (r *treeWalkingRule) Coverage(_ context.Context, _ string) (int, []string) {
 	return r.scanned, nil
 }
@@ -320,6 +322,7 @@ func walkGoFiles(
 		}
 
 		scanned++
+
 		findings = append(findings, visit(fset, file, path)...)
 
 		return nil

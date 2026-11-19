@@ -13,7 +13,7 @@
 set -uo pipefail
 
 repo="$(git rev-parse --show-toplevel)"
-cd "$repo"
+cd "$repo" || exit 1
 
 fail=0
 pass() { echo "  OK  $1"; }
@@ -26,20 +26,20 @@ echo "Dependency-bump checklist for $(basename "$repo")"
 echo
 
 echo "[1/8] Build (GOWORK=off, clean env)"
-GOWORK=off GOEXPERIMENT= go build ./... && pass "go build ./..." || miss "go build ./..."
+if GOWORK=off GOEXPERIMENT='' go build ./...; then pass "go build ./..."; else miss "go build ./..."; fi
 
 echo "[2/8] Vet"
-GOWORK=off GOEXPERIMENT= go vet ./... && pass "go vet ./..." || miss "go vet ./..."
+if GOWORK=off GOEXPERIMENT='' go vet ./...; then pass "go vet ./..."; else miss "go vet ./..."; fi
 
 echo "[3/8] Tests"
-GOWORK=off GOEXPERIMENT= go test ./... -count=1 >/tmp/bump-test.log 2>&1 && pass "go test ./..." || { miss "go test ./... (see /tmp/bump-test.log)"; }
+if GOWORK=off GOEXPERIMENT='' go test ./... -count=1 >/tmp/bump-test.log 2>&1; then pass "go test ./..."; else miss "go test ./... (see /tmp/bump-test.log)"; fi
 
 echo "[4/8] Race"
-GOWORK=off GOEXPERIMENT= go test ./... -race -count=1 >/tmp/bump-race.log 2>&1 && pass "go test -race" || { miss "go test -race (see /tmp/bump-race.log)"; }
+if GOWORK=off GOEXPERIMENT='' go test ./... -race -count=1 >/tmp/bump-race.log 2>&1; then pass "go test -race"; else miss "go test -race (see /tmp/bump-race.log)"; fi
 
 echo "[5/8] Lint"
 if command -v golangci-lint >/dev/null; then
-	GOWORK=off golangci-lint run --timeout=5m ./... && pass "golangci-lint" || miss "golangci-lint"
+	if GOWORK=off golangci-lint run --timeout=5m ./...; then pass "golangci-lint"; else miss "golangci-lint"; fi
 else
 	miss "golangci-lint not on PATH (nix develop first)"
 fi
@@ -57,7 +57,7 @@ else
 fi
 
 echo "[7/8] Doc drift"
-scripts/check-doc-versions.sh && pass "check-doc-versions" || miss "check-doc-versions"
+if scripts/check-doc-versions.sh; then pass "check-doc-versions"; else miss "check-doc-versions"; fi
 
 echo "[8/8] Benchmarks (manual comparison)"
 echo "  RUN: GOWORK=off go test -bench . -benchmem -benchtime=1000x -run '^$' ."
