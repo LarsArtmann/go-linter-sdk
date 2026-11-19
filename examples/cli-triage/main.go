@@ -3,7 +3,16 @@
 //
 //   - FilterRules (--enable/--disable set logic)
 //   - OptIn rules (disabled by default; registered only when explicitly enabled)
-//   - ExitCodeByConfidence (tiered exit codes: 0 clean, 1 must fix, 2 triage)
+//   - ExitCodeByConfidence (tiered exit codes)
+//
+// Exit contract:
+//
+//	0 clean · 1 must-fix findings · 2 triage-only findings · 3 tool failure
+//
+// The tiers come from ExitCodeByConfidence: high-confidence findings gate at 1,
+// low-confidence findings route to triage at 2. Exit 3 is reserved for linter
+// execution errors, so CI can distinguish "findings below threshold" from
+// "the tool crashed".
 //
 // The linter ships two rules: a default-enabled "long-func" check whose
 // findings are high-confidence, and an opt-in "no-todos" check whose findings
@@ -29,7 +38,13 @@ import (
 )
 
 const (
-	toolName      = "cli-triage"
+	toolName = "cli-triage"
+
+	exitClean       = 0
+	exitMustFix     = 1
+	exitTriage      = 2
+	exitToolFailure = 3
+
 	longFuncID    = "long-func"
 	noTodosID     = "no-todos"
 	longFuncLines = 40
@@ -74,7 +89,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", toolName, err)
 
-		os.Exit(2)
+		os.Exit(exitToolFailure)
 	}
 
 	for _, f := range report.ActiveFindings() {
@@ -82,7 +97,7 @@ func main() {
 	}
 
 	code := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh)
-	fmt.Fprintf(os.Stderr, "%s: %d finding(s), exit %d (0 clean, 1 must fix, 2 triage)\n",
+	fmt.Fprintf(os.Stderr, "%s: %d finding(s), exit %d (0 clean, 1 must fix, 2 triage, 3 tool failure)\n",
 		toolName, report.Len(), code)
 
 	os.Exit(code)

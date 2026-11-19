@@ -18,7 +18,7 @@ func benchRegistry(b *testing.B, n int) *linter.Registry {
 	for i := range n {
 		reg.Register(linter.RuleFunc{
 			Meta: linter.RuleMeta{
-				ID:          "bench-rule-" + string(rune('a'+i%26)) + "-" + itoa(i),
+				ID:          "bench-rule-" + string(rune('a'+i%26)) + "-" + strconv.Itoa(i),
 				Name:        "bench rule",
 				Description: "benchmark rule",
 				Cat:         linter.CategoryStyle,
@@ -31,24 +31,9 @@ func benchRegistry(b *testing.B, n int) *linter.Registry {
 	return reg
 }
 
-func itoa(i int) string { return strconv.Itoa(i) }
-func unusedItoa(i int) string {
-	if i == 0 {
-		return "0"
-	}
-
-	var digits []byte
-
-	for ; i > 0; i /= 10 {
-		digits = append([]byte{byte('0' + i%10)}, digits...)
-	}
-
-	return string(digits)
-}
-
 func BenchmarkRegistry_Get(b *testing.B) {
 	for _, ruleCount := range []int{100, 500, 1000} {
-		b.Run("rules="+itoa(ruleCount), func(b *testing.B) {
+		b.Run("rules="+strconv.Itoa(ruleCount), func(b *testing.B) {
 			reg := benchRegistry(b, ruleCount)
 
 			b.ReportAllocs()
@@ -65,14 +50,14 @@ func BenchmarkRegistry_Get(b *testing.B) {
 
 func BenchmarkRegistry_Has(b *testing.B) {
 	for _, ruleCount := range []int{100, 500, 1000} {
-		b.Run("rules="+itoa(ruleCount), func(b *testing.B) {
+		b.Run("rules="+strconv.Itoa(ruleCount), func(b *testing.B) {
 			reg := benchRegistry(b, ruleCount)
 
 			b.ReportAllocs()
 			b.ResetTimer()
 
 			for b.Loop() {
-				reg.Has("bench-rule-z-" + itoa(ruleCount-1))
+				reg.Has("bench-rule-z-" + strconv.Itoa(ruleCount-1))
 			}
 		})
 	}
@@ -80,7 +65,7 @@ func BenchmarkRegistry_Has(b *testing.B) {
 
 func BenchmarkRegistry_Deregister(b *testing.B) {
 	for _, ruleCount := range []int{100, 500, 1000} {
-		b.Run("rules="+itoa(ruleCount), func(b *testing.B) {
+		b.Run("rules="+strconv.Itoa(ruleCount), func(b *testing.B) {
 			b.ReportAllocs()
 
 			for b.Loop() {
@@ -100,7 +85,7 @@ func BenchmarkRegistry_Run_Coverage(b *testing.B) {
 	reg := linter.NewRegistry()
 
 	for i := range 10 {
-		reg.Register(coverageRule{RuleFunc: makeRule("bench-run-"+itoa(i), nil), files: 50})
+		reg.Register(coverageRule{RuleFunc: makeRule("bench-run-"+strconv.Itoa(i), nil), files: 50})
 	}
 
 	ctx := context.Background()

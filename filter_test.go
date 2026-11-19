@@ -7,13 +7,8 @@ import (
 	"github.com/larsartmann/go-linter-sdk"
 )
 
-// filteredFixture builds one finding per (severity, category) combination
+// filterFinding builds one finding per (severity, category) combination
 // used by the Filter tests.
-type filterFixture struct {
-	name string
-	perm map[string][]finding.Finding // ruleID -> findings, keyed by fixture name
-}
-
 func filterFinding(sev finding.Severity, cat linter.Category) finding.Finding {
 	builder := finding.NewBuilder(
 		"filter-fixture", "linter", "filter fixture", sev,

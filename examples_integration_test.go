@@ -398,3 +398,20 @@ func TestExampleCLITriage_DisableLongFunc(t *testing.T) {
 		t.Errorf("expected empty stdout, got %q", stdout)
 	}
 }
+
+func TestExampleCLITriage_ToolFailureExits3(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	missing := filepath.Join(t.TempDir(), "does-not-exist")
+
+	_, stderr, code := runExampleArgs(t, bin, missing)
+	if code != 3 {
+		t.Errorf("expected exit 3 (tool failure must be distinguishable from triage 2), got %d", code)
+	}
+
+	if stderr == "" {
+		t.Error("expected an error message on stderr for tool failure")
+	}
+}
