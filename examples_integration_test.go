@@ -415,3 +415,39 @@ func TestExampleCLITriage_ToolFailureExits3(t *testing.T) {
 		t.Error("expected an error message on stderr for tool failure")
 	}
 }
+
+func TestExampleCLITriage_HelpExitsZero(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	stdout, _, code := runExampleArgs(t, bin, "--help")
+	if code != 0 {
+		t.Errorf("expected exit 0 for --help, got %d", code)
+	}
+
+	for _, want := range []string{"Usage:", "--enable=r1,r2", "3 tool failure"} {
+		if !strings.Contains(stdout, want) {
+			t.Errorf("expected usage to contain %q, got:\n%s", want, stdout)
+		}
+	}
+}
+
+func TestExampleCLITriage_CommaSeparatedEnable(t *testing.T) {
+	t.Parallel()
+
+	bin := buildExample(t, "./examples/cli-triage")
+
+	dir := t.TempDir()
+	writeCLITRIAGEFixture(t, dir, "mixed.go",
+		"package a\n\n// TODO: think\nfunc small() {\n\t_ = 1\n}\n")
+
+	stdout, _, code := runExampleArgs(t, bin, dir, "--enable=no-todos")
+	if code != 2 {
+		t.Errorf("expected exit 2 (single comma-split token equals plain enable), got %d", code)
+	}
+
+	if !strings.Contains(stdout, "TODO comment found") {
+		t.Errorf("expected TODO finding, got %q", stdout)
+	}
+}

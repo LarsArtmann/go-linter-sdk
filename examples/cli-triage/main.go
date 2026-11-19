@@ -54,7 +54,8 @@ const (
 	longFuncLines = 40
 )
 
-var usage = `cli-triage — discovery and triage demo linter
+func usageText() string {
+	return `cli-triage — discovery and triage demo linter
 
 Usage:
   cli-triage [dir] [flags]
@@ -71,6 +72,7 @@ Rules:
 Exit codes:
   0 clean · 1 must-fix findings · 2 triage-only findings · 3 tool failure
 `
+}
 
 func main() {
 	var dir string
@@ -81,7 +83,7 @@ func main() {
 	for _, arg := range os.Args[1:] {
 		switch {
 		case arg == "--help" || arg == "-h":
-			fmt.Print(usage)
+			fmt.Print(usageText())
 
 			os.Exit(exitClean)
 		case strings.HasPrefix(arg, "--enable="):

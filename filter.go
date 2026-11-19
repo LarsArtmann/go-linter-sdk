@@ -22,6 +22,15 @@ type Filter struct {
 	// Categories, when non-empty, keeps only findings whose category is a
 	// key mapped to true. Findings without a category are dropped while
 	// this constraint is active.
+	//
+	// Type decision (recorded): a map rather than a slice because the
+	// dominant caller shape is a set literal at the call site
+	// (`Categories: map[Category]bool{linter.CategorySecurity: true}`),
+	// membership checks are O(1) per finding, and callers sometimes want to
+	// express "keep design but not style" without re-deriving a slice. The
+	// trade-off is verbosity for consumers holding a []Category, who pay one
+	// loop to build the map. A slice field would invert that cost onto every
+	// Keep call, which runs per finding — the hotter path.
 	Categories map[Category]bool
 }
 

@@ -277,31 +277,33 @@ func ExampleRegistry_Run_continueOnError() {
 // zero value keeps everything; a configured Filter narrows to the criteria
 // set. Apply never mutates its input.
 func ExampleFilter() {
-	var rule linter.RuleFunc
-
-	rule = linter.RuleFunc{
+	rule := linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID: "demo", Name: "demo", Description: "demo", Cat: linter.CategoryStyle,
 			Sev: finding.SeverityWarning, ToolName: "example-linter",
 		},
-		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
-			info := finding.NewBuilder("demo", "example-linter", "info-level",
-				finding.SeverityInfo, finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()
-			errFinding := rule.NewFinding("error-level",
-				finding.Pos(finding.FilePath("b.go"), 2, 1)).MustBuild()
-
-			return []finding.Finding{info, errFinding}, nil
-		},
 	}
 
-	gate := linter.Filter{MinSeverity: finding.SeverityError}
+	info := finding.NewBuilder("demo", "example-linter", "info-level",
+		finding.SeverityInfo, finding.Pos(finding.FilePath("a.go"), 1, 1)).
+		WithCategory(finding.Category(linter.CategoryStyle)).
+		MustBuild()
+	warn := rule.NewFinding("warning-level",
+		finding.Pos(finding.FilePath("b.go"), 2, 1)).
+		WithCategory(finding.Category(linter.CategoryErrorHandling)).
+		MustBuild()
 
-	fmt.Println("kept:", len(gate.Apply([]finding.Finding{})))
-	fmt.Println("zero filter keeps all:", linter.Filter{}.Keep(
-		finding.NewBuilder("demo", "example-linter", "x", finding.SeverityInfo,
-			finding.Pos(finding.FilePath("a.go"), 1, 1)).MustBuild()))
+	findings := []finding.Finding{info, warn}
+
+	gate := linter.Filter{MinSeverity: finding.SeverityWarning}
+	kept := gate.Apply(findings)
+
+	fmt.Println("kept:", len(kept), "of", len(findings))
+	fmt.Println("kept severity:", kept[0].Severity)
+	fmt.Println("zero filter keeps all:", linter.Filter{}.Keep(info))
 	// Output:
-	// kept: 0
+	// kept: 1 of 2
+	// kept severity: warning
 	// zero filter keeps all: true
 }
 
