@@ -94,10 +94,10 @@ Each ≤ 12 min. Canonical breakdown with context, acceptance criteria, dependen
 | 13   | BF8 | Gate + sync FEATURES/CHANGELOG/README consumer table                                   | Critical | 12m    |
 | 14   | D1  | Read go-finding v1.8.0 + v1.9.2 changelogs                                             | Medium   | 12m    |
 | 15   | D2  | Trial bump to v1.9.2 on a scratch branch + tidy                                        | Medium   | 12m    |
-| 16   | D3  | Gate the bump (lint/vet/race/build/flake)                                              | Medium   | 12m    |
+| 16   | D3  | ~~Gate the bump (lint/vet/race/build/flake)~~ done — this is now the standard bump/release gate, executed per consumer bump wave (2026-10-15, 2026-11-19) and per release (v0.5.0, v0.6.0) | Medium   | 12m    |
 | 17   | D4  | Decide pin-vs-bump; record in CHANGELOG/AGENTS/TODO #9                                 | Medium   | 12m    |
 | 18   | EA1 | Read erraudit's smallest rule + converter                                              | High     | 12m    |
-| 19   | EA2 | Scaffold `examples/erraudit-port`                                                      | High     | 12m    |
+| 19   | EA2 | ~~Scaffold `examples/erraudit-port`~~ done — shipped as `examples/oops-redundant-guard` (the erraudit port, 2026-09 era); name differed from this sketch | High     | 12m    |
 | 20   | EA3 | Port: RuleMeta identity                                                                | High     | 12m    |
 | 21   | EA4 | Port: Run closure logic                                                                | High     | 12m    |
 | 22   | EA5 | Port: finding emission via NewBuilder                                                  | High     | 12m    |

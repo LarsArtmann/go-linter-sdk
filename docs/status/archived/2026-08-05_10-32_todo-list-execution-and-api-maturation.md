@@ -179,7 +179,10 @@ The first implementation of `RuleMeta.Validate()` used `fmt.Errorf` directly (vi
 ### Tooling & CI
 
 37. Add `examples/` to `go build ./...` in CI (already works, but make it explicit)
-38. Add `golangci-lint` run on `examples/` separately (with relaxed config)
+38. ~~Add `golangci-lint` run on `examples/` separately (with relaxed config)~~
+    NOT-DO — superseded: one config, `golangci-lint run ./...`, passes clean on
+    the examples too (0 issues, 2026-11-19); a relaxed second config would
+    only weaken the gate
 39. Nix flake app to run examples (e.g. `nix run .#example-minimal-linter`)
 40. Add `nix flake check` to verify the examples build in the nix environment
 41. Pre-commit hook or treefmt check for example code

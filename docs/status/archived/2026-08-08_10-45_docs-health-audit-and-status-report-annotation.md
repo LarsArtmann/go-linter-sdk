@@ -241,7 +241,9 @@ Ranked by impact:
 41. Verify pkg.go.dev renders testable examples correctly after next publish
 42. Add godoc cross-references between `Registry.Run` and `ContinueOnError`
 43. Annotate the 6 remaining `2026-07-*` status reports
-44. Inspect `docs/feedback/processed/` contents
+44. ~~Inspect `docs/feedback/processed/` contents~~
+    done — the directory exists and holds processed analyses (e.g. the
+    cqrs-lint adoption analysis); nothing unprocessed pending (2026-11-19)
 
 ### Tooling & CI (LOW)
 

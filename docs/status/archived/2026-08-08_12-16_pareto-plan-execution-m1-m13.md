@@ -257,8 +257,8 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 | #  | Task                                                     | Impact | Effort | Notes                                            |
 | -- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
-| 18 | `Registry.Len() int`                                     | Low    | 5m     | Trivial but ergonomic.                           |
-| 19 | `Registry.RegisterAll(rules ...Rule)`                    | Low    | 10m    |                                                  |
+| 18 | ~~`Registry.Len() int`~~ NOT-DO — superseded: `RuleSet.Len()` covers the ergonomic need; registry callers use `len(reg.All())` (2026-11-19) | Low    | 5m     | Trivial but ergonomic.                           |
+| 19 | ~~`Registry.RegisterAll(rules ...Rule)`~~ NOT-DO — superseded by `NewRegistryFromRules`, shipped in the 0.6.0 teaching tier (2026-11-19) | Low    | 10m    |                                                  |
 | 20 | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
 | 21 | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
 | 22 | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
@@ -272,7 +272,7 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 
 | #  | Task                                            | Impact | Effort | Notes               |
 | -- | ----------------------------------------------- | ------ | ------ | ------------------- |
-| 28 | Create `cmd/go-linter-sdk/main.go` skeleton     | Medium | 30m    |                     |
+| 28 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ routed — ROADMAP documents the deliberate cmd/ parking decision (layering: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
 | 29 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
 | 30 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
 | 31 | Add `--format text` (default)                   | Low    | 10m    |                     |
@@ -294,12 +294,12 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 | -- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------------------------ |
 | 41 | Add flake `checks` derivations for test/vet/lint                                                                                                       | Low    | 30m    | Only treefmt is a check today. |
 | 42 | Add `apps.watch` (live test re-runs with `entr`)                                                                                                       | Low    | 10m    |                                |
-| 43 | Add `apps.tidy` (`go mod tidy`)                                                                                                                        | Low    | 5m     |                                |
+| 43 | ~~Add `apps.tidy` (`go mod tidy`)~~ NOT-DO — CI already runs a `go mod tidy` drift check; an app would duplicate it (2026-11-19) | Low    | 5m     |                                |
 | 44 | Add `direnv` setup (`.envrc`)                                                                                                                          | Low    | 10m    |                                |
 | 45 | Add `meta.position` to flake apps                                                                                                                      | Low    | 10m    |                                |
 | 46 | Verify pkg.go.dev badge resolves                                                                                                                       | Low    | 5m     |                                |
 | 47 | ~~Add SSH `insteadOf` workaround doc for read-only git config~~ done — recorded in `AGENTS.md`; verified 2026-09-09 that proxy-only works without it — | Low    | 5m     |                                |
-| 49 | Add commit signing (gitsign) to CI                                                                                                                     | Low    | 15m    |                                |
+| 49 | ~~Add commit signing (gitsign) to CI~~ NOT-DO — declined: branch protection is deliberately off (daemon pushes to master) and the repo has no supply-chain gate requirement | Low    | 15m    |                                |
 | 50 | Add `go mod verify` to CI                                                                                                                              | Low    | 5m     |                                |
 
 ---

@@ -260,8 +260,8 @@ be cleaner than per-line suppressions.
 
 | #  | Task                                                     | Impact | Effort | Notes                                            |
 | -- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
-| 17 | `Registry.Len() int`                                     | Low    | 5m     | Trivial but ergonomic.                           |
-| 18 | `Registry.RegisterAll(rules ...Rule)`                    | Low    | 10m    |                                                  |
+| 17 | ~~`Registry.Len() int`~~ NOT-DO — superseded: `RuleSet.Len()` covers the ergonomic need; registry callers use `len(reg.All())` (2026-11-19) | Low    | 5m     | Trivial but ergonomic.                           |
+| 18 | ~~`Registry.RegisterAll(rules ...Rule)`~~ NOT-DO — superseded by `NewRegistryFromRules`, shipped in the 0.6.0 teaching tier (2026-11-19) | Low    | 10m    |                                                  |
 | 19 | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
 | 20 | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
 | 21 | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
@@ -275,7 +275,7 @@ be cleaner than per-line suppressions.
 
 | #  | Task                                            | Impact | Effort | Notes               |
 | -- | ----------------------------------------------- | ------ | ------ | ------------------- |
-| 27 | Create `cmd/go-linter-sdk/main.go` skeleton     | Medium | 30m    |                     |
+| 27 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ routed — ROADMAP documents the deliberate cmd/ parking decision (layering: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
 | 28 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
 | 29 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
 | 30 | Add `--format text` (default)                   | Low    | 10m    |                     |
@@ -299,11 +299,11 @@ be cleaner than per-line suppressions.
 | -- | ---------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
 | 41 | Add flake `checks` derivations for test/vet/lint                                               | Low    | 30m    | Only treefmt is a check today.          |
 | 42 | Add `apps.watch` (live test re-runs with `entr`)                                               | Low    | 10m    |                                         |
-| 43 | Add `apps.tidy` (`go mod tidy`)                                                                | Low    | 5m     |                                         |
+| 43 | ~~Add `apps.tidy` (`go mod tidy`)~~ NOT-DO — CI already runs a `go mod tidy` drift check; an app would duplicate it (2026-11-19) | Low    | 5m     |                                         |
 | 44 | Add `direnv` setup (`.envrc`)                                                                  | Low    | 10m    |                                         |
 | 45 | Add `meta.position` to flake apps                                                              | Low    | 10m    |                                         |
 | 46 | ~~Verify pkg.go.dev badge resolves~~ done — verified: pkg.go.dev indexes v0.3.0 (2026-09-09) — | Low    | 5m     |                                         |
-| 48 | Add commit signing (gitsign) to CI                                                             | Low    | 15m    |                                         |
+| 48 | ~~Add commit signing (gitsign) to CI~~ NOT-DO — declined: branch protection is deliberately off (daemon pushes to master) and the repo has no supply-chain gate requirement | Low    | 15m    |                                         |
 | 49 | Generate `go.work.sum` for workspace checksum consistency                                      | Low    | 2m     |                                         |
 | 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go`                     | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
 
