@@ -84,3 +84,8 @@ grep -n -A4 'Layering vs sibling libs' /home/lars/projects/go-linter-sdk/AGENTS.
 # 190-  (`go-finding` only) would be destroyed by cmdguard's transitive cobra/fang/
 # 191-  lipgloss/samber-do/koanf tree. ...
 ```
+
+> **Re-review trigger:** re-run this audit when the consumer pins a newer
+> release of the reviewed library than the version stamped above, or when a
+> follow-up task from the 2026-11-19 Pareto plan lands in this repo
+> (footers standardized 2026-11-19, plan task M22/F22.1).

@@ -156,3 +156,8 @@ Recomputed: 10 of 13 applicable rows fully leveraged → **85/100**. The
 remaining gap is row 11 (fix representation — ROADMAP theme 1, plan M15).
 Behavior change to note for consumers: finding IDs for absolute-dir runs
 change (relativization); that is the intended MINOR-release fix (v0.5.0).
+
+> **Re-review trigger:** re-run this audit when the consumer pins a newer
+> release of the reviewed library than the version stamped above, or when a
+> follow-up task from the 2026-11-19 Pareto plan lands in this repo
+> (footers standardized 2026-11-19, plan task M22/F22.1).

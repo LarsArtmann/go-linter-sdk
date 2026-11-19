@@ -89,3 +89,8 @@ rg -n 'toolsdk v1.16.0 ×14|go-linter-sdk +\| v1.15.1 \| — +' /home/lars/proje
 # 153: md-go-validator bumped 2026-11-08). Submodule reach: toolsdk v1.16.0 ×14,
 # 168: | go-linter-sdk                | v1.15.1 | — | — | — |        (unreleased local HEAD doc)
 ```
+
+> **Re-review trigger:** re-run this audit when the consumer pins a newer
+> release of the reviewed library than the version stamped above, or when a
+> follow-up task from the 2026-11-19 Pareto plan lands in this repo
+> (footers standardized 2026-11-19, plan task M22/F22.1).

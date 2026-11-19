@@ -368,6 +368,7 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 | `FilterRules(all, enable, disable)` | `[]RuleFunc`             | Standard --enable/--disable filtering for CLI and plugin entry points                                 |
 | `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`  | Severity/category-based finding filtering; zero value keeps everything, input never mutated           |
 | `NewRegistryFromRules(rules, opts)` | `*Registry`              | Bulk constructor with the same validation as per-rule `Register`                                      |
+| `RuleSet` (type)                    | `NewRuleSet`, `Check`, `ToRegistry` | Immutable, order-preserving, mutex-free rule collection with O(1) ID lookup                 |
 | `AllCategories()`                   | `[]Category`             | Fresh copy of the eleven recommended categories                                                       |
 | `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
 | `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`       | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                       |

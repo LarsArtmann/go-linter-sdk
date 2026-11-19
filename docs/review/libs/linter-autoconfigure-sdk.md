@@ -72,3 +72,8 @@ rg -c 'json\.Marshal' --glob '*.go' . || echo "no json.Marshal call sites in con
 git log --oneline -i --grep='auto-configure'
 # 56b667e chore(config): converge golangci-lint config via golangci-lint-auto-configure
 ```
+
+> **Re-review trigger:** re-run this audit when the consumer pins a newer
+> release of the reviewed library than the version stamped above, or when a
+> follow-up task from the 2026-11-19 Pareto plan lands in this repo
+> (footers standardized 2026-11-19, plan task M22/F22.1).

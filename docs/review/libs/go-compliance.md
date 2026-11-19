@@ -114,3 +114,8 @@ sed -n '3,7p' /home/lars/projects/go-linter-sdk/go.mod
 #
 # require github.com/larsartmann/go-error-family v0.12.0 // indirect
 ```
+
+> **Re-review trigger:** re-run this audit when the consumer pins a newer
+> release of the reviewed library than the version stamped above, or when a
+> follow-up task from the 2026-11-19 Pareto plan lands in this repo
+> (footers standardized 2026-11-19, plan task M22/F22.1).
