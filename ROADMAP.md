@@ -95,6 +95,20 @@ Raw ideas:
 - Confirm `Registry.Register`'s panic-on-duplicate is the right contract for a
   library (panics in libraries are sometimes controversial; once consumers
   exist, this cannot be reversed without a breaking change)
+- **OptIn coverage forwarding:** `OptIn` wraps the `RuleFunc` VALUE, so an
+  opt-in rule cannot carry `CoverageReporter` through the wrapper (the
+  cli-triage example documents the caveat; opt-in rules stay coverage-silent).
+  If a consumer needs opt-in rules WITH coverage evidence, design a
+  pointer-preserving `OptIn` variant — additive API, needs a real consumer
+  first (2026-11-19 fleet adoption surfaced it; #29).
+- **SARIF output lane:** the parked `cmd/` sketch mentions `--format`
+  text/JSON/SARIF; SARIF as an output format for the report layer is a
+  standalone idea until a consumer asks.
+- **Coverage-accumulation doc pin:** go-finding's `Summary.FilesScanned`
+  accumulates per-rule counts (N rules × F files), pinned by cmdguard/lint and
+  go-humanize-linter tests after the 2026-11-19 fleet adoption — surface the
+  semantic in DOMAIN_LANGUAGE's borrowed-vocabulary section if it ever reads
+  as a unique-file count to a consumer (also TODO #40).
 
 ## Open questions
 

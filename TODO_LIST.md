@@ -97,14 +97,45 @@ derivations. #18 the bump checklist is encoded in
   docs/status/2026-11-19_14-43; upstream filings landed during the wave
   (samber-linter#5, BuildFlow#112) are separate from this decision.
 
+### From the coverage-fleet-adoption session (2026-11-19 21:41 report §f)
+
+- **#35 TODO — Finish the audit-all drain: apply 5 inline verdicts so the
+  audit-all gate goes green.** Located lines: docs/status/2026-11-19_14-43
+  item 8 (CoverageReporter README row → done 2026-11-19),
+  docs/status/archived/2026-08-08_10-45 item 33 (severity-tiered exit codes
+  → done), 2026-08-08_12-16 item 32 + 2026-08-08_12-36 item 31
+  (`--format json` → done 2026-11-19), docs/status/2026-11-19_07-40 item 44
+  (go-finding DetectorV2 docs cross-link ask → `fresh:skip`,
+  sibling-scoped). Lesson encoded: completing a routed item needs its inline
+  verdict in the SAME session (removing the anchor row turns audit-all red).
+- **#36 TODO (g1-gated) — Cut v0.6.1:** release-checklist full pass → push →
+  CI green on the exact commit → tag → proxy + pkg.go.dev verify. The
+  CHANGELOG [Unreleased] entry and the PATCH slot decision are already in.
+- **#37 TODO — BuildFlow/tools FULL providers suite re-verify** after the
+  V2-bridge re-apply (decay #4): targeted V2 + ToolFromSpec tests green;
+  the 3 known-flaky failures pending a clean-run record.
+- **#38 TODO — WithEdits adoption sweep:** the last 0-ref fleet channel
+  (ADR-0002 GO items; rules that know a mechanical fix attach TextEdits).
+- **#39 TODO — teaching-debt sweep:** consumers' direct `finding.NewBuilder`
+  usage that should be `rule.NewFinding` (feeds future PRs).
+- **#40 TODO — Session-record docs:** ADOPTION 2026-11-19 snapshot names
+  decay #4 (concurrent-session clobber of the V2 bridge); AGENTS.md gains
+  the coverage-fleet-adoption session section (post-release so it can name
+  the release); DOMAIN_LANGUAGE borrowed-vocabulary section documents the
+  FilesScanned accumulation semantic (Summary is N·F, not unique files —
+  pinned by cmdguard + go-humanize tests).
+- **#34 TODO — README relative-link checker** (anchors like `#api`, file
+  targets — cheap Go test or lychee). Routed from
+  docs/status/2026-10-15_18-00 item 8 during the 21:41 drain.
+
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
-None open. (#30 the audit-all drain completed 2026-11-19 in one pass: all 24
-historical unharvested items carry inline verdicts — done / NOT-DO superseded
-/ routed; `.docs-gates.json` ratchet lowered 33 → 0, so any future unharvested
-item gates red immediately. #32 and #33, both routed from that drain,
-completed 2026-11-19: #32 landed as the flake's eval-time
-`golangci-version-sync` assertion (caught live action-pin-vs-flake drift on
-its first run) plus a shape rule in check-doc-versions.sh; #33 landed as a
-shellcheck flake check + CI job with all four scripts clean — logged in the
-[Unreleased] CHANGELOG entry.)
+None open beyond #35's five verdicts. (#30 the audit-all drain completed
+2026-11-19 in one pass: all 24 historical unharvested items carry inline
+verdicts — done / NOT-DO superseded / routed; `.docs-gates.json` ratchet
+lowered 33 → 0, so any future unharvested item gates red immediately.
+#32 and #33, both routed from that drain, completed 2026-11-19: #32 landed
+as the flake's eval-time `golangci-version-sync` assertion (caught live
+action-pin-vs-flake drift on its first run) plus a shape rule in
+check-doc-versions.sh; #33 landed as a shellcheck flake check + CI job with
+all four scripts clean — logged in the [Unreleased] CHANGELOG entry.)
