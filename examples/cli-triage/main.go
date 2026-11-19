@@ -160,13 +160,29 @@ func main() {
 	os.Exit(code)
 }
 
+// treeWalkingRule pairs a RuleFunc with the file count from its most recent
+// scan, implementing CoverageReporter so the report carries scan evidence
+// (filesScanned) instead of a meaningless zero. This is the pattern every
+// tree-walking linter should adopt — fleet dashboards cannot otherwise tell
+// "clean tree" from "scanned nothing". Note: linter.OptIn wraps the RuleFunc
+// VALUE, so coverage does not ride through it — the opt-in rule stays
+// coverage-silent here, while the default-on rule reports evidence.
+type treeWalkingRule struct {
+	linter.RuleFunc
+	scanned int
+}
+
+func (r *treeWalkingRule) Coverage(_ context.Context, _ string) (int, []string) {
+	return r.scanned, nil
+}
+
 // allRules returns every rule the linter ships, in registration order, as the
 // general Rule interface: the opt-in rule is already wrapped in OptIn, so
 // SelectRules and the registration gate can key off IsEnabledByDefault.
 func allRules() []linter.Rule {
-	var longFunc linter.RuleFunc
+	var longFunc treeWalkingRule
 
-	longFunc = linter.RuleFunc{
+	longFunc.RuleFunc = linter.RuleFunc{
 		Meta: linter.RuleMeta{
 			ID:          longFuncID,
 			Name:        "long function",
@@ -176,7 +192,10 @@ func allRules() []linter.Rule {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return findLongFuncs(longFunc, dir)
+			findings, scanned, err := findLongFuncs(longFunc.RuleFunc, dir)
+			longFunc.scanned = scanned
+
+			return findings, err
 		},
 	}
 
@@ -192,16 +211,20 @@ func allRules() []linter.Rule {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return findTODOs(noTodos, dir)
+			findings, _, err := findTODOs(noTodos, dir)
+			// The scan count is dropped: OptIn wraps the RuleFunc value, so
+			// no CoverageReporter method survives to report it.
+
+			return findings, err
 		},
 	}
 
-	return []linter.Rule{longFunc, linter.OptIn(noTodos)}
+	return []linter.Rule{&longFunc, linter.OptIn(noTodos)}
 }
 
 // findLongFuncs walks dir's Go files and flags oversized function bodies.
 // Findings are high-confidence: ExitCodeByConfidence routes them to "must fix".
-func findLongFuncs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
+func findLongFuncs(rule linter.RuleFunc, dir string) ([]finding.Finding, int, error) {
 	return walkGoFiles(dir, func(fset *token.FileSet, file *ast.File, path string) []finding.Finding {
 		var out []finding.Finding
 
@@ -236,7 +259,7 @@ func findLongFuncs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) 
 
 // findTODOs flags TODO comments in Go files. Findings are deliberately
 // low-confidence so ExitCodeByConfidence routes them to triage, not gate.
-func findTODOs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
+func findTODOs(rule linter.RuleFunc, dir string) ([]finding.Finding, int, error) {
 	return walkGoFiles(dir, func(fset *token.FileSet, file *ast.File, path string) []finding.Finding {
 		var out []finding.Finding
 
@@ -262,12 +285,15 @@ func findTODOs(rule linter.RuleFunc, dir string) ([]finding.Finding, error) {
 }
 
 // walkGoFiles parses every non-test, non-vendor Go file under dir and calls
-// visit per parsed file.
+// visit per parsed file. It returns the findings plus the number of files
+// actually examined — the CoverageReporter evidence.
 func walkGoFiles(
 	dir string,
 	visit func(*token.FileSet, *ast.File, string) []finding.Finding,
-) ([]finding.Finding, error) {
+) ([]finding.Finding, int, error) {
 	var findings []finding.Finding
+
+	scanned := 0
 
 	fset := token.NewFileSet()
 
@@ -293,15 +319,16 @@ func walkGoFiles(
 			return fmt.Errorf("parse %s: %w", path, parseErr)
 		}
 
+		scanned++
 		findings = append(findings, visit(fset, file, path)...)
 
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walk %s: %w", dir, err)
+		return nil, 0, fmt.Errorf("walk %s: %w", dir, err)
 	}
 
-	return findings, nil
+	return findings, scanned, nil
 }
 
 func firstLine(text string) string {

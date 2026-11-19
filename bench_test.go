@@ -143,6 +143,52 @@ func BenchmarkRuleSet_Get(b *testing.B) {
 	}
 }
 
+// benchExecRules returns n unique no-op rules shared by the end-to-end
+// execution benchmarks below.
+func benchExecRules(b *testing.B, n int) []linter.Rule {
+	b.Helper()
+
+	rules := make([]linter.Rule, n)
+
+	for i := range n {
+		rules[i] = linter.RuleFunc{
+			Meta: linter.RuleMeta{
+				ID:          "exec-rule-" + strconv.Itoa(i),
+				Name:        "exec rule",
+				Description: "execution benchmark rule",
+				Cat:         linter.CategoryStyle,
+				Sev:         finding.SeverityInfo,
+			},
+			Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+		}
+	}
+
+	return rules
+}
+
+// BenchmarkRuleSet_Check and BenchmarkRegistry_Run quantify the end-to-end
+// execution claim over the same 50-rule workload: RuleSet.Check is the
+// mutex-free findings-only path; Registry.Run additionally acquires read
+// locks per rule, wraps results, and builds a Report with coverage evidence.
+func BenchmarkRuleSet_Check(b *testing.B) {
+	set := linter.NewRuleSet(benchExecRules(b, 50))
+	ctx := context.Background()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for b.Loop() {
+		findings, err := set.Check(ctx, ".")
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		if len(findings) != 0 {
+			b.Fatalf("expected 0 findings, got %d", len(findings))
+		}
+	}
+}
+
 func benchFindings(b *testing.B, n int) []finding.Finding {
 	b.Helper()
 

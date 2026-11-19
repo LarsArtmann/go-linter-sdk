@@ -776,17 +776,25 @@ func TestDetectorsFromRegistry_EmptyRegistry(t *testing.T) {
 	}
 }
 
+// BenchmarkRegistry_Run is the Registry half of the end-to-end execution
+// pairing with BenchmarkRuleSet_Check (same benchExecRules 50-rule workload):
+// Run additionally locks per rule and builds a Report with coverage evidence.
 func BenchmarkRegistry_Run(b *testing.B) {
-	r := linter.NewRegistry()
-
-	for i := range 100 {
-		r.Register(makeRule(strconv.Itoa(i), nil))
-	}
-
+	r := linter.NewRegistryFromRules(benchExecRules(b, 50))
 	ctx := context.Background()
 
+	b.ReportAllocs()
+	b.ResetTimer()
+
 	for b.Loop() {
-		_, _ = r.Run(ctx, ".")
+		report, err := r.Run(ctx, ".")
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		if report.Len() != 0 {
+			b.Fatalf("expected 0 findings, got %d", report.Len())
+		}
 	}
 }
 

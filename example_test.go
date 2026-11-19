@@ -224,6 +224,74 @@ func ExampleSelectRules() {
 	// Output: register: no-todos
 }
 
+// ExampleNewRuleSet constructs the immutable rule collection with O(1) ID
+// lookup: build once, then Get/Has without locks. Panics on duplicate IDs or
+// empty identity fields, matching Registry.Register.
+func ExampleNewRuleSet() {
+	rule := linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID: "demo", Name: "demo rule", Description: "demo", Cat: linter.CategoryStyle,
+			Sev: finding.SeverityWarning, ToolName: "example-linter",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) { return nil, nil },
+	}
+
+	set := linter.NewRuleSet([]linter.Rule{rule})
+
+	fmt.Println("rules:", set.Len())
+
+	if found, ok := set.Get("demo"); ok {
+		fmt.Println("get:", found.ID())
+	}
+
+	fmt.Println("has missing:", set.Has("nope"))
+	// Output:
+	// rules: 1
+	// get: demo
+	// has missing: false
+}
+
+// ExampleRuleSet_Check runs every rule in the set through the mutex-free
+// execution path: findings pass through finding.Relativize and the first rule
+// error aborts, wrapped as *RuleError. For a *finding.Report with coverage
+// evidence, use ToRegistry + Run instead.
+func ExampleRuleSet_Check() {
+	var rule linter.RuleFunc
+
+	rule = linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "demo-rule",
+			Name:        "demo rule",
+			Description: "emits a single finding for demonstration",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+			ToolName:    "example-linter",
+		},
+		Run: func(_ context.Context, _ string) ([]finding.Finding, error) {
+			return []finding.Finding{
+				rule.NewFinding("found a style issue",
+					finding.Pos(finding.FilePath("demo.go"), 1, 1)).
+					MustBuild(),
+			}, nil
+		},
+	}
+
+	set := linter.NewRuleSet([]linter.Rule{rule})
+
+	findings, err := set.Check(context.Background(), ".")
+	if err != nil {
+		fmt.Println("error:", err)
+
+		return
+	}
+
+	fmt.Println("findings:", len(findings))
+	fmt.Println("rule:", findings[0].Rule)
+	// Output:
+	// findings: 1
+	// rule: demo-rule
+}
+
 // ExampleRegistry_Run_continueOnError demonstrates the continue-on-error
 // failure policy: all rules run regardless of individual failures, partial
 // findings are collected, and errors are joined.
