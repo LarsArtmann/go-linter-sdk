@@ -48,6 +48,25 @@ func NewRegistry(opts ...RegistryOption) *Registry {
 	return r
 }
 
+// NewRegistryFromRules constructs a registry from a pre-built rule slice,
+// applying the same validation as Register (panics on duplicate IDs or empty
+// identity fields) and the same option handling:
+//
+//	r := linter.NewRegistryFromRules(rules, linter.WithToolName("my-linter"))
+//
+// It is the bulk constructor for consumers that assemble rules before
+// registry construction (e.g. after [FilterRules]); per-rule [Register] is
+// equivalent, just noisier.
+func NewRegistryFromRules(rules []Rule, opts ...RegistryOption) *Registry {
+	r := NewRegistry(opts...)
+
+	for _, rule := range rules {
+		r.Register(rule)
+	}
+
+	return r
+}
+
 // Register adds a rule. Panics if a rule with the same ID is already
 // registered — duplicate IDs are a programming error that should surface at
 // startup, not silently shadow at runtime. Panics if any required identity
@@ -397,6 +416,21 @@ func (d *ruleDetector) DetectV2(ctx context.Context) (finding.DetectResult, erro
 // a different code, but the ecosystem convention is binary (clean / not clean).
 func ExitCodeFromReport(report *finding.Report) int {
 	if report == nil || report.Len() == 0 {
+		return 0
+	}
+
+	return 1
+}
+
+// ExitCodeFromFindings is [ExitCodeFromReport] for callers that hold a plain
+// finding slice and never build a Report: 0 when findings is nil or empty,
+// 1 otherwise. Same binary convention, no aggregation step.
+
+// ExitCodeFromFindings is [ExitCodeFromReport] for callers that hold a plain
+// finding slice and never build a Report: 0 when findings is nil or empty,
+// 1 otherwise. Same binary convention, no aggregation step.
+func ExitCodeFromFindings(findings []finding.Finding) int {
+	if len(findings) == 0 {
 		return 0
 	}
 

@@ -77,6 +77,36 @@ Tracked snapshots; update alongside the refresh procedure.
   not the tag. Its CI is the verification layer.
 - pkg.go.dev "Imported by": **3** (unchanged, re-verified 2026-10-15).
 
+**2026-11-19 (v0.5.0 bump wave + fleet sweep):**
+
+- All eight consumer module locations bumped to **v0.5.0** via
+  `go get` + `go build ./...`, then `go test ./...`: go-structure-linter,
+  samber-linter, go-humanize-linter, cmdguard/lint, project-meta/linter,
+  BuildFlow/execution, BuildFlow/tools, BuildFlow root (indirect follow).
+- **Correction to the 2026-10-15 snapshot:** project-meta/linter and all
+  three BuildFlow modules had silently drifted back (v0.4.0/v0.4.1 mix
+  found pre-wave); the wave brought every location to the current release.
+  Lesson: bump waves decay — re-verify via go.mod grep each time (the
+  refresh procedure below already says so; this is the recorded instance).
+- **Test gates, honestly recorded:** green on go-structure-linter,
+  go-humanize-linter, cmdguard/lint, project-meta/linter,
+  BuildFlow/execution. Three failures, all **bisect-proven pre-existing**
+  (fail identically with the bump stashed): samber-linter
+  `TestAnalyzeEnv_GOWORKOffEscapesWorkspaceShadow` (pkg/sdk, workspace-shadow
+  environment sensitivity) + `TestReadmeLatestReleaseMatchesGitTag` (that
+  repo's own release-flow drift: README says previous release, tag already
+  newer); BuildFlow/tools `TestSyncGoWorkFile_RealGoWorkUse_HonorsIgnoreDirs`
+  (gomod sync fixture). BuildFlow root additionally fails its own audit
+  gates (em-dash + oversized `discovery/doctor/checks/binary_freshness.go`)
+  — files from a concurrent session, untouched here. None are SDK-caused;
+  they belong to their repos' sessions.
+- **Channel sweep (plan M14):** zero direct references to
+  `DetectorV2`/`AddDetectResult`/`CoverageReporter`, `Relativize`, or
+  `WithEdits` in any consumer — expected: v0.5.0 shipped the channels the
+  same day. Baseline evidence + AFTER targets:
+  `docs/review/libs/FLEET-SWEEP-BASELINE.md`.
+- pkg.go.dev "Imported by": **3** (re-verified 2026-11-19).
+
 ## Refresh procedure
 
 1. For each row above: `grep -rn "go-linter-sdk" <repo> --include="go.mod"`.

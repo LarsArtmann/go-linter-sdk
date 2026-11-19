@@ -56,6 +56,26 @@ const (
 	CategoryConfiguration Category = "configuration"
 )
 
+// AllCategories returns a fresh copy of the eleven recommended category
+// values, for --list output, config validation, and completeness checks.
+// The returned slice is caller-owned: mutating it never affects the package.
+// Custom categories are not included (they are open-ended by design).
+func AllCategories() []Category {
+	return []Category{
+		CategoryDesign,
+		CategoryStructure,
+		CategoryErrorHandling,
+		CategoryCorrectness,
+		CategoryNaming,
+		CategoryDocumentation,
+		CategoryBestPractice,
+		CategoryStyle,
+		CategoryPerformance,
+		CategorySecurity,
+		CategoryConfiguration,
+	}
+}
+
 // Rule is a single lint check. A linter is a collection of rules. Each rule
 // declares its identity (ID/Name/Description/Category/Severity) and a Check
 // function that emits findings for a target directory.
