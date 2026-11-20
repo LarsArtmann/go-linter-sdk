@@ -94,6 +94,24 @@ example-level and tooling tiers a PATCH; no exported SDK surface changed.
   samber-linter#5 (workspace-shadow test premise), BuildFlow#112 (providers
   suite flake); the docs-gates legend false positive was already fixed
   upstream (`73f5eac`).
+- **samber-linter#5 fixed at source** (2026-11-19 follow-up session): the
+  workspace-shadow test's flaky half was ambient-env leakage — an inherited
+  `GOWORK=off` (common in sibling-checkout sessions) reaches the loader
+  child and defeats walk-up discovery. The test now pins the foreign
+  workspace explicitly via `AnalyzeEnv` (last-wins env semantics). The
+  master CI red streak was cured in the same pass: paralleltest/nolintlint
+  on `TestExitCodeContract` (serial by `t.Chdir` necessity), a golines
+  violation in `driver_test.go`, and wrapcheck's two deliberate unwrapped
+  `v5.NewExitError` returns (taught via `ignore-sigs`; `v5.ExitCode` and
+  the fang handler both match through `errors.As`/`AsType`, so unwrapped
+  returns are correct).
+- **Fleet sweep verdicts recorded** (`docs/review/libs/`): WithEdits has
+  zero eligible landing sites fleet-wide (rules' fixes are heuristic,
+  API-migration, whole-file, or file-creation — none are single-span
+  mechanical edits; the oops example already carries the teaching pattern),
+  and the teaching-debt sweep found all four production `finding.NewBuilder`
+  call sites deliberate (ADOPTION addendum). BuildFlow/tools providers
+  suite passed on a clean full run after the decay-#4 re-apply.
 
 ### Removed
 
