@@ -252,6 +252,10 @@ growing across releases: recent releases add typed fix edits
 - **Report** — the aggregated result of a run: `ToolInfo`, deduplicated
   findings, and metadata such as `FilesScanned` and `SkippedModules`.
   `Registry.Run` returns one; `ExitCodeFromReport` consumes one.
+  Accumulation semantic: `AddDetectResult` SUMS per-rule counts, so
+  `Summary.FilesScanned` is N·F (N rules × F files each walked), not a
+  unique-file count — deliberate evidence-of-work, pinned by cmdguard/lint's
+  and go-humanize-linter's tests.
 - **Severity** — impact of a finding: `info` < `warning` < `error` <
   `critical`. A rule declares its default severity in `RuleMeta.Sev`; it can
   still emit per-finding severities that differ.

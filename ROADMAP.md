@@ -104,11 +104,11 @@ Raw ideas:
 - **SARIF output lane:** the parked `cmd/` sketch mentions `--format`
   text/JSON/SARIF; SARIF as an output format for the report layer is a
   standalone idea until a consumer asks.
-- **Coverage-accumulation doc pin:** go-finding's `Summary.FilesScanned`
-  accumulates per-rule counts (N rules × F files), pinned by cmdguard/lint and
-  go-humanize-linter tests after the 2026-11-19 fleet adoption — surface the
-  semantic in DOMAIN_LANGUAGE's borrowed-vocabulary section if it ever reads
-  as a unique-file count to a consumer (also TODO #40).
+- **Coverage-accumulation doc pin (DONE 2026-11-19):** go-finding's
+  `Summary.FilesScanned` accumulates per-rule counts (N rules × F files),
+  pinned by cmdguard/lint and go-humanize-linter tests after the 2026-11-19
+  fleet adoption; DOMAIN_LANGUAGE's borrowed-vocabulary section now states
+  the semantic. Kept here only as the pointer to where it lives.
 
 ## Open questions
 
