@@ -44,6 +44,11 @@ example-level and tooling tiers a PATCH; no exported SDK surface changed.
   artifact bytes, not mtimes.
 - **ADR 0004** (`docs/decisions/2026-11-19_selectrules-naming.md`): the
   `SelectRules` naming decision made durable.
+- **README relative-link checker** (`readme_links_test.go`): a hermetic Go
+  test verifies every relative link and anchor in README.md — anchors must
+  be produced by headings, file targets must exist on disk, `.md#fragment`
+  links check the target's headings; inline code and fenced blocks are
+  skipped. Runs as part of the standard `go test ./...` gate.
 
 ### Changed
 

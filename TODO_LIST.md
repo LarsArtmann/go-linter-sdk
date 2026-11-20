@@ -99,15 +99,6 @@ derivations. #18 the bump checklist is encoded in
 
 ### From the coverage-fleet-adoption session (2026-11-19 21:41 report §f)
 
-- **#35 TODO — Finish the audit-all drain: apply 5 inline verdicts so the
-  audit-all gate goes green.** Located lines: docs/status/2026-11-19_14-43
-  item 8 (CoverageReporter README row → done 2026-11-19),
-  docs/status/archived/2026-08-08_10-45 item 33 (severity-tiered exit codes
-  → done), 2026-08-08_12-16 item 32 + 2026-08-08_12-36 item 31
-  (`--format json` → done 2026-11-19), docs/status/2026-11-19_07-40 item 44
-  (go-finding DetectorV2 docs cross-link ask → `fresh:skip`,
-  sibling-scoped). Lesson encoded: completing a routed item needs its inline
-  verdict in the SAME session (removing the anchor row turns audit-all red).
 - **#36 TODO (g1-gated) — Cut the next PATCH release:** release-checklist
   full pass → push → CI green on the exact commit → tag → proxy + pkg.go.dev
   verify + the "Imported by" trend check (baseline 3). The CHANGELOG
@@ -125,9 +116,7 @@ derivations. #18 the bump checklist is encoded in
   the release); DOMAIN_LANGUAGE borrowed-vocabulary section documents the
   FilesScanned accumulation semantic (Summary is N·F, not unique files —
   pinned by cmdguard + go-humanize tests).
-- **#34 TODO — README relative-link checker** (anchors like `#api`, file
-  targets — cheap Go test or lychee). Routed from
-  docs/status/2026-10-15_18-00 item 8 during the 21:41 drain.
+
 
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
