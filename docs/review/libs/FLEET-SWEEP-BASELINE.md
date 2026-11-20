@@ -145,3 +145,22 @@ grep -n 'go-linter-sdk' ~/projects/{go-structure-linter,samber-linter,go-humaniz
 
 — Snapshot 2026-11-19, orchestrating session. Point-in-time; living state in
 docs/ADOPTION.md.
+
+## AFTER sweep 3 — v0.6.1 wave (2026-11-20, follow-up session)
+
+| Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
+| --- | --- | --- | --- | --- |
+| go-structure-linter | v0.6.1 | **7 refs** | 0 refs | 0 refs |
+| samber-linter | v0.6.1 | **6 refs** | 0 refs | 0 refs |
+| go-humanize-linter | v0.6.1 | **6 refs** | 0 refs | 0 refs |
+| cmdguard/lint | v0.6.1 | **7 refs** | 0 refs | 0 refs |
+| project-meta/linter | v0.6.1 | **8 refs** | 0 refs | 0 refs |
+| BuildFlow/execution | v0.6.1 | 0 refs | 0 refs | 0 refs |
+| BuildFlow/tools | v0.6.1 | **3 refs** | 0 refs | 0 refs |
+
+Reading — pins uniform at v0.6.1 (third wave, gated green per repo:
+build + full/targeted tests, GOWORK=off everywhere); channel counts stable
+vs sweep 2, as expected — no behavior changed in the PATCH. WithEdits stays
+0 by the eligibility verdict above (zero single-span mechanical fixes exist
+fleet-wide; the oops example carries the teaching pattern). All bumps are
+LOCAL; pushes remain each repo's own session's end-of-session duty.

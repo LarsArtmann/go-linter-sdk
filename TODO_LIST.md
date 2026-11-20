@@ -89,31 +89,41 @@ derivations. #18 the bump checklist is encoded in
 
 - **#31 QUESTION (BLOCKED on owner) — Commit/push the consumer bumps (v0.5.0
   AND v0.6.0 waves, both local-only).** All 8 consumer module locations are at
-  **v0.6.0** and gate-green LOCALLY (2026-11-19 second wave; BuildFlow was
-  found decayed back to v0.4.1 and re-bumped — see the ADOPTION 2026-11-19
-  "later" snapshot). Nothing pushed by any session. Owner call: push all six
-  repos now, or leave each repo to its own session's end-of-session push.
-  Context: docs/ADOPTION.md 2026-11-19 snapshots; question g-1 of
-  docs/status/2026-11-19_14-43; upstream filings landed during the wave
-  (samber-linter#5, BuildFlow#112) are separate from this decision.
+  **v0.6.1** and gate-green LOCALLY (2026-11-20 third wave, after the v0.6.1
+  release; the earlier waves' history is in the ADOPTION snapshots). Nothing
+  pushed by any session. Owner call: push all six repos now, or leave each
+  repo to its own session's end-of-session push (the standing policy).
+  Context: docs/ADOPTION.md snapshots; question g-1 of
+  docs/status/2026-11-19_14-43. samber-linter#5 and BuildFlow#112 are FIXED
+  locally (2026-11-20); their fixes ride each repo's own push.
 
 ### From the coverage-fleet-adoption session (2026-11-19 21:41 report §f)
 
-- **#36 TODO (g1-gated) — Cut the next PATCH release:** release-checklist
-  full pass → push → CI green on the exact commit → tag → proxy + pkg.go.dev
-  verify + the "Imported by" trend check (baseline 3). The CHANGELOG
-  [Unreleased] entry and the PATCH slot decision are already in.
-- **#40 TODO — Session-record docs:** ADOPTION 2026-11-19 snapshot names
-  decay #4 (concurrent-session clobber of the V2 bridge); AGENTS.md gains
-  the coverage-fleet-adoption session section (post-release so it can name
-  the release); DOMAIN_LANGUAGE borrowed-vocabulary section documents the
-  FilesScanned accumulation semantic (Summary is N·F, not unique files —
-  pinned by cmdguard + go-humanize tests).
+None open. (#36 v0.6.1 released 2026-11-20: checklist 7/7, push, CI green
+on `6cc2311`, tag on the green SHA, proxy `go list -m @v0.6.1` verified;
+#40's ADOPTION/DOMAIN_LANGUAGE/ROADMAP edits landed, the AGENTS session
+section followed the release. Both upstream flakes fixed: samber-linter#5
+root-caused to ambient-GOWORK leakage into the loader child — the test now
+pins the workspace explicitly — plus the master CI red streak cured
+(paralleltest/t.Chdir, golines, wrapcheck ignore-sigs); BuildFlow#112's two
+flakes root-caused from a `-v` failure capture — a breaker-vs-scheduler race
+in the AlternatingRepoSmoke test (assertions relaxed to the documented
+batching semantics) and a real global-mutation leak (`KeepsAllowed` mutates
+FormatterRecommendationAllowlist while parallel siblings read it; mutator
+made serial). Providers suite green twice consecutively post-fix.)
 
 
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
-None open beyond #35's five verdicts. (#30 the audit-all drain completed
+None open. (#35's audit drain completed 2026-11-20: five inline verdicts
+applied at the replay's live anchors (the pair the 21:41 report predicted
+had moved — two `--format json` rows, the CoverageReporter README row, the
+cli-triage README example row, and the pkg.go.dev homepage item, verified
+already set via `gh repo view`), plus the two items the #35 TODO row itself
+used to anchor (severity-tiered exit codes → done; the go-finding
+DetectorV2 cross-link ask → routed to go-finding's TODO_LIST). docs-gates
+5×PASS. The lesson stands in AGENTS: completing a routed item needs its
+inline verdict in the SAME session. (#30 the audit-all drain completed
 2026-11-19 in one pass: all 24 historical unharvested items carry inline
 verdicts — done / NOT-DO superseded / routed; `.docs-gates.json` ratchet
 lowered 33 → 0, so any future unharvested item gates red immediately.
