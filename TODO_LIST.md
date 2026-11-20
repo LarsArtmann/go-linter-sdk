@@ -119,11 +119,11 @@ made serial). Providers suite green twice consecutively post-fix.)
   settles (baseline 3, set 2026-10-15): fetch the v0.6.1 page's count and
   note it next to the baseline in AGENTS' post-release-habit section.
   Deferred from the release because the bot-served page lacked the count.
-- **#42 TODO — Capture the BuildFlow#112 flake evidence into that repo**
-  before /tmp cleanup: `/tmp/providers-v.log` holds the `-v` failure capture
-  (run 2, AlternatingRepoSmoke empty-vs-v1.2.3) that identified the breaker
-  race; the repo's tracker note (or its TODO_LIST row for #112) should carry
-  the mechanism summary. Its own session closes the issue on push.
+- **#42 TODO — Close BuildFlow#112 in that repo:** the `-v` failure capture
+  is preserved durably at `docs/drafts/2026-11-20_buildflow-112-flake-evidence.log`
+  (run 2, AlternatingRepoSmoke empty-vs-v1.2.3; the breaker-race mechanism is
+  summarized in AGENTS' v0.6.1 session section, and the fixes already sit in
+  BuildFlow's tree). Its own session closes the issue on push.
 - **#43 TODO (samber-linter, its session) — push master with the #5 fix +
   lint cures; verify CI green with f38's checklist.**
 
