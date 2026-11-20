@@ -108,9 +108,10 @@ derivations. #18 the bump checklist is encoded in
   (go-finding DetectorV2 docs cross-link ask → `fresh:skip`,
   sibling-scoped). Lesson encoded: completing a routed item needs its inline
   verdict in the SAME session (removing the anchor row turns audit-all red).
-- **#36 TODO (g1-gated) — Cut v0.6.1:** release-checklist full pass → push →
-  CI green on the exact commit → tag → proxy + pkg.go.dev verify. The
-  CHANGELOG [Unreleased] entry and the PATCH slot decision are already in.
+- **#36 TODO (g1-gated) — Cut the next PATCH release:** release-checklist
+  full pass → push → CI green on the exact commit → tag → proxy + pkg.go.dev
+  verify + the "Imported by" trend check (baseline 3). The CHANGELOG
+  [Unreleased] entry and the PATCH slot decision are already in.
 - **#37 TODO — BuildFlow/tools FULL providers suite re-verify** after the
   V2-bridge re-apply (decay #4): targeted V2 + ToolFromSpec tests green;
   the 3 known-flaky failures pending a clean-run record.

@@ -232,10 +232,10 @@ the session.
 2. [TODO] Delete `filterFixture` dead scaffolding (filter_test.go) — d-2
 3. [TODO] Delete `unusedItoa` (bench_test.go) — d-3
 4. [TODO] Update FEATURES.md with v0.5.0 + master-tier capabilities — d-4
-5. [TODO] Add cli-triage to README example list — d-5
+5. ~~[TODO] Add cli-triage to README example list — d-5~~ done — README examples list includes `examples/cli-triage` with its exit contract (verified 2026-11-19)
 6. [TODO] Dashboard stat 5/5 → 6/6 declines + re-shoot PNGs — d-7
 7. [TODO] CHANGELOG [Unreleased] entry for Filter/RuleSet/trio/index/ADRs + bench note — b-3
-8. [TODO] CoverageReporter row in README API table — b-8
+8. ~~[TODO] CoverageReporter row in README API table — b-8~~ done — README Types table + data-flow table both carry the `CoverageReporter` row (verified 2026-11-19)
 9. [TODO] Vision re-verify the CURRENT 8-row PNGs; record model + exact artifacts — d-6
 10. [TODO] Correct "98.7%" coverage claims to the measured number (README/AGENTS) — d-9
 

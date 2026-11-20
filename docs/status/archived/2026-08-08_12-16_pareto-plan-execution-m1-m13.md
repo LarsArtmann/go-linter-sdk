@@ -276,7 +276,7 @@ refactoring like `validateIdentityFields` doesn't need to be in the changelog).
 | 29 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
 | 30 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
 | 31 | Add `--format text` (default)                   | Low    | 10m    |                     |
-| 32 | Add `--format json`                             | Medium | 20m    |                     |
+| 32 | ~~Add `--format json`~~ done — cli-triage `--format=json` shipped 2026-11-19 (Report JSON round-trip-tested, clean-dir + findings) | Medium | 20m    |                     |
 | 33 | Add `--format sarif`                            | Medium | 20m    |                     |
 | 34 | Add `--config` flag for rule configuration file | Low    | 45m    |                     |
 

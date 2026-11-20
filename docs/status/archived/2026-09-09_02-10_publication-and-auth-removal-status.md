@@ -121,7 +121,7 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 18. ~~Social preview image.~~
     NOT-DO — a GitHub repo-settings asset, not a code task; owner-side
     setting, never actionable from a session
-19. Set repo homepage to pkg.go.dev URL.
+19. ~~Set repo homepage to pkg.go.dev URL.~~ done — homepageUrl is `https://pkg.go.dev/github.com/larsartmann/go-linter-sdk` (verified via `gh repo view --json homepageUrl`, 2026-11-19)
 20. Dependabot config for Go updates.
 21. Reconsider macos CI matrix cost.
 22. actionlint (or equivalent) in CI for workflow validation.
