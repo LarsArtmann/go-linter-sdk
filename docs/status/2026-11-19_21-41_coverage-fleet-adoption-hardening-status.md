@@ -11,6 +11,7 @@
 ## a) FULLY DONE (verified)
 
 **The library/example tier (f10–f13).**
+
 - `ExampleNewRuleSet` + `ExampleRuleSet_Check` godoc examples — pkg.go.dev-visible
   RuleSet coverage (RuleSet previously had tests but no examples).
 - `BenchmarkRuleSet_Check` + a matched `BenchmarkRegistry_Run` over the same
@@ -31,6 +32,7 @@
   all 11 cli-triage integration tests pass.
 
 **Hardening tier (f20, #32, #33, f21, f26, f2, f3).**
+
 - **#32 landed as an eval-time flake assertion** (`golangci-version-sync`):
   ci.yml's golangci-lint-action `version:` pin must equal `pkgs.golangci-lint`'s
   version, checked on EVERY flake evaluation (fires even under
@@ -63,6 +65,7 @@
   between "CI green" and "git tag" is visible at tag time.
 
 **Byte-bound verdicts (f1, f23).**
+
 - Viewed BOTH current dashboard PNGs myself this session (top + downscaled
   full-page): PASS — all four stat cards read correctly (8 / 65 / 72 / 6-6).
 - sha256 of both recorded in index.html (prose + machine-readable
@@ -75,6 +78,7 @@
 - FLEET-AUDIT-TEMPLATE now encodes the byte-binding rule (f23).
 
 **Docs corpus (f4, f7, f8, f9, f22, f24, f48, f49).**
+
 - FLEET-SWEEP-BASELINE's stale "all 8 at v0.5.0" paragraph corrected with a
   pointer to the ADOPTION correction + a reader lesson (f4).
 - DOMAIN_LANGUAGE.md gained four glossary terms — CoverageReporter, RuleSet,
@@ -93,6 +97,7 @@
   files this session authored. f19: /tmp scratch trashed (7 files).
 
 **#29 fleet adoption — COMPLETE, all 7 module locations (f30–f35).**
+
 - **cli-triage** (this repo): done as part of the example tier above.
 - **BuildFlow**: `dtool.DetectorV2FromFinding` bridge (domain/tool) folds
   DetectResult scan evidence into FindingReport.Summary;
@@ -264,6 +269,7 @@ fully rewritten — including the release-slot DECISION (f14): PATCH, per the
 ## f) Up to 50 things to do next (harvestable; owned files named)
 
 **Immediate (this repo):**
+
 1. Finish the audit-all drain: apply 5 inline verdicts (14-43 item 8
    CoverageReporter README row → done 2026-11-19; 08-08_10-45 item 33
    severity-tiered exit codes → done; 08-08_12-16 item 32 and 12-36 item 31
@@ -288,19 +294,19 @@ fully rewritten — including the release-slot DECISION (f14): PATCH, per the
 
 **Consumer/fleet (gated or their-repo work):**
 11. Push consumer bumps once g-1 is answered (#31) — all 8 locations +
-    samber README fix + crush-config lessons `aabe152`.
+samber README fix + crush-config lessons `aabe152`.
 12. Fix samber-linter#5 (re-derive the workspace-shadow premise).
 13. Fix BuildFlow#112 (capture `-v` failure output, fix isolation).
 14. Re-verify BuildFlow/tools FULL suite after the re-apply (3 known-flaky
-    failures pending a clean-run record).
+failures pending a clean-run record).
 15. WithEdits adoption sweep — the last 0-ref channel (ADR-0002 GO items;
-    rules that know a mechanical fix attach TextEdits).
+rules that know a mechanical fix attach TextEdits).
 16. OptIn coverage forwarding: if a consumer needs opt-in rules WITH
-    coverage, design the variant (OptIn wraps the value; a pointer-preserving
-    wrapper is the sketch) — ROADMAP candidate, not built.
+coverage, design the variant (OptIn wraps the value; a pointer-preserving
+wrapper is the sketch) — ROADMAP candidate, not built.
 17. go-humanize-linter: cherry-pickers using AllRules() directly get
-    coverage-silent rules (documented); consider exporting a covered
-    AllRules variant if a consumer asks.
+coverage-silent rules (documented); consider exporting a covered
+AllRules variant if a consumer asks.
 
 **Watches (armed, not due):**
 18. go-finding next root MINOR → re-run the utilization audit.
@@ -315,14 +321,14 @@ fully rewritten — including the release-slot DECISION (f14): PATCH, per the
 25. cmd/ remains parked (resolved Q3) — owner mandate only.
 26. SARIF output as a ROADMAP idea line.
 27. Surface the measured RuleSet.Check-vs-Registry.Run gap in FEATURES' perf
-    row (currently CHANGELOG + baseline only).
+row (currently CHANGELOG + baseline only).
 28. Carried from 19:29 §f, still open: none of its "Immediate (this repo)"
-    items — ALL executed today (1–26 minus the release bundle); that file's
-    §f27–#29/31+ items are reflected above.
+items — ALL executed today (1–26 minus the release bundle); that file's
+§f27–#29/31+ items are reflected above.
 29. Next session: seed the todo list from the freshest §f BEFORE working
-    (held again this session; it works).
+(held again this session; it works).
 30. Consider a `docs/decisions/` entry for the coverage-accumulation pin
-    (N·F) if it ever becomes a design debate.
+(N·F) if it ever becomes a design debate.
 
 ## g) Three questions I cannot answer myself
 

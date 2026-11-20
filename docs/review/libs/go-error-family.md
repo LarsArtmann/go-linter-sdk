@@ -5,21 +5,21 @@
 - **Sub-modules considered:** single root module (classification core is stable; `agent`, `diagnose`, `bridge` packages are experimental per `doc.go` "Stability" section)
 - **Version reviewed:** v0.12.0 (indirect dependency via go-finding; `go mod why` → `go-linter-sdk → go-finding → go-error-family`); point-in-time snapshot
 - **Verdict:** NOT-ADOPTED (deliberate, and doubly so: the SDK never imports it, and its own error vocabulary solves a different problem)
-- **Score:** not scored — zero direct usage; the interesting question is whether the SDK *should* adopt it, and the answer is no today
+- **Score:** not scored — zero direct usage; the interesting question is whether the SDK _should_ adopt it, and the answer is no today
 
 ## What the library offers
 
 Read from the module-cache copy of v0.12.0
 (`$(go env GOMODCACHE)/github.com/larsartmann/go-error-family@v0.12.0/`).
 
-| Capability | Library evidence (file) |
-| --- | --- |
-| Four-interface error protocol (`Coded`, `Classified`, `Contextual`, `Retryable`) — "share the protocol, not the implementation" | `interfaces.go` (3 types), `doc.go:7-13` |
-| Behavioral families: transient / infrastructure / rejection / conflict / corruption / orchestration | `family.go`, constructors in `constructors.go` (`NewTransient`, `WrapConflict`, …) |
-| ~60 exported functions: constructors + `Wrap`/`Wrapf`/`WrapOnce` variants per family | `constructors.go` (16 `Wrap*`, 8 `New*`) |
-| Classification registry: custom classifiers, templates, stdlib defaults | `registry.go`, `classify.go` (`RegisterClassifier`, `RegisterStdlibDefaults`) |
-| Boundary helpers: `ExitCode`, HTTP handler, gRPC unary interceptor, log helpers | `http.go`, `handle.go`, `log.go` |
-| Host-portable retryability query (`IsRetryable`) | `classify.go` |
+| Capability                                                                                                                      | Library evidence (file)                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Four-interface error protocol (`Coded`, `Classified`, `Contextual`, `Retryable`) — "share the protocol, not the implementation" | `interfaces.go` (3 types), `doc.go:7-13`                                           |
+| Behavioral families: transient / infrastructure / rejection / conflict / corruption / orchestration                             | `family.go`, constructors in `constructors.go` (`NewTransient`, `WrapConflict`, …) |
+| ~60 exported functions: constructors + `Wrap`/`Wrapf`/`WrapOnce` variants per family                                            | `constructors.go` (16 `Wrap*`, 8 `New*`)                                           |
+| Classification registry: custom classifiers, templates, stdlib defaults                                                         | `registry.go`, `classify.go` (`RegisterClassifier`, `RegisterStdlibDefaults`)      |
+| Boundary helpers: `ExitCode`, HTTP handler, gRPC unary interceptor, log helpers                                                 | `http.go`, `handle.go`, `log.go`                                                   |
+| Host-portable retryability query (`IsRetryable`)                                                                                | `classify.go`                                                                      |
 
 ## What go-linter-sdk uses today
 
@@ -27,11 +27,11 @@ Read from the module-cache copy of v0.12.0
 appears only because `go-finding` (the single direct dependency) imports it.
 The SDK's own error model is deliberately different in kind:
 
-| SDK error concept | Lives at | Why go-error-family is not it |
-| --- | --- | --- |
-| `RuleError` + `ErrRuleFailed` | `errors.go` | Rule **attribution** (which rule failed), not behavioral classification (retry/no-retry) |
-| `ErrMissingFields` / `ErrInvalidCategory` | `rule.go` | Registration-time programming errors — deterministic, never retryable |
-| `ExitCodeFromReport` / `ExitCodeByConfidence` | `registry.go` | Maps **findings** to exit codes, not errors |
+| SDK error concept                             | Lives at      | Why go-error-family is not it                                                            |
+| --------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| `RuleError` + `ErrRuleFailed`                 | `errors.go`   | Rule **attribution** (which rule failed), not behavioral classification (retry/no-retry) |
+| `ErrMissingFields` / `ErrInvalidCategory`     | `rule.go`     | Registration-time programming errors — deterministic, never retryable                    |
+| `ExitCodeFromReport` / `ExitCodeByConfidence` | `registry.go` | Maps **findings** to exit codes, not errors                                              |
 
 Rule failures are deterministic defects in a rule's closure — classifying them
 into transient/infrastructure families would add a taxonomy with no consumer.
@@ -41,13 +41,13 @@ need."
 
 ## Gap grading
 
-| Capability | Grade | Reason |
-| --- | --- | --- |
-| Error families / classification | Not Applicable | SDK errors are deterministic programming errors, not runtime behaviors |
-| `Coded`/`Classified` protocol | Not Applicable | `*RuleError` already answers the only question consumers ask (which rule) via `errors.AsType` |
+| Capability                                | Grade          | Reason                                                                                                                                     |
+| ----------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Error families / classification           | Not Applicable | SDK errors are deterministic programming errors, not runtime behaviors                                                                     |
+| `Coded`/`Classified` protocol             | Not Applicable | `*RuleError` already answers the only question consumers ask (which rule) via `errors.AsType`                                              |
 | `ExitCode` / HTTP / gRPC boundary helpers | Not Applicable | The SDK stops at findings/report/exit-codes by layering (see DOMAIN_LANGUAGE "What is NOT in this domain"); it owns no HTTP or RPC surface |
-| Log helpers | Not Applicable | A library must not log (the consumer owns logging) |
-| `IsRetryable` | Not Applicable | Nothing in the SDK retries; the pipeline module (a separate repo concern) owns retry policy |
+| Log helpers                               | Not Applicable | A library must not log (the consumer owns logging)                                                                                         |
+| `IsRetryable`                             | Not Applicable | Nothing in the SDK retries; the pipeline module (a separate repo concern) owns retry policy                                                |
 
 ## Ranked opportunities
 

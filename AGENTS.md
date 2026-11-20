@@ -93,10 +93,10 @@ Core types in package `linter`:
   four repeat offenders — FEATURES.md missing the release's symbols (parser:
   CHANGELOG `### Added` bullets shaped `- **\`Symbol\`...`), README coverage
   claims drifting below the measured number, ghost test helpers
-  (single-mention sweep over `_test.go`), and stale dashboard screenshots
-  (PNGs must be newer than `index.html` + carry a recorded vision verdict).
+  (single-mention sweep over`_test.go`), and stale dashboard screenshots
+  (PNGs must be newer than`index.html`+ carry a recorded vision verdict).
   It dogfooded green on v0.6.0 prep and caught two real drifts on its first
-  run. Companion to `scripts/bump-checklist.sh` (dependency bumps).
+  run. Companion to`scripts/bump-checklist.sh` (dependency bumps).
 - **Flake `outputs` and the `self` argument.** The `outputs` lambda uses the
   flake-parts `inputs@{ ... }` destructure. Nix 2.34.8+ enforces strict
   argument checking on `@`-patterns, so a bare multi-argument `outputs` that
@@ -164,7 +164,7 @@ GIT_CONFIG_VALUE_0="https://github.com/"` if global git config is read-only
 - **setup-go injects `GOTOOLCHAIN=local` and it beats workflow-level env.**
   setup-go's version manifest lags `go.dev` by hours, so `go-version: "1.27"`
   can resolve an older patch than `go.mod` requires (`go: go.mod requires go
-  > = 1.27`). Only a STEP-level `env:` takes precedence over the `GITHUB_ENV` injection — every go step in `ci.yml` pins `GOTOOLCHAIN: go1.27.0` so Go
+  > = 1.27`). Only a STEP-level`env:`takes precedence over the`GITHUB_ENV`injection — every go step in`ci.yml`pins`GOTOOLCHAIN: go1.27.0` so Go
   > downloads the exact patch.
 - **The coverage gate measures library packages only.** `examples/` are
   exercised via `exec.Command` from integration tests, so their statements

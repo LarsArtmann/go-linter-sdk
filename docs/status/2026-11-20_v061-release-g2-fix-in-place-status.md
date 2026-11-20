@@ -16,11 +16,12 @@ json` rows in the 08-08 archives, the CoverageReporter README row and the
 cli-triage example row in 14-43, plus `2026-09-09_02-10` item 19 "Set repo
 homepage" — verified already set via `gh repo view --json homepageUrl` and
 struck as done). Two more items (severity-tiered exit codes → `ExitCodeByConfidence`
-+ cli-triage's tiered contract; the go-finding DetectorV2 cross-link ask →
-routed to go-finding's TODO_LIST docs table, local edit) surfaced when my
-TODO_LIST cleanup un-anchored them — fixed in the same pass. annotate taught
-the verdict-marker rule (`done — routed to X` is valid; bare `routed —` is
-not). docs-gates 5×PASS reached twice this session.
+
+- cli-triage's tiered contract; the go-finding DetectorV2 cross-link ask →
+  routed to go-finding's TODO_LIST docs table, local edit) surfaced when my
+  TODO_LIST cleanup un-anchored them — fixed in the same pass. annotate taught
+  the verdict-marker rule (`done — routed to X` is valid; bare `routed —` is
+  not). docs-gates 5×PASS reached twice this session.
 
 **#34 README relative-link checker** (`readme_links_test.go`): hermetic Go
 test — anchors must be produced by headings (GitHub anchor algorithm), file
@@ -42,6 +43,7 @@ HTML). The "Imported by" trend check (baseline 3) is the one item deferred —
 see (b).
 
 **g2: both own-repo filings FIXED in place, verified locally.**
+
 - **samber-linter#5** — root cause is NOT toolchain drift: an ambient
   `GOWORK=off` (this fleet's own sibling-module habit) inherits into the
   loader child via `loadEnv()` and defeats go.work walk-up discovery, so the
@@ -144,6 +146,7 @@ FLEET-SWEEP-BASELINE (7/6/6/7/8 + 3 refs stable; pins uniform v0.6.1).
 ## f) Up to 30 things to do next (harvestable)
 
 **Immediate (this repo):**
+
 1. Check pkg.go.dev "Imported by" count (baseline 3) once propagation
    settles; record the trend next to the 2026-11-19 baseline.
 2. Push this repo's post-release docs commits (end-of-session duty).
@@ -154,12 +157,12 @@ FLEET-SWEEP-BASELINE (7/6/6/7/8 + 3 refs stable; pins uniform v0.6.1).
 
 **Consumer/fleet (their-repo work, local until #31):**
 5. samber-linter: its own session pushes master (now lint-clean + #5-fixed
-   locally) — CI goes green on that push; verify with f38's checklist.
+locally) — CI goes green on that push; verify with f38's checklist.
 6. BuildFlow: its own session pushes the two flake fixes (#112 closable with
-   the -v evidence in /tmp/providers-v.log; capture it into the repo's
-   tracker note BEFORE /tmp cleanup — the log is this session's evidence).
+the -v evidence in /tmp/providers-v.log; capture it into the repo's
+tracker note BEFORE /tmp cleanup — the log is this session's evidence).
 7. go-finding: the DetectorV2 docs cross-link row now sits in its TODO_LIST
-   (local edit 2026-11-19); its session executes it.
+(local edit 2026-11-19); its session executes it.
 8. #31 remains THE gate for all eight v0.6.1 module locations + these fixes.
 
 **Watches (armed, not due):**
@@ -175,14 +178,14 @@ FLEET-SWEEP-BASELINE (7/6/6/7/8 + 3 refs stable; pins uniform v0.6.1).
 16. Spread the SDK to the ~31 repos still on older go-finding releases.
 17. cmd/ remains parked (owner mandate only).
 18. Surface the measured RuleSet.Check-vs-Registry.Run gap in FEATURES' perf
-    row (currently CHANGELOG + baseline only) — checked today: the FEATURES
-    benchmark row now names the pairing and the numbers; consider it done
-    unless the perf row itself (a different table) should also carry it.
+row (currently CHANGELOG + baseline only) — checked today: the FEATURES
+benchmark row now names the pairing and the numbers; consider it done
+unless the perf row itself (a different table) should also carry it.
 19. Consider a `docs/decisions/` entry for the coverage-accumulation pin (N·F)
-    if it ever becomes a design debate.
+if it ever becomes a design debate.
 20. The audit-drain discipline could be enforced mechanically: a docs-gates
-    check that diffs TODO_LIST row removals against `git log -p` and demands
-    a same-commit verdict strike — ROADMAP-grade idea, needs a design pass.
+check that diffs TODO_LIST row removals against `git log -p` and demands
+a same-commit verdict strike — ROADMAP-grade idea, needs a design pass.
 
 — Report written 2026-11-20. §f harvest into TODO_LIST/ROADMAP follows
 immediately; gates re-run before this session goes quiet.

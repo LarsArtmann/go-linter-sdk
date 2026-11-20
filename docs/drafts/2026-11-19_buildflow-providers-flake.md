@@ -9,13 +9,13 @@
 
 The `providers` test suite flakes at full-suite scale. Observed pattern on 2026-11-19 (Go 1.27.3, module pinned to `go-linter-sdk v0.6.0` — the dependency is unrelated, the failure predates and survives the bump):
 
-| Run | Command | Result |
-| --- | --- | --- |
-| 1 | `go test ./...` (tools, full) | FAIL `tools/providers` (48.5s) |
-| 2 | `go test ./providers/ -run TestFilterUnmanagedFormatterRecommendations_DropsUnregistered` | ok (0.01s) |
-| 3 | `go test ./providers/` | FAIL (43.5s) |
-| 4 | `go test ./providers/` (immediate rerun, identical bytes) | ok (36.6s) |
-| 5-6 | `go test ./providers/ -count=2` | ok, ok (0 FAIL lines, 76s) |
+| Run | Command                                                                                   | Result                         |
+| --- | ----------------------------------------------------------------------------------------- | ------------------------------ |
+| 1   | `go test ./...` (tools, full)                                                             | FAIL `tools/providers` (48.5s) |
+| 2   | `go test ./providers/ -run TestFilterUnmanagedFormatterRecommendations_DropsUnregistered` | ok (0.01s)                     |
+| 3   | `go test ./providers/`                                                                    | FAIL (43.5s)                   |
+| 4   | `go test ./providers/` (immediate rerun, identical bytes)                                 | ok (36.6s)                     |
+| 5-6 | `go test ./providers/ -count=2`                                                           | ok, ok (0 FAIL lines, 76s)     |
 
 The only named failure captured: `--- FAIL: TestFilterUnmanagedFormatterRecommendations_DropsUnregistered (0.00s)` in run 1's tail. Assertion output was not captured in that pass; runs 3-6 reproduced the suite-level flake (FAIL then PASS on identical bytes) without naming a different test.
 

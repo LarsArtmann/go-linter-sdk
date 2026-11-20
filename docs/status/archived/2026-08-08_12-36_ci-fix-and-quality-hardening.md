@@ -258,30 +258,30 @@ be cleaner than per-line suppressions.
 
 ### API surface (only after consumer feedback)
 
-| #  | Task                                                     | Impact | Effort | Notes                                            |
-| -- | -------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
+| #  | Task                                                                                                                                        | Impact | Effort | Notes                                            |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------------------------------------------ |
 | 17 | ~~`Registry.Len() int`~~ NOT-DO — superseded: `RuleSet.Len()` covers the ergonomic need; registry callers use `len(reg.All())` (2026-11-19) | Low    | 5m     | Trivial but ergonomic.                           |
-| 18 | ~~`Registry.RegisterAll(rules ...Rule)`~~ NOT-DO — superseded by `NewRegistryFromRules`, shipped in the 0.6.0 teaching tier (2026-11-19) | Low    | 10m    |                                                  |
-| 19 | `NewRegistryFromRules(rules []Rule) *Registry`           | Low    | 10m    |                                                  |
-| 20 | `ExitCodeFromFindings(findings []Finding) int`           | Low    | 10m    | Skips Report construction.                       |
-| 21 | `Category.All() []Category`                              | Low    | 10m    | Returns 8 built-in values.                       |
-| 22 | `map[string]int` index for O(1) Get/Has/Deregister       | Low    | 30m    | Anti-goal until scale proves need.               |
-| 23 | `Filter` type for severity/category filtering            | Low    | 45m    |                                                  |
-| 24 | `RuleSet` typed wrapper                                  | Low    | 30m    |                                                  |
-| 25 | Evaluate generics for `RuleFunc`                         | Low    | 12m    | Spike, document, decide.                         |
-| 26 | Confirm `Register` panic contract is right for a library | Medium | —      | ROADMAP Q4. Cannot reverse once consumers exist. |
+| 18 | ~~`Registry.RegisterAll(rules ...Rule)`~~ NOT-DO — superseded by `NewRegistryFromRules`, shipped in the 0.6.0 teaching tier (2026-11-19)    | Low    | 10m    |                                                  |
+| 19 | `NewRegistryFromRules(rules []Rule) *Registry`                                                                                              | Low    | 10m    |                                                  |
+| 20 | `ExitCodeFromFindings(findings []Finding) int`                                                                                              | Low    | 10m    | Skips Report construction.                       |
+| 21 | `Category.All() []Category`                                                                                                                 | Low    | 10m    | Returns 8 built-in values.                       |
+| 22 | `map[string]int` index for O(1) Get/Has/Deregister                                                                                          | Low    | 30m    | Anti-goal until scale proves need.               |
+| 23 | `Filter` type for severity/category filtering                                                                                               | Low    | 45m    |                                                  |
+| 24 | `RuleSet` typed wrapper                                                                                                                     | Low    | 30m    |                                                  |
+| 25 | Evaluate generics for `RuleFunc`                                                                                                            | Low    | 12m    | Spike, document, decide.                         |
+| 26 | Confirm `Register` panic contract is right for a library                                                                                    | Medium | —      | ROADMAP Q4. Cannot reverse once consumers exist. |
 
 ### CLI binary (only after consumer pilots prove value)
 
-| #  | Task                                            | Impact | Effort | Notes               |
-| -- | ----------------------------------------------- | ------ | ------ | ------------------- |
+| #  | Task                                                                                                                                                                        | Impact | Effort | Notes               |
+| -- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------------- |
 | 27 | ~~Create `cmd/go-linter-sdk/main.go` skeleton~~ decided — cmd/ parking is the documented layering decision (ROADMAP: SDK stops at findings; CLI shells belong to consumers) | Medium | 30m    |                     |
-| 28 | Wire registry + Run + ExitCodeFromReport        | Medium | 15m    |                     |
-| 29 | Add `--enable`/`--disable` flag parsing         | Medium | 30m    | Uses `FilterRules`. |
-| 30 | Add `--format text` (default)                   | Low    | 10m    |                     |
-| 31 | ~~Add `--format json`~~ done — cli-triage `--format=json` shipped 2026-11-19 (Report JSON round-trip-tested, clean-dir + findings) | Medium | 20m    |                     |
-| 32 | Add `--format sarif`                            | Medium | 20m    |                     |
-| 33 | Add `--config` flag for rule configuration file | Low    | 45m    |                     |
+| 28 | Wire registry + Run + ExitCodeFromReport                                                                                                                                    | Medium | 15m    |                     |
+| 29 | Add `--enable`/`--disable` flag parsing                                                                                                                                     | Medium | 30m    | Uses `FilterRules`. |
+| 30 | Add `--format text` (default)                                                                                                                                               | Low    | 10m    |                     |
+| 31 | ~~Add `--format json`~~ done — cli-triage `--format=json` shipped 2026-11-19 (Report JSON round-trip-tested, clean-dir + findings)                                          | Medium | 20m    |                     |
+| 32 | Add `--format sarif`                                                                                                                                                        | Medium | 20m    |                     |
+| 33 | Add `--config` flag for rule configuration file                                                                                                                             | Low    | 45m    |                     |
 
 ### Documentation depth
 
@@ -295,17 +295,17 @@ be cleaner than per-line suppressions.
 
 ### Tooling & ecosystem
 
-| #  | Task                                                                                           | Impact | Effort | Notes                                   |
-| -- | ---------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
-| 41 | Add flake `checks` derivations for test/vet/lint                                               | Low    | 30m    | Only treefmt is a check today.          |
-| 42 | Add `apps.watch` (live test re-runs with `entr`)                                               | Low    | 10m    |                                         |
-| 43 | ~~Add `apps.tidy` (`go mod tidy`)~~ NOT-DO — CI already runs a `go mod tidy` drift check; an app would duplicate it (2026-11-19) | Low    | 5m     |                                         |
-| 44 | Add `direnv` setup (`.envrc`)                                                                  | Low    | 10m    |                                         |
-| 45 | Add `meta.position` to flake apps                                                              | Low    | 10m    |                                         |
-| 46 | ~~Verify pkg.go.dev badge resolves~~ done — verified: pkg.go.dev indexes v0.3.0 (2026-09-09) — | Low    | 5m     |                                         |
+| #  | Task                                                                                                                                                                        | Impact | Effort | Notes                                   |
+| -- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------- |
+| 41 | Add flake `checks` derivations for test/vet/lint                                                                                                                            | Low    | 30m    | Only treefmt is a check today.          |
+| 42 | Add `apps.watch` (live test re-runs with `entr`)                                                                                                                            | Low    | 10m    |                                         |
+| 43 | ~~Add `apps.tidy` (`go mod tidy`)~~ NOT-DO — CI already runs a `go mod tidy` drift check; an app would duplicate it (2026-11-19)                                            | Low    | 5m     |                                         |
+| 44 | Add `direnv` setup (`.envrc`)                                                                                                                                               | Low    | 10m    |                                         |
+| 45 | Add `meta.position` to flake apps                                                                                                                                           | Low    | 10m    |                                         |
+| 46 | ~~Verify pkg.go.dev badge resolves~~ done — verified: pkg.go.dev indexes v0.3.0 (2026-09-09) —                                                                              | Low    | 5m     |                                         |
 | 48 | ~~Add commit signing (gitsign) to CI~~ NOT-DO — declined: branch protection is deliberately off (daemon pushes to master) and the repo has no supply-chain gate requirement | Low    | 15m    |                                         |
-| 49 | Generate `go.work.sum` for workspace checksum consistency                                      | Low    | 2m     |                                         |
-| 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go`                     | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
+| 49 | Generate `go.work.sum` for workspace checksum consistency                                                                                                                   | Low    | 2m     |                                         |
+| 50 | Consider package-level golangci-lint exclusion for `*_integration_test.go`                                                                                                  | Low    | 5m     | Cleaner than per-line `//nolint:gosec`. |
 
 ---
 

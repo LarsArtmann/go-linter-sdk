@@ -77,55 +77,55 @@ Brutal self-review (skill questions answered):
 
 Each ≤ 12 min. Canonical breakdown with context, acceptance criteria, dependencies, and the execution graph: **`docs/planning/2026-09-09_04-18_execution-plan-prioritized-microtasks.md`**. Sorted by importance/impact/effort/customer-value.
 
-| Rank | ID  | Task                                                                                   | Impact   | Effort |
-| ---- | --- | -------------------------------------------------------------------------------------- | -------- | ------ |
-| 1    | S1  | Install & run gitleaks full-history scan (repo + all branches)                         | High     | 12m    |
-| 2    | S2  | Triage gitleaks findings; rotate/redact if anything real                               | High     | 12m    |
-| 3    | S3  | Inventory token-provisioning narratives across docs/*                                  | Medium   | 12m    |
-| 4    | S4  | Redact/prune sensitive narratives or record conscious acceptance                       | Medium   | 12m    |
-| 5    | M1  | Set GitHub metadata (description/topics/homepage→pkg.go.dev)                           | Medium   | 5m     |
-| 6    | BF1 | Read branching-flow's smallest rule + its converter                                    | Critical | 12m    |
-| 7    | BF2 | Scaffold `examples/branching-flow-port`                                                | Critical | 12m    |
-| 8    | BF3 | Port: RuleMeta identity                                                                | Critical | 12m    |
-| 9    | BF4 | Port: Run closure logic                                                                | Critical | 12m    |
-| 10   | BF5 | Port: finding emission via NewBuilder                                                  | Critical | 12m    |
-| 11   | BF6 | Integration test (build/run/assert)                                                    | Critical | 12m    |
-| 12   | BF7 | LOC comparison note (converter deleted vs port size)                                   | Critical | 12m    |
-| 13   | BF8 | Gate + sync FEATURES/CHANGELOG/README consumer table                                   | Critical | 12m    |
-| 14   | D1  | Read go-finding v1.8.0 + v1.9.2 changelogs                                             | Medium   | 12m    |
-| 15   | D2  | Trial bump to v1.9.2 on a scratch branch + tidy                                        | Medium   | 12m    |
+| Rank | ID  | Task                                                                                                                                                                                       | Impact   | Effort |
+| ---- | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------ |
+| 1    | S1  | Install & run gitleaks full-history scan (repo + all branches)                                                                                                                             | High     | 12m    |
+| 2    | S2  | Triage gitleaks findings; rotate/redact if anything real                                                                                                                                   | High     | 12m    |
+| 3    | S3  | Inventory token-provisioning narratives across docs/*                                                                                                                                      | Medium   | 12m    |
+| 4    | S4  | Redact/prune sensitive narratives or record conscious acceptance                                                                                                                           | Medium   | 12m    |
+| 5    | M1  | Set GitHub metadata (description/topics/homepage→pkg.go.dev)                                                                                                                               | Medium   | 5m     |
+| 6    | BF1 | Read branching-flow's smallest rule + its converter                                                                                                                                        | Critical | 12m    |
+| 7    | BF2 | Scaffold `examples/branching-flow-port`                                                                                                                                                    | Critical | 12m    |
+| 8    | BF3 | Port: RuleMeta identity                                                                                                                                                                    | Critical | 12m    |
+| 9    | BF4 | Port: Run closure logic                                                                                                                                                                    | Critical | 12m    |
+| 10   | BF5 | Port: finding emission via NewBuilder                                                                                                                                                      | Critical | 12m    |
+| 11   | BF6 | Integration test (build/run/assert)                                                                                                                                                        | Critical | 12m    |
+| 12   | BF7 | LOC comparison note (converter deleted vs port size)                                                                                                                                       | Critical | 12m    |
+| 13   | BF8 | Gate + sync FEATURES/CHANGELOG/README consumer table                                                                                                                                       | Critical | 12m    |
+| 14   | D1  | Read go-finding v1.8.0 + v1.9.2 changelogs                                                                                                                                                 | Medium   | 12m    |
+| 15   | D2  | Trial bump to v1.9.2 on a scratch branch + tidy                                                                                                                                            | Medium   | 12m    |
 | 16   | D3  | ~~Gate the bump (lint/vet/race/build/flake)~~ done — this is now the standard bump/release gate, executed per consumer bump wave (2026-10-15, 2026-11-19) and per release (v0.5.0, v0.6.0) | Medium   | 12m    |
-| 17   | D4  | Decide pin-vs-bump; record in CHANGELOG/AGENTS/TODO #9                                 | Medium   | 12m    |
-| 18   | EA1 | Read erraudit's smallest rule + converter                                              | High     | 12m    |
-| 19   | EA2 | ~~Scaffold `examples/erraudit-port`~~ done — shipped as `examples/oops-redundant-guard` (the erraudit port, 2026-09 era); name differed from this sketch | High     | 12m    |
-| 20   | EA3 | Port: RuleMeta identity                                                                | High     | 12m    |
-| 21   | EA4 | Port: Run closure logic                                                                | High     | 12m    |
-| 22   | EA5 | Port: finding emission via NewBuilder                                                  | High     | 12m    |
-| 23   | EA6 | Integration test + gate + docs sync                                                    | High     | 12m    |
-| 24   | G1  | Godoc pass 1: audit exported-symbol docs vs pkg.go.dev rendering                       | Medium   | 12m    |
-| 25   | G2  | Godoc pass 2: Registry/Run family rewrites                                             | Medium   | 12m    |
-| 26   | G3  | Godoc pass 3: RuleFunc/RuleMeta/Category                                               | Medium   | 12m    |
-| 27   | G4  | Godoc pass 4: errors family + example polish                                           | Medium   | 12m    |
-| 28   | Q1  | Test `collectRuleErrors` with nil elements in a join                                   | Low      | 10m    |
-| 29   | Q2  | Package-level lint exclusion for `*_integration_test.go`                               | Low      | 12m    |
-| 30   | Q3  | Pin golangci-lint in devShell (CI pins v2.12.2)                                        | Low      | 10m    |
-| 31   | Q4  | Migrate `exhaustruct` → `exhaustruct_v5`                                               | Low      | 5m     |
-| 32   | Q5  | ~~Generate `go.work.sum`~~ NOT-DO — obsolete: `go.work` is a gitignored local convenience, never committed; there is no go.work.sum to maintain | Low      | 2m     |
-| 33   | Q6  | Add actionlint step to CI                                                              | Low      | 12m    |
-| 34   | Q7  | Add dependabot config (go + actions)                                                   | Low      | 12m    |
-| 35   | Q8  | Benchmarks: Get/Has/Deregister at 100+ rules                                           | Low      | 12m    |
-| 36   | Q9  | ADR draft: Register panic-vs-error contract                                            | Medium   | 12m    |
-| 37   | Q10 | Decide + implement Register contract per ADR                                           | Medium   | 12m    |
-| 38   | Q11 | README "Registry patterns" section                                                     | Low      | 12m    |
-| 39   | Q12 | One-line note in TODO_LIST explaining the #4 numbering gap                             | Low      | 2m     |
-| 40   | C1  | Stranger-test CI: build-consumer job (`go get @latest` in clean dir)                   | Medium   | 12m    |
-| 41   | C2  | Roadmap: add stranger-test CI idea + demo-repo decision (HARVEST from this report)     | Low      | 5m     |
-| 42   | C3  | Migration guide part 1 (structure) — from real pilot experience                        | High     | 12m    |
-| 43   | C4  | Migration guide part 2 (walkthrough)                                                   | High     | 12m    |
-| 44   | C5  | Public demo linter repo: decision note + scaffold sketch                               | Low      | 12m    |
-| 45   | R1  | If ratified (g.1): cut v0.4.0 on next change's green commit                            | Medium   | 12m    |
-| 46   | R2  | Habit: check pkg.go.dev @latest + Imported-by after releases                           | Low      | 5m     |
-| 47   | R3  | Resolve or document the tidy green-vs-red mystery (b.1) — ask upstream/issue if needed | Low      | 12m    |
+| 17   | D4  | Decide pin-vs-bump; record in CHANGELOG/AGENTS/TODO #9                                                                                                                                     | Medium   | 12m    |
+| 18   | EA1 | Read erraudit's smallest rule + converter                                                                                                                                                  | High     | 12m    |
+| 19   | EA2 | ~~Scaffold `examples/erraudit-port`~~ done — shipped as `examples/oops-redundant-guard` (the erraudit port, 2026-09 era); name differed from this sketch                                   | High     | 12m    |
+| 20   | EA3 | Port: RuleMeta identity                                                                                                                                                                    | High     | 12m    |
+| 21   | EA4 | Port: Run closure logic                                                                                                                                                                    | High     | 12m    |
+| 22   | EA5 | Port: finding emission via NewBuilder                                                                                                                                                      | High     | 12m    |
+| 23   | EA6 | Integration test + gate + docs sync                                                                                                                                                        | High     | 12m    |
+| 24   | G1  | Godoc pass 1: audit exported-symbol docs vs pkg.go.dev rendering                                                                                                                           | Medium   | 12m    |
+| 25   | G2  | Godoc pass 2: Registry/Run family rewrites                                                                                                                                                 | Medium   | 12m    |
+| 26   | G3  | Godoc pass 3: RuleFunc/RuleMeta/Category                                                                                                                                                   | Medium   | 12m    |
+| 27   | G4  | Godoc pass 4: errors family + example polish                                                                                                                                               | Medium   | 12m    |
+| 28   | Q1  | Test `collectRuleErrors` with nil elements in a join                                                                                                                                       | Low      | 10m    |
+| 29   | Q2  | Package-level lint exclusion for `*_integration_test.go`                                                                                                                                   | Low      | 12m    |
+| 30   | Q3  | Pin golangci-lint in devShell (CI pins v2.12.2)                                                                                                                                            | Low      | 10m    |
+| 31   | Q4  | Migrate `exhaustruct` → `exhaustruct_v5`                                                                                                                                                   | Low      | 5m     |
+| 32   | Q5  | ~~Generate `go.work.sum`~~ NOT-DO — obsolete: `go.work` is a gitignored local convenience, never committed; there is no go.work.sum to maintain                                            | Low      | 2m     |
+| 33   | Q6  | Add actionlint step to CI                                                                                                                                                                  | Low      | 12m    |
+| 34   | Q7  | Add dependabot config (go + actions)                                                                                                                                                       | Low      | 12m    |
+| 35   | Q8  | Benchmarks: Get/Has/Deregister at 100+ rules                                                                                                                                               | Low      | 12m    |
+| 36   | Q9  | ADR draft: Register panic-vs-error contract                                                                                                                                                | Medium   | 12m    |
+| 37   | Q10 | Decide + implement Register contract per ADR                                                                                                                                               | Medium   | 12m    |
+| 38   | Q11 | README "Registry patterns" section                                                                                                                                                         | Low      | 12m    |
+| 39   | Q12 | One-line note in TODO_LIST explaining the #4 numbering gap                                                                                                                                 | Low      | 2m     |
+| 40   | C1  | Stranger-test CI: build-consumer job (`go get @latest` in clean dir)                                                                                                                       | Medium   | 12m    |
+| 41   | C2  | Roadmap: add stranger-test CI idea + demo-repo decision (HARVEST from this report)                                                                                                         | Low      | 5m     |
+| 42   | C3  | Migration guide part 1 (structure) — from real pilot experience                                                                                                                            | High     | 12m    |
+| 43   | C4  | Migration guide part 2 (walkthrough)                                                                                                                                                       | High     | 12m    |
+| 44   | C5  | Public demo linter repo: decision note + scaffold sketch                                                                                                                                   | Low      | 12m    |
+| 45   | R1  | If ratified (g.1): cut v0.4.0 on next change's green commit                                                                                                                                | Medium   | 12m    |
+| 46   | R2  | Habit: check pkg.go.dev @latest + Imported-by after releases                                                                                                                               | Low      | 5m     |
+| 47   | R3  | Resolve or document the tidy green-vs-red mystery (b.1) — ask upstream/issue if needed                                                                                                     | Low      | 12m    |
 
 ## g) Questions I cannot figure out myself
 

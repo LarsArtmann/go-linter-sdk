@@ -60,13 +60,13 @@ if [ -z "$measured" ]; then
 elif [ -z "$claimed" ]; then
 	warn "no 'X.X% library coverage' claim found in README (nothing to drift)"
 else
-if awk -v m="$measured" -v c="$claimed" 'BEGIN {
+	if awk -v m="$measured" -v c="$claimed" 'BEGIN {
 	if (m + 0 >= c + 0) exit 0; else exit 1
 }'; then
-	pass "README claims ${claimed}%, measured ${measured}%"
-else
-	miss "README claims ${claimed}% but measured coverage is ${measured}% — update the claim"
-fi
+		pass "README claims ${claimed}%, measured ${measured}%"
+	else
+		miss "README claims ${claimed}% but measured coverage is ${measured}% — update the claim"
+	fi
 fi
 
 echo "[3/7] Dead code sweep over _test.go helpers (root + examples)"
@@ -75,11 +75,11 @@ list_test_files() {
 }
 dead=$(list_test_files | xargs -0 grep -hoE '^(func|type) [a-z][A-Za-z0-9_]*' 2>/dev/null |
 	awk '{print $2}' | sort -u | while IFS= read -r sym; do
-		uses=$(list_test_files | xargs -0 grep -hcw "$sym" 2>/dev/null | awk '{s+=$1} END {print s+0}')
-		if [ "$uses" -le 1 ]; then
-			echo "$sym"
-		fi
-	done)
+	uses=$(list_test_files | xargs -0 grep -hcw "$sym" 2>/dev/null | awk '{s+=$1} END {print s+0}')
+	if [ "$uses" -le 1 ]; then
+		echo "$sym"
+	fi
+done)
 if [ -z "$dead" ]; then
 	pass "no single-mention test helpers/types (ghost scaffolding)"
 else

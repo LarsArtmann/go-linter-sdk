@@ -23,6 +23,7 @@ v0.6.0 page). Tag-on-green held; the tag was pushed explicitly onto
 arg is what kept the tag honest.
 
 **1% truth tier (P1–P7).**
+
 - P1 exit contract: `0 clean / 1 must-fix / 2 triage / 3 tool-failure` in
   `examples/cli-triage` godoc + named constants + `TestExampleCLITriage_ToolFailureExits3`
   (stderr asserted). 9 cli-triage integration tests green.
@@ -48,6 +49,7 @@ arg is what kept the tag honest.
   `RuleFunc.Severity()`, RuleErrors nil-leaf + nil-unwrap leaf.
 
 **Teaching tier (P8–P12).**
+
 - P8: oops example findings now carry `WithEdits(finding.TextEdit{...})` +
   `WithFixStrategy(FixStrategyDirect)` — one TextEdit spanning guard block
   through `return nil` (`nilLine+1` exclusive), match struct extended with
@@ -72,6 +74,7 @@ arg is what kept the tag honest.
   per-Keep slice cost).
 
 **Fleet + corpus (P14–P17).**
+
 - P14 wave: **all 8 consumer module locations at v0.6.0** (go-structure-linter,
   samber-linter, go-humanize-linter, cmdguard/lint, project-meta root+linter,
   BuildFlow execution/tools/root). Gates: green everywhere except the known
@@ -103,11 +106,12 @@ arg is what kept the tag honest.
   saved a dead issue.
 
 **Tooling + docs (P18–P27).**
+
 - P18: `BenchmarkRuleSet_Get` ~6.8–7.7 ns/op flat 100→1000 (mutex-free ≈
   half of Registry's 15 ns), `BenchmarkFilter_Apply` ~47 µs/op for 1000
   findings, 1 alloc. Recorded in CHANGELOG.
 - P19: migration-guide Step 5 modernized (DetectorV2/Relativize/CoverageReporter
-  + newer-capabilities block incl. WithEdits declaration pattern).
+  - newer-capabilities block incl. WithEdits declaration pattern).
 - P20: `scripts/release-checklist.sh` (6 gates: FEATURES symbol coverage from
   CHANGELOG `### Added` bullets, README coverage claim vs measured, dead
   test-helper single-mention sweep, render-gate freshness + vision-verdict
@@ -261,6 +265,7 @@ arg is what kept the tag honest.
 ## f) Up to 50 things to do next (harvestable; owned files named)
 
 **Immediate (this repo):**
+
 1. Re-run vision verification on the CURRENT dashboard PNG bytes; bind the
    verdict to a sha256 recorded in `index.html` (fix b.2).
 2. Extend `release-checklist.sh` with a `nix flake check` step.
@@ -316,47 +321,47 @@ arg is what kept the tag honest.
 **Consumer/fleet (gated or their-repo work):**
 27. Push the consumer v0.6.0 bumps once g-1 is answered (#31).
 28. Fix samber-linter#5 (re-derive the workspace-shadow premise: Go behavior
-    change vs Analyze env plumbing).
+change vs Analyze env plumbing).
 29. Fix BuildFlow#112 (capture `-v` failure output, identify the leaking
-    state, fix isolation).
+state, fix isolation).
 30. #29: implement CoverageReporter on go-structure-linter's walking rules.
 31. #29: same for samber-linter.
 32. #29: same for go-humanize-linter.
 33. #29: same for cmdguard/lint.
 34. #29: same for project-meta/linter.
 35. #29: BuildFlow/execution consume DetectorV2 from the SDK adapters in its
-    DAG conversion.
+DAG conversion.
 36. Re-run `fleet-sweep.sh` after #29's first landing; expect the first
-    non-zero channel row; record it next to the AFTER table.
+non-zero channel row; record it next to the AFTER table.
 37. Watch: docs-gates legend fix `73f5eac` — confirm the deployed nix store
-    binary includes it next time the fleet tooling rebuilds (I verified the
-    source, not the deployed binary).
+binary includes it next time the fleet tooling rebuilds (I verified the
+source, not the deployed binary).
 38. Verify samber-linter's CI (their repo) is green with the README fix +
-    v0.6.0 bump before its next session pushes.
+v0.6.0 bump before its next session pushes.
 
 **Watches (armed, not due):**
 39. go-finding next root MINOR → re-run the utilization audit
-    (`docs/review/libs/go-finding.md` footer trigger).
+(`docs/review/libs/go-finding.md` footer trigger).
 40. go-compliance v0.1 tag → compliance.Record docs note (ROADMAP).
 41. go-policy-dsl v1 tag → revisit #23 companion-libs mention.
 42. pkg.go.dev "Imported by" trend check at the next release (cadence armed;
-    baseline 3).
+baseline 3).
 43. dependabot's weekly PRs on the new pin (verify nothing stale opens).
 44. govulncheck CI job stays green on the new toolchain outputs.
 
 **Larger / backlog:**
 45. Spread the SDK to the ~31 repos still on older go-finding releases
-    (ROADMAP theme 2, epic-sized).
+(ROADMAP theme 2, epic-sized).
 46. cmd/ remains parked (resolved Q3) — revisit only with an owner mandate.
 47. Consider SARIF output as a ROADMAP idea line (currently only inside the
-    parked cmd/ sketch).
+parked cmd/ sketch).
 48. Consider raising `Deregister` O(n) note to godoc-visible (currently only
-    FEATURES/AGENTS mention the by-design cost).
+FEATURES/AGENTS mention the by-design cost).
 49. Record the P10 rename decision as a named paragraph in
-    `docs/decisions/` (it lives in CHANGELOG/AGENTS; a 5-line ADR note would
-    make it durable against doc rewrites).
+`docs/decisions/` (it lives in CHANGELOG/AGENTS; a 5-line ADR note would
+make it durable against doc rewrites).
 50. Next session: seed the todo list from this f-list BEFORE working (the
-    15:02 plan session proved seed-first beats mid-flight tracking).
+15:02 plan session proved seed-first beats mid-flight tracking).
 
 ## g) Three questions I cannot answer myself
 

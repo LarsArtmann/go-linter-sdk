@@ -112,7 +112,6 @@ batching semantics) and a real global-mutation leak (`KeepsAllowed` mutates
 FormatterRecommendationAllowlist while parallel siblings read it; mutator
 made serial). Providers suite green twice consecutively post-fix.)
 
-
 ### From the v0.6.1-release session (2026-11-20 report §f)
 
 - **#41 TODO — Record the pkg.go.dev "Imported by" trend** once propagation

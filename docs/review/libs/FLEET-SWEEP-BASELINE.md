@@ -8,14 +8,14 @@
 
 ## Baseline: all channels zero
 
-| Consumer (module root) | SDK pin before wave | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
-| --- | --- | --- | --- | --- |
-| go-structure-linter | v0.4.1 | 0 refs | 0 refs | 0 refs |
-| samber-linter | v0.4.1 | 0 refs | 0 refs | 0 refs |
-| go-humanize-linter | v0.4.1 | 0 refs | 0 refs | 0 refs |
-| cmdguard/lint | v0.4.1 | 0 refs | 0 refs | 0 refs |
-| project-meta/linter | v0.4.0 | 0 refs | 0 refs | 0 refs |
-| BuildFlow/execution (+tools, root indirect) | v0.4.0 / v0.4.1 | 0 refs | 0 refs | 0 refs |
+| Consumer (module root)                      | SDK pin before wave | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
+| ------------------------------------------- | ------------------- | ----------------------------------------------- | ---------- | -------------------- |
+| go-structure-linter                         | v0.4.1              | 0 refs                                          | 0 refs     | 0 refs               |
+| samber-linter                               | v0.4.1              | 0 refs                                          | 0 refs     | 0 refs               |
+| go-humanize-linter                          | v0.4.1              | 0 refs                                          | 0 refs     | 0 refs               |
+| cmdguard/lint                               | v0.4.1              | 0 refs                                          | 0 refs     | 0 refs               |
+| project-meta/linter                         | v0.4.0              | 0 refs                                          | 0 refs     | 0 refs               |
+| BuildFlow/execution (+tools, root indirect) | v0.4.0 / v0.4.1     | 0 refs                                          | 0 refs     | 0 refs               |
 
 ## Bump wave executed 2026-11-19 (F13.5)
 
@@ -59,14 +59,14 @@ the next local mutation — re-grep go.mod before trusting it.
 ## AFTER sweep 1 — post-v0.6.0 (2026-11-19, scripts/fleet-sweep.sh)
 
 | Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
-| --- | --- | --- | --- | --- |
-| go-structure-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| samber-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| go-humanize-linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| cmdguard/lint | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| project-meta/linter | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| BuildFlow/execution | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| BuildFlow/tools | v0.6.0 | 0 refs | 0 refs | 0 refs |
+| ---------------------- | ------- | ----------------------------------------------- | ---------- | -------------------- |
+| go-structure-linter    | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| samber-linter          | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| go-humanize-linter     | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| cmdguard/lint          | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| project-meta/linter    | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| BuildFlow/execution    | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| BuildFlow/tools        | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
 
 Reading: every location is on the current release; channel adoption is still
 zero — that is TODO_LIST #29's consumer-side work (CoverageReporter on
@@ -78,14 +78,14 @@ mechanical: `bash scripts/fleet-sweep.sh`.
 ## AFTER sweep 2 — TODO #29 executed (2026-11-19, same day)
 
 | Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
-| --- | --- | --- | --- | --- |
-| go-structure-linter | v0.6.0 | **7 refs** | 0 refs | 0 refs |
-| samber-linter | v0.6.0 | **6 refs** | 0 refs | 0 refs |
-| go-humanize-linter | v0.6.0 | **6 refs** | 0 refs | 0 refs |
-| cmdguard/lint | v0.6.0 | **7 refs** | 0 refs | 0 refs |
-| project-meta/linter | v0.6.0 | **8 refs** | 0 refs | 0 refs |
-| BuildFlow/execution | v0.6.0 | 0 refs | 0 refs | 0 refs |
-| BuildFlow/tools | v0.6.0 | **3 refs** | 0 refs | 0 refs |
+| ---------------------- | ------- | ----------------------------------------------- | ---------- | -------------------- |
+| go-structure-linter    | v0.6.0  | **7 refs**                                      | 0 refs     | 0 refs               |
+| samber-linter          | v0.6.0  | **6 refs**                                      | 0 refs     | 0 refs               |
+| go-humanize-linter     | v0.6.0  | **6 refs**                                      | 0 refs     | 0 refs               |
+| cmdguard/lint          | v0.6.0  | **7 refs**                                      | 0 refs     | 0 refs               |
+| project-meta/linter    | v0.6.0  | **8 refs**                                      | 0 refs     | 0 refs               |
+| BuildFlow/execution    | v0.6.0  | 0 refs                                          | 0 refs     | 0 refs               |
+| BuildFlow/tools        | v0.6.0  | **3 refs**                                      | 0 refs     | 0 refs               |
 
 Reading — the coverage channel is LIVE fleet-wide, first non-zero sweep:
 
@@ -149,14 +149,14 @@ docs/ADOPTION.md.
 ## AFTER sweep 3 — v0.6.1 wave (2026-11-20, follow-up session)
 
 | Consumer (module root) | SDK pin | DetectorV2 / AddDetectResult / CoverageReporter | Relativize | WithEdits / TextEdit |
-| --- | --- | --- | --- | --- |
-| go-structure-linter | v0.6.1 | **7 refs** | 0 refs | 0 refs |
-| samber-linter | v0.6.1 | **6 refs** | 0 refs | 0 refs |
-| go-humanize-linter | v0.6.1 | **6 refs** | 0 refs | 0 refs |
-| cmdguard/lint | v0.6.1 | **7 refs** | 0 refs | 0 refs |
-| project-meta/linter | v0.6.1 | **8 refs** | 0 refs | 0 refs |
-| BuildFlow/execution | v0.6.1 | 0 refs | 0 refs | 0 refs |
-| BuildFlow/tools | v0.6.1 | **3 refs** | 0 refs | 0 refs |
+| ---------------------- | ------- | ----------------------------------------------- | ---------- | -------------------- |
+| go-structure-linter    | v0.6.1  | **7 refs**                                      | 0 refs     | 0 refs               |
+| samber-linter          | v0.6.1  | **6 refs**                                      | 0 refs     | 0 refs               |
+| go-humanize-linter     | v0.6.1  | **6 refs**                                      | 0 refs     | 0 refs               |
+| cmdguard/lint          | v0.6.1  | **7 refs**                                      | 0 refs     | 0 refs               |
+| project-meta/linter    | v0.6.1  | **8 refs**                                      | 0 refs     | 0 refs               |
+| BuildFlow/execution    | v0.6.1  | 0 refs                                          | 0 refs     | 0 refs               |
+| BuildFlow/tools        | v0.6.1  | **3 refs**                                      | 0 refs     | 0 refs               |
 
 Reading — pins uniform at v0.6.1 (third wave, gated green per repo:
 build + full/targeted tests, GOWORK=off everywhere); channel counts stable

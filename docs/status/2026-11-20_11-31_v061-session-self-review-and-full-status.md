@@ -59,6 +59,7 @@ in the served HTML). The PATCH slot decision was made 2026-11-19 and honored.
 by their daemons** (samber `3d339ae`+`8aa4278`; BuildFlow/tools
 `cb5471ee8`+`cf985f5a9`; tree states clean — the decay-#4 class was checked
 for, not assumed away).
+
 - **samber-linter#5** — root cause: ambient `GOWORK=off` (this fleet's own
   sibling-module habit) inherits into the loader child via `loadEnv()` and
   defeats go.work walk-up discovery, so the shadow-half assertion fails
@@ -104,11 +105,12 @@ file — recorded in FLEET-SWEEP-BASELINE); teaching-debt sweep clean (all
 four production `finding.NewBuilder` sites deliberate — ADOPTION addendum).
 
 **#40 session-record docs** — ADOPTION names decay #4 + the clean-run record
-+ the 2026-11-20 wave + the #5-fixed truth fix in the main table;
-DOMAIN_LANGUAGE documents the FilesScanned N·F accumulation semantic
-(ROADMAP's pin idea marked done); AGENTS gained the v0.6.1 session section
-(post-release, names the release, encodes both root causes and the
-audit-drain discipline).
+
+- the 2026-11-20 wave + the #5-fixed truth fix in the main table;
+  DOMAIN_LANGUAGE documents the FilesScanned N·F accumulation semantic
+  (ROADMAP's pin idea marked done); AGENTS gained the v0.6.1 session section
+  (post-release, names the release, encodes both root causes and the
+  audit-drain discipline).
 
 **Third consumer wave** — all 8 module locations at v0.6.1, gated per repo
 (GOWORK=off): go-structure-linter build; samber 6/6; go-humanize 4/4;
@@ -216,6 +218,7 @@ cmdguard/lint; project-meta/linter; BuildFlow execution + tools (providers
 ## f) Up to 50 things to do next (harvested; owners named)
 
 **This repo (actionable rows exist):**
+
 1. #41 — record the pkg.go.dev "Imported by" trend (baseline 3) once the
    page fully propagates; note it next to the 2026-10-15 baseline in AGENTS.
 2. #42 — close BuildFlow#112: its session pushes the fixes and comments with
@@ -252,25 +255,25 @@ cmdguard/lint; project-meta/linter; BuildFlow execution + tools (providers
 **samber-linter (its session):**
 21. Push master → CI green → close #5 with the root-cause summary.
 22. The wrapcheck `ignore-sigs` line deserves a comment in their
-    .golangci.yml explaining WHY unwrapped ExitError returns are correct
-    (one line; their session's fix-on-sight).
+.golangci.yml explaining WHY unwrapped ExitError returns are correct
+(one line; their session's fix-on-sight).
 23. Their driver's `loadEnv` could optionally strip an inherited `GOWORK`
-    for child loaders — design decision for THEIR repo, cross-file this
-    report's root cause when they pick it up.
+for child loaders — design decision for THEIR repo, cross-file this
+report's root cause when they pick it up.
 24. f38 checklist execution after samber's push — same work as TODO #43
-    (verify CI green via the f38 checklist once that session pushes).
+(verify CI green via the f38 checklist once that session pushes).
 
 **BuildFlow (its session):**
 25. Close #112 (see #42) — evidence + mechanism are ready to paste.
 26. The breaker-counter semantics under concurrency deserve a comment at
-    `latestProbeState` (documented-in-code is currently in the test only).
+`latestProbeState` (documented-in-code is currently in the test only).
 27. Their TODO_LIST's "daemon strike-marker mangle" investigation row — the
-    go-finding daemon mangled ~470 rows once; BuildFlow's daemon shares
-    lineage; their session owns it.
+go-finding daemon mangled ~470 rows once; BuildFlow's daemon shares
+lineage; their session owns it.
 
 **go-finding (its session):**
 28. Execute the DetectorV2↔ADOPTION cross-link row (added to their
-    TODO_LIST 2026-11-19, verified intact `1fc98df`).
+TODO_LIST 2026-11-19, verified intact `1fc98df`).
 29. Next root MINOR triggers the re-audit (watch #13).
 
 **crush-config:**
@@ -278,9 +281,9 @@ cmdguard/lint; project-meta/linter; BuildFlow execution + tools (providers
 
 **Process debt (this session's lessons, owner-visible):**
 31. Decide whether the audit-drain mechanical enforcement is worth building
-    (item 8) — it has now fired twice; the design is sketched in ROADMAP.
+(item 8) — it has now fired twice; the design is sketched in ROADMAP.
 32. Decide the sibling-push deadline question (see g3) — unpushed commits
-    in four repos are race-exposed (decay #4 precedent).
+in four repos are race-exposed (decay #4 precedent).
 
 ## g) Three questions I cannot answer myself
 

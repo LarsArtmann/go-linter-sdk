@@ -36,10 +36,10 @@ were not run — a subset was).
    table, module-layout tree, routed follow-ups, verify appendix; render
    traces preserved in-repo at `docs/review/libs/assets/`.
 3. **Findings routed at write time**: TODO_LIST #20–#27 (8 rows, #23 BLOCKED)
-   + ROADMAP lines (rule-level fix representation w/ toolsdk Repairer
-   contract; go-compliance docs snippet) — then the one-home rule violation I
-   created (#24 dual-tracked in ROADMAP) was caught and removed during this
-   self-review.
+   - ROADMAP lines (rule-level fix representation w/ toolsdk Repairer
+     contract; go-compliance docs snippet) — then the one-home rule violation I
+     created (#24 dual-tracked in ROADMAP) was caught and removed during this
+     self-review.
 4. **Memory**: AGENTS.md gained a "Library fleet review (2026-11-19)" section
    with verdicts, scores, and re-review triggers.
 5. **QC (partial by design, see b)**: group B's first report fully

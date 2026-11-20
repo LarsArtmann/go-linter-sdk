@@ -130,8 +130,8 @@
 30. Keep `GOWORK=off go mod tidy` discipline — a `go.work` sits at repo root right now (R3 tidy-mystery trap).
 31. Confirm CI green on current master before any tag.
 32. ~~Keep the coverage gate excluding examples (documented decision — don't "fix" back to `./...`).~~
-    done — decision held and documented in AGENTS.md ("The coverage gate
-    measures library packages only"); CI still excludes /examples/ (2026-11-19)
+done — decision held and documented in AGENTS.md ("The coverage gate
+measures library packages only"); CI still excludes /examples/ (2026-11-19)
 33. Verify workflow GOTOOLCHAIN pins still match go.mod 1.26.7 if CI files are ever touched (setup-go lag gotcha).
 34. Preserve reports/.gitkeep + .gitignore exception discipline.
 35. Keep branch protection OFF while the daemon pushes to master (documented posture; revisit only if daemon policy changes).

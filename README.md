@@ -376,45 +376,45 @@ For the reasoning behind Register's panic-on-duplicate contract, see
 
 ### Types
 
-| Type              | Purpose                                                                                                                           |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `Rule` interface  | `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)` |
-| `RuleFunc` struct | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                 |
-| `RuleMeta` struct | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                |
-| `Category`        | Open `string` type. 11 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                 |
-| `Registry`        | Holds rules; thread-safe with `sync.RWMutex`                                                                                      |
-| `RuleSet`         | Immutable, order-preserving rule collection with O(1) ID lookup; mutex-free `Check` + `ToRegistry` conversion                      |
-| `Filter`          | Severity/category gate over findings (`Keep`/`Apply`); zero value keeps everything                                                 |
-| `CoverageReporter`| Optional `Rule` extension: `Coverage(ctx, dir)` reports files-scanned/skipped-modules evidence into the report                     |
+| Type               | Purpose                                                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Rule` interface   | `ID()` / `Name()` / `Description()` / `Category()` / `Severity()` / `IsEnabledByDefault()` / `Check(ctx, dir) ([]Finding, error)` |
+| `RuleFunc` struct  | Adapter: combines a `RuleMeta` header with a `Run` closure to satisfy `Rule`. Enabled by default.                                 |
+| `RuleMeta` struct  | Declarative identity: `ID` (required, stable), `Name`, `Description`, `Cat`, `Sev`                                                |
+| `Category`         | Open `string` type. 11 recommended values (`CategoryDesign`, ...); define your own for domain-specific taxonomies                 |
+| `Registry`         | Holds rules; thread-safe with `sync.RWMutex`                                                                                      |
+| `RuleSet`          | Immutable, order-preserving rule collection with O(1) ID lookup; mutex-free `Check` + `ToRegistry` conversion                     |
+| `Filter`           | Severity/category gate over findings (`Keep`/`Apply`); zero value keeps everything                                                |
+| `CoverageReporter` | Optional `Rule` extension: `Coverage(ctx, dir)` reports files-scanned/skipped-modules evidence into the report                    |
 
 ### Functions
 
-| Function                            | Returns                  | Purpose                                                                                               |
-| ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `NewRegistry(opts…)`                | `*Registry`              | Empty registry; pass `WithToolName(...)` to stamp tool name onto findings                             |
-| `WithToolName(name)`                | `RegistryOption`         | Stamp the tool name onto all findings and the report                                                  |
-| `(*Registry).Register(rule)`        | —                        | Add a rule (panics on duplicate ID or empty identity fields)                                          |
-| `(*Registry).All()`                 | `[]Rule`                 | Snapshot of registered rules                                                                          |
-| `(*Registry).Get(id)`               | `Rule, bool`             | Lookup by stable ID                                                                                   |
-| `(*Registry).Has(id)`               | `bool`                   | Check if a rule ID is registered                                                                      |
-| `(*Registry).Deregister(id)`        | `bool`                   | Remove a rule by ID (returns true if found)                                                           |
-| `(*Registry).Run(ctx, dir, opts…)`  | `*finding.Report, error` | Run all rules; aggregate findings. Fail-fast by default; pass `ContinueOnError()` for partial results |
-| `ContinueOnError()`                 | `RunOption`              | Run option: continue past rule failures, collect partial findings, join errors                        |
-| `DetectorFromRegistry(r, toolName)` | `finding.Detector`       | Adapt registry to a single Detector (BuildFlow DAG)                                                   |
-| `DetectorsFromRegistry(r)`          | `[]finding.Detector`     | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)          |
-| `ExitCodeFromReport(report)`        | `int`                    | 0 if clean, 1 if findings — the ecosystem exit-code convention                                        |
-| `ExitCodeByConfidence(report, thr)` | `int`                    | 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                                   |
-| `ExitCodeFromFindings(findings)`    | `int`                    | Same binary convention for a plain `[]finding.Finding`, no Report needed                              |
-| `FilterRules(all, enable, disable)` | `[]RuleFunc`             | Standard --enable/--disable filtering for CLI and plugin entry points                                 |
-| `SelectRules(all, enable, disable)` | `[]Rule`                 | Same --enable/--disable logic for a `[]Rule` slice; OptIn-wrapped rules ride through (no unexported-wrapper problem) |
-| `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`  | Severity/category-based finding filtering; zero value keeps everything, input never mutated           |
-| `NewRegistryFromRules(rules, opts)` | `*Registry`              | Bulk constructor with the same validation as per-rule `Register`                                      |
-| `RuleSet` (type)                    | `NewRuleSet`, `Check`, `ToRegistry` | Immutable, order-preserving, mutex-free rule collection with O(1) ID lookup                 |
-| `CoverageReporter` (optional iface) | `Coverage()` returns file counts | Rules that report `filesScanned`/`skippedModules`; `Run` feeds them into the report — real coverage evidence per finding run |
-| `AllCategories()`                   | `[]Category`             | Fresh copy of the eleven recommended categories                                                       |
-| `OptIn(rf)`                         | `Rule`                   | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)       |
-| `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`       | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                       |
-| `RuleMeta.Validate()`               | `error`                  | Check required fields (ID, Name, Description, Cat) before construction                                |
+| Function                            | Returns                             | Purpose                                                                                                                      |
+| ----------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `NewRegistry(opts…)`                | `*Registry`                         | Empty registry; pass `WithToolName(...)` to stamp tool name onto findings                                                    |
+| `WithToolName(name)`                | `RegistryOption`                    | Stamp the tool name onto all findings and the report                                                                         |
+| `(*Registry).Register(rule)`        | —                                   | Add a rule (panics on duplicate ID or empty identity fields)                                                                 |
+| `(*Registry).All()`                 | `[]Rule`                            | Snapshot of registered rules                                                                                                 |
+| `(*Registry).Get(id)`               | `Rule, bool`                        | Lookup by stable ID                                                                                                          |
+| `(*Registry).Has(id)`               | `bool`                              | Check if a rule ID is registered                                                                                             |
+| `(*Registry).Deregister(id)`        | `bool`                              | Remove a rule by ID (returns true if found)                                                                                  |
+| `(*Registry).Run(ctx, dir, opts…)`  | `*finding.Report, error`            | Run all rules; aggregate findings. Fail-fast by default; pass `ContinueOnError()` for partial results                        |
+| `ContinueOnError()`                 | `RunOption`                         | Run option: continue past rule failures, collect partial findings, join errors                                               |
+| `DetectorFromRegistry(r, toolName)` | `finding.Detector`                  | Adapt registry to a single Detector (BuildFlow DAG)                                                                          |
+| `DetectorsFromRegistry(r)`          | `[]finding.Detector`                | One Detector per rule (go-finding/pipeline: per-rule parallelism, timeouts, error isolation)                                 |
+| `ExitCodeFromReport(report)`        | `int`                               | 0 if clean, 1 if findings — the ecosystem exit-code convention                                                               |
+| `ExitCodeByConfidence(report, thr)` | `int`                               | 0 clean / 1 at-or-above threshold / 2 below threshold (triage mode)                                                          |
+| `ExitCodeFromFindings(findings)`    | `int`                               | Same binary convention for a plain `[]finding.Finding`, no Report needed                                                     |
+| `FilterRules(all, enable, disable)` | `[]RuleFunc`                        | Standard --enable/--disable filtering for CLI and plugin entry points                                                        |
+| `SelectRules(all, enable, disable)` | `[]Rule`                            | Same --enable/--disable logic for a `[]Rule` slice; OptIn-wrapped rules ride through (no unexported-wrapper problem)         |
+| `Filter{MinSeverity, Categories}`   | (type) `Keep` / `Apply`             | Severity/category-based finding filtering; zero value keeps everything, input never mutated                                  |
+| `NewRegistryFromRules(rules, opts)` | `*Registry`                         | Bulk constructor with the same validation as per-rule `Register`                                                             |
+| `RuleSet` (type)                    | `NewRuleSet`, `Check`, `ToRegistry` | Immutable, order-preserving, mutex-free rule collection with O(1) ID lookup                                                  |
+| `CoverageReporter` (optional iface) | `Coverage()` returns file counts    | Rules that report `filesScanned`/`skippedModules`; `Run` feeds them into the report — real coverage evidence per finding run |
+| `AllCategories()`                   | `[]Category`                        | Fresh copy of the eleven recommended categories                                                                              |
+| `OptIn(rf)`                         | `Rule`                              | Wrap a `RuleFunc` as disabled-by-default (opt-in rule; runs only with explicit `--enable <id>`)                              |
+| `RuleFunc.NewFinding(msg, pos)`     | `*finding.Builder`                  | Pre-stamped builder from rule metadata (rule ID, tool name, severity, category)                                              |
+| `RuleMeta.Validate()`               | `error`                             | Check required fields (ID, Name, Description, Cat) before construction                                                       |
 
 ### Errors
 
@@ -512,13 +512,13 @@ that no direct consumer retains a custom Issue/Violation converter layer (see
 
 Deeper material lives under [`docs/`](docs/):
 
-| Doc | What it holds |
-| --- | --- |
-| [`docs/DOMAIN_LANGUAGE.md`](docs/DOMAIN_LANGUAGE.md) | Ubiquitous-language glossary: Rule, Registry, dual identity, what is deliberately NOT here |
-| [`docs/migration-guide.md`](docs/migration-guide.md) | Step-by-step migration from a hand-rolled linter (converter deletion) |
-| [`docs/ADOPTION.md`](docs/ADOPTION.md) | Consumer adoption evidence, verdicts, and the refresh procedure |
-| [`docs/review/libs/index.html`](docs/review/libs/index.html) | Library utilization reviews (one `.md` per first-party dependency, scored) |
-| [`TODO_LIST.md`](TODO_LIST.md) / [`ROADMAP.md`](ROADMAP.md) | Open work items / long-term direction |
+| Doc                                                          | What it holds                                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| [`docs/DOMAIN_LANGUAGE.md`](docs/DOMAIN_LANGUAGE.md)         | Ubiquitous-language glossary: Rule, Registry, dual identity, what is deliberately NOT here |
+| [`docs/migration-guide.md`](docs/migration-guide.md)         | Step-by-step migration from a hand-rolled linter (converter deletion)                      |
+| [`docs/ADOPTION.md`](docs/ADOPTION.md)                       | Consumer adoption evidence, verdicts, and the refresh procedure                            |
+| [`docs/review/libs/index.html`](docs/review/libs/index.html) | Library utilization reviews (one `.md` per first-party dependency, scored)                 |
+| [`TODO_LIST.md`](TODO_LIST.md) / [`ROADMAP.md`](ROADMAP.md)  | Open work items / long-term direction                                                      |
 
 ## Support & security
 

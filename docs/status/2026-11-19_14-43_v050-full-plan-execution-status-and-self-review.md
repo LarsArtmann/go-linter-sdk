@@ -7,7 +7,7 @@
 > today, `go test -coverprofile`), consumer go.mod greps, pkg.go.dev v0.5.0
 > render, proxy `go list -m @v0.5.0`, bench numbers (Get flat 15.3ns,
 > Run_Coverage 702ns), bisect re-runs of the 3 pre-existing consumer test
-> failures. NOT verified: consumer repos' *pushed* state (bumps are local;
+> failures. NOT verified: consumer repos' _pushed_ state (bumps are local;
 > their daemons' commit/push behavior unobserved), the vision PASS verdict's
 > authority (see d-6), the 98.7%→98.3% coverage delta's per-function causes
 > (not triaged), the docs-gates HTML WARN follow-up after archiving (battery
@@ -228,6 +228,7 @@ the session.
 ## f) NEXT — 50 things (tagged; sorted by impact/effort within bands)
 
 **High impact, small effort (do first):**
+
 1. [TODO] Fix cli-triage exit-code collision (tool failure ≠ triage) + test — d-1
 2. [TODO] Delete `filterFixture` dead scaffolding (filter_test.go) — d-2
 3. [TODO] Delete `unusedItoa` (bench_test.go) — d-3

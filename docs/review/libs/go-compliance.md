@@ -13,19 +13,19 @@ Verified from source (`go doc .`, exported-symbol sweep, README, FEATURES.md, `d
 
 Core module (`/home/lars/projects/go-compliance/*.go`):
 
-| Capability | Evidence | What it actually does |
-| --- | --- | --- |
-| Compliance state model | `state.go:13` (`State`), `state.go:112` (`DeriveState`) | Four states: `compliant` / `failing` / `stale` / `never-covered`; window semantics — one failed step anywhere in the window keeps the repo `failing` |
-| Frozen v1 wire contract | `v1.go:14` (`SchemaVersionV1`), `v1.go:32`/`78`/`91`/`115` | `V1Report`/`MarshalV1`/`DecodeV1Report`/`BuildV1Report`; byte-faithful to BuildFlow's `compliance --json` producer, golden-tested both directions |
-| Evidence fold | `fold.go:113` (`FoldEvidence`), `fold.go:196` (`CompleteWithDiscovery`) | Source-agnostic ensure/union fold over window health, latest runs, worst steps, **gate findings (`fold.go:56 RepoFindings`, `{step: count}`)** and **severity counts (`fold.go:63 RepoSeverities`)** |
-| Source adapter interface | `source.go:12` (`Source`), `source.go:29` (`SourceFunc`) | Read-side port: ctx + window + step filter → `[]RepoEvidence` |
-| BuildFlow adapters | `adapter.go:46` (`NewBuildFlowFileSource`), `adapter.go:190` (`NewBuildFlowCommandSource`), `adapter.go:131` (`V1ReportToEvidence`) | File-piped v1 documents and CLI-spawned `buildflow compliance --json` |
-| Reporter SDK one-liner | `reporter.go:63` (`Record`), `reporter.go:73` (`RecordTo`), `reporter.go:23` (`RunResult`) | `compliance.Record(ctx, repo, RunResult{...})` writes to `/var/lib/overview/compliance.json` (env-overridable); `RunResult.GateFindings map[string]int` (`reporter.go:37`) and `FindingSeverities map[string]int` (`reporter.go:41`) — severities are dropped by file-backed writers (frozen v1 has no field) |
-| Branded types + error family | `branded.go`, `errors.go` | `RepoName`/`SourceName` via go-branded-id; classified errors via go-error-family |
+| Capability                   | Evidence                                                                                                                            | What it actually does                                                                                                                                                                                                                                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compliance state model       | `state.go:13` (`State`), `state.go:112` (`DeriveState`)                                                                             | Four states: `compliant` / `failing` / `stale` / `never-covered`; window semantics — one failed step anywhere in the window keeps the repo `failing`                                                                                                                                                          |
+| Frozen v1 wire contract      | `v1.go:14` (`SchemaVersionV1`), `v1.go:32`/`78`/`91`/`115`                                                                          | `V1Report`/`MarshalV1`/`DecodeV1Report`/`BuildV1Report`; byte-faithful to BuildFlow's `compliance --json` producer, golden-tested both directions                                                                                                                                                             |
+| Evidence fold                | `fold.go:113` (`FoldEvidence`), `fold.go:196` (`CompleteWithDiscovery`)                                                             | Source-agnostic ensure/union fold over window health, latest runs, worst steps, **gate findings (`fold.go:56 RepoFindings`, `{step: count}`)** and **severity counts (`fold.go:63 RepoSeverities`)**                                                                                                          |
+| Source adapter interface     | `source.go:12` (`Source`), `source.go:29` (`SourceFunc`)                                                                            | Read-side port: ctx + window + step filter → `[]RepoEvidence`                                                                                                                                                                                                                                                 |
+| BuildFlow adapters           | `adapter.go:46` (`NewBuildFlowFileSource`), `adapter.go:190` (`NewBuildFlowCommandSource`), `adapter.go:131` (`V1ReportToEvidence`) | File-piped v1 documents and CLI-spawned `buildflow compliance --json`                                                                                                                                                                                                                                         |
+| Reporter SDK one-liner       | `reporter.go:63` (`Record`), `reporter.go:73` (`RecordTo`), `reporter.go:23` (`RunResult`)                                          | `compliance.Record(ctx, repo, RunResult{...})` writes to `/var/lib/overview/compliance.json` (env-overridable); `RunResult.GateFindings map[string]int` (`reporter.go:37`) and `FindingSeverities map[string]int` (`reporter.go:41`) — severities are dropped by file-backed writers (frozen v1 has no field) |
+| Branded types + error family | `branded.go`, `errors.go`                                                                                                           | `RepoName`/`SourceName` via go-branded-id; classified errors via go-error-family                                                                                                                                                                                                                              |
 
 Hub module: realtime WebUI (Datastar over SSE), `compliance serve|report|table` CLI, SQLite evidence cache, fleet discovery client (`never-covered`), health probes, systemd/sd_notify hardening. FEATURES.md marks core (9 rows) and hub (13 rows) FULLY_FUNCTIONAL against the 2026-11-18 tree; README states "Status: built, pre-release."
 
-**It is a compliance-posture/evidence hub — a *consumer of run evidence*, not a linter and not a linting library.**
+**It is a compliance-posture/evidence hub — a _consumer of run evidence_, not a linter and not a linting library.**
 
 ## Relevance to go-linter-sdk
 
@@ -33,7 +33,7 @@ Hub module: realtime WebUI (Datastar over SSE), `compliance serve|report|table` 
 
 `rg 'go-finding|go-linter-sdk' --type go` across `/home/lars/projects/go-compliance` finds **zero imports**. The only hits are a doc-comment example (`branded.go:9,12` — "e.g. 'go-finding'") and test fixtures using `"go-finding"` as a sample repo name. Neither go.mod requires either module.
 
-And that is *correct*, not a gap: go-compliance's seam is the **frozen v1 JSON document**, deliberately schema-pinned and golden-tested, exactly so that producers and consumers never share Go types. Making go-compliance import go-linter-sdk would add a Go-coupling its design explicitly avoids.
+And that is _correct_, not a gap: go-compliance's seam is the **frozen v1 JSON document**, deliberately schema-pinned and golden-tested, exactly so that producers and consumers never share Go types. Making go-compliance import go-linter-sdk would add a Go-coupling its design explicitly avoids.
 
 ### Forward direction (SDK → go-compliance): already integrated, transitively, for free
 
@@ -41,7 +41,7 @@ The compliance pipeline already runs on SDK output with zero SDK changes:
 
 > linter rules (`linter.RuleFunc`) → `DetectorFromRegistry` (`/home/lars/projects/go-linter-sdk/registry.go:242`, "plugs into BuildFlow's DAG with zero glue") → BuildFlow step → `buildflow compliance --json` (v1 document) → `go-compliance` `FileSource` (`adapter.go:46`) → hub dashboard.
 
-The SDK is upstream of go-compliance *through BuildFlow*, which is the integration point both sides designed for (`docs/guides/integrate.md`: "Zero-work: BuildFlow projects ... Nothing to do").
+The SDK is upstream of go-compliance _through BuildFlow_, which is the integration point both sides designed for (`docs/guides/integrate.md`: "Zero-work: BuildFlow projects ... Nothing to do").
 
 The only direct touchpoint that could ever involve SDK knowledge is the **non-BuildFlow path**: a standalone lint binary built on the SDK appending one reporter call to its `main`:
 
@@ -55,7 +55,7 @@ _ = compliance.Record(ctx, compliance.NewRepoName("my-linter"),
     })
 ```
 
-That is a ~10-line snippet in a *consumer's* `main` (cf. `/home/lars/projects/go-linter-sdk/examples/minimal-linter/main.go`) or in go-compliance's own `examples/reporter/`. It is not SDK code, needs no SDK API change, and would cost the SDK its single-dep policy if it were anything more than documentation.
+That is a ~10-line snippet in a _consumer's_ `main` (cf. `/home/lars/projects/go-linter-sdk/examples/minimal-linter/main.go`) or in go-compliance's own `examples/reporter/`. It is not SDK code, needs no SDK API change, and would cost the SDK its single-dep policy if it were anything more than documentation.
 
 ### What adoption would cost today
 
@@ -64,15 +64,15 @@ That is a ~10-line snippet in a *consumer's* `main` (cf. `/home/lars/projects/go
 
 ## Analysis
 
-The right relationship between these two repos is the one that already exists: **go-compliance is a downstream fleet consumer of evidence that SDK-built linters (via BuildFlow) already produce.** Direction matters: compliance posture is an *aggregation* concern (windows, staleness, fleet discovery), the SDK is a *production* concern (rules → findings → exit codes). Mixing them means every compliance contract change version-bumps every linter, and every SDK release pressures the frozen v1 contract. Keeping the seam at JSON is what lets "v1 stays emittable forever" (ROADMAP) coexist with a fast-moving SDK.
+The right relationship between these two repos is the one that already exists: **go-compliance is a downstream fleet consumer of evidence that SDK-built linters (via BuildFlow) already produce.** Direction matters: compliance posture is an _aggregation_ concern (windows, staleness, fleet discovery), the SDK is a _production_ concern (rules → findings → exit codes). Mixing them means every compliance contract change version-bumps every linter, and every SDK release pressures the frozen v1 contract. Keeping the seam at JSON is what lets "v1 stays emittable forever" (ROADMAP) coexist with a fast-moving SDK.
 
-CONSUMER-DIRECTION was considered and rejected on evidence: go-compliance should *not* import go-linter-sdk — it consumes documents, not types. The genuine consumer-direction candidate is one level down: **individual lint binaries** built on the SDK may become go-compliance reporters via the one-liner, once go-compliance is tag-resolvable.
+CONSUMER-DIRECTION was considered and rejected on evidence: go-compliance should _not_ import go-linter-sdk — it consumes documents, not types. The genuine consumer-direction candidate is one level down: **individual lint binaries** built on the SDK may become go-compliance reporters via the one-liner, once go-compliance is tag-resolvable.
 
 ## The fleet argument
 
 Owner: "I have MANY projects to work on, and limited time and resources; If all my project re-implement/reintegrate everything I will only fix bugs all day long and none of my projects can benefit from collective improvements."
 
-go-compliance exists precisely to end per-project compliance re-integration — and the SDK already benefits from it *without a single line of integration*: every improvement to SDK-based linters makes BuildFlow gates (and thus fleet compliance evidence) better automatically; every improvement to go-compliance's fold/staleness/dashboard reaches every SDK-built linter's reporting for free. That is the collective-improvement loop working through a frozen contract. The one way to *break* the loop is to weld the two repos together with a Go dependency, re-creating the coupling the v1 contract was designed to eliminate.
+go-compliance exists precisely to end per-project compliance re-integration — and the SDK already benefits from it _without a single line of integration_: every improvement to SDK-based linters makes BuildFlow gates (and thus fleet compliance evidence) better automatically; every improvement to go-compliance's fold/staleness/dashboard reaches every SDK-built linter's reporting for free. That is the collective-improvement loop working through a frozen contract. The one way to _break_ the loop is to weld the two repos together with a Go dependency, re-creating the coupling the v1 contract was designed to eliminate.
 
 ## Ranked opportunities (impact × ease)
 
@@ -81,7 +81,7 @@ go-compliance exists precisely to end per-project compliance re-integration — 
 
 ## Flip trigger
 
-go-compliance core tags **v0.1.0** (proxy-resolvable; the hub's own TODO gates on exactly this) **and** at least one SDK-built linter runs *outside* BuildFlow but needs fleet visibility. Then the verdict flips to **ADOPT-AS-DOCS**: a "Fleet compliance reporting" snippet in the SDK README/ADOPTION showing the `Record` one-liner (with the honest caveat that `FindingSeverities` is dropped by file-backed writers, `reporter.go:38-41`). It never flips to ADOPT: the single-dep policy and the frozen-JSON seam both forbid a code dependency, tag or no tag.
+go-compliance core tags **v0.1.0** (proxy-resolvable; the hub's own TODO gates on exactly this) **and** at least one SDK-built linter runs _outside_ BuildFlow but needs fleet visibility. Then the verdict flips to **ADOPT-AS-DOCS**: a "Fleet compliance reporting" snippet in the SDK README/ADOPTION showing the `Record` one-liner (with the honest caveat that `FindingSeverities` is dropped by file-backed writers, `reporter.go:38-41`). It never flips to ADOPT: the single-dep policy and the frozen-JSON seam both forbid a code dependency, tag or no tag.
 
 ## How to verify
 

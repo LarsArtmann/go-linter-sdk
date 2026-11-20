@@ -115,12 +115,12 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 15. SECURITY.md (minimal vuln-reporting path).
 16. SUPPORT.md or explicit "as-is, no guarantees" statement in README.
 17. ~~Issue/PR templates.~~
-    done — `.github/ISSUE_TEMPLATE` and `CODEOWNERS` exist in-repo (verified
-    2026-11-19); PR template declined as noise for a best-effort support
-    posture
+done — `.github/ISSUE_TEMPLATE` and `CODEOWNERS` exist in-repo (verified
+2026-11-19); PR template declined as noise for a best-effort support
+posture
 18. ~~Social preview image.~~
-    NOT-DO — a GitHub repo-settings asset, not a code task; owner-side
-    setting, never actionable from a session
+NOT-DO — a GitHub repo-settings asset, not a code task; owner-side
+setting, never actionable from a session
 19. ~~Set repo homepage to pkg.go.dev URL.~~ done — homepageUrl is `https://pkg.go.dev/github.com/larsartmann/go-linter-sdk` (verified via `gh repo view --json homepageUrl`, 2026-11-19)
 20. Dependabot config for Go updates.
 21. Reconsider macos CI matrix cost.
@@ -154,9 +154,9 @@ Second, smaller: **ghost credential left behind** (`PRIVATE_REPO_TOKEN` in setti
 43. Validate workflow YAML in CI (dup of 22 — pick one home).
 44. Review Registry panic messages / error text — they are now stranger-facing API surface.
 45. ~~Consider property test for Registry dedup/identity invariants.~~
-    NOT-DO — decided: identity validation is table-tested (`Register` panic
-    contract, `TestRegistry_ConcurrentIndexMix` under -race); random-property
-    testing adds flake risk without covering a real gap (2026-11-19)
+NOT-DO — decided: identity validation is table-tested (`Register` panic
+contract, `TestRegistry_ConcurrentIndexMix` under -race); random-property
+testing adds flake risk without covering a real gap (2026-11-19)
 
 **Cleanup:**
 46. Local env: drop global `GOPRIVATE` + SSH `insteadOf` rewrite (unneeded post-public).
