@@ -136,6 +136,24 @@ Tracked snapshots; update alongside the refresh procedure.
   pushed by this session). Owner question g-1 governs pushes.
 - pkg.go.dev: v0.6.0 indexed (proxy `go list -m @v0.6.0` verified; page
   render checked post-release).
+- **2026-11-19 addendum — decay #4 and the clean-run record:** a concurrent
+  session clobbered the uncommitted V2-bridge edits (~20:49); everything was
+  re-applied and the daemon committed it (`e18a22479`). After the re-apply,
+  the BuildFlow/tools FULL providers suite passed on a clean run
+  (golangci/gomod/npm/providers all `ok`; providers 52s) — the three flaky
+  failures from the first run did not reproduce (test-isolation class,
+  tracked as BuildFlow#112).
+- **2026-11-19 teaching-debt sweep — clean:** four production
+  `finding.NewBuilder` call sites exist across consumers and all are
+  deliberate rather than debt: cmdguard/lint `newFinding(meta, …)`
+  (init-cycle avoidance, documented in-code), go-humanize-linter
+  `makeSuppressionVerificationFinding` (synthetic H0SUP rule), samber-linter
+  driver.go (driver-layer stamping with per-rule severity/confidence
+  lookup), project-meta/linter `metadataMissingFinding` (single-constant
+  rule). BuildFlow `modules/*` construct findings directly — pre-SDK
+  checkers at a different integration layer, out of scope for the
+  `rule.NewFinding` teaching. No fixes required; re-check on consumer
+  refreshes.
 
 ## Refresh procedure
 
