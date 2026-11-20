@@ -113,6 +113,20 @@ FormatterRecommendationAllowlist while parallel siblings read it; mutator
 made serial). Providers suite green twice consecutively post-fix.)
 
 
+### From the v0.6.1-release session (2026-11-20 report §f)
+
+- **#41 TODO — Record the pkg.go.dev "Imported by" trend** once propagation
+  settles (baseline 3, set 2026-10-15): fetch the v0.6.1 page's count and
+  note it next to the baseline in AGENTS' post-release-habit section.
+  Deferred from the release because the bot-served page lacked the count.
+- **#42 TODO — Capture the BuildFlow#112 flake evidence into that repo**
+  before /tmp cleanup: `/tmp/providers-v.log` holds the `-v` failure capture
+  (run 2, AlternatingRepoSmoke empty-vs-v1.2.3) that identified the breaker
+  race; the repo's tracker note (or its TODO_LIST row for #112) should carry
+  the mechanism summary. Its own session closes the issue on push.
+- **#43 TODO (samber-linter, its session) — push master with the #5 fix +
+  lint cures; verify CI green with f38's checklist.**
+
 ### Docs corpus debt (ratchet-pinned 2026-11-19)
 
 None open. (#35's audit drain completed 2026-11-20: five inline verdicts

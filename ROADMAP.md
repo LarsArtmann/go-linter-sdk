@@ -109,6 +109,11 @@ Raw ideas:
   pinned by cmdguard/lint and go-humanize-linter tests after the 2026-11-19
   fleet adoption; DOMAIN_LANGUAGE's borrowed-vocabulary section now states
   the semantic. Kept here only as the pointer to where it lives.
+- **Mechanical audit-drain enforcement:** a docs-gates check that diffs
+  TODO_LIST row removals against `git log -p` and demands a same-commit
+  verdict strike for anything the removed row anchored (the failure mode
+  bit twice: 2026-11-19 §e6 and 2026-11-20 d1). Needs a design pass — the
+  anchor analysis already exists in docs-freshness's replay.
 
 ## Open questions
 

@@ -445,3 +445,55 @@ instance, same day.** Re-grep go.mod at every wave; never trust a snapshot.
   (`SelectRules`) and stale dashboard PNGs — both fixed in the same session.
 - **Drafts live in `docs/drafts/`** (github-voice procedure): the two filed
   issues' full drafts are kept at `docs/drafts/2026-11-19_*.md`.
+
+## v0.6.1 release + g2 fix-in-place session (2026-11-20)
+
+v0.6.1 (PATCH: example/tooling/docs tier) is TAGGED and live: checklist 7/7,
+push, CI green on `6cc2311`, tag on the green SHA, proxy `go list -m
+@v0.6.1` verified; third consumer wave bumped all 8 module locations to
+v0.6.1 locally (gated per repo; sweep 3 recorded). TODO #31 (push the six
+repos) remains owner-gated — the standing end-of-session policy covers it.
+
+- **The audit-driff lesson is real and bit again.** Removing the TODO_LIST
+  #35 row un-anchored TWO archived items that only that row anchored (the
+  replay's anchors move as living docs change — work from `docs-freshness
+  --audit-all`'s LIVE output, never from a report's stale list). Completing
+  a routed item needs its inline verdict in the SAME session; the verdict
+  marker must be `done —` (annotate rejects bare `routed —`).
+- **samber-linter#5 root cause: ambient-env leakage, not toolchain drift.**
+  An inherited `GOWORK=off` (this fleet's own habit for sibling modules)
+  reaches the loader child through `loadEnv()`'s inherited env and defeats
+  go.work walk-up discovery, so the shadow-half of the discrimination test
+  spuriously succeeds. Reproduced on demand with `GOWORK=off go test`.
+  Fix: tests that pin env discrimination must pass the env EXPLICITLY
+  (last-wins semantics beat ambient). Same pass cured the samber master
+  CI red streak: `TestExitCodeContract` is serial by `t.Chdir` necessity
+  (t.Parallel PANICS there — do not re-add it), a golines violation, and
+  wrapcheck's two deliberate unwrapped `v5.NewExitError` returns (taught
+  via `.golangci.yml` ignore-sigs; both consumers match through
+  errors.As/AsType so unwrapped returns are correct). Local golangci
+  version MUST match the repo pin (samber pins via `.custom-gcl.yml`;
+  v2.14-vs-v2.15 changed wrapcheck/golines findings).
+- **BuildFlow#112: two distinct flakes, both fixed.** (1) The
+  AlternatingRepoSmoke failure was a breaker-vs-scheduler race — with
+  `latestProbeConcurrency=4`, three failing probes can record
+  back-to-back, tripping the breaker before later ok-repos probe; the
+  test now asserts only what the documented semantics guarantee (ok1
+  strict, ok2/ok3 two-outcome). (2) The once-captured
+  `TestFilterUnmanagedFormatterRecommendations_DropsUnregistered` failure
+  was a REAL global-mutation leak: a parallel test mutated
+  `FormatterRecommendationAllowlist` (t.Cleanup cannot close the window);
+  the mutator is now serial (Go runs serial top-level tests before the
+  parallel batch — that ordering is the isolation mechanism).
+- **README relative-link checker shipped** (`readme_links_test.go`):
+  hermetic Go test; anchors must be produced by headings, file targets
+  must exist, `.md#fragment` targets' headings checked; inline code and
+  fences skipped. It caught a real false-match class on first run
+  (`` `errors.AsType[*RuleError](err)` `` parses as a markdown link).
+- **WithEdits eligibility verdict (fleet-wide): zero eligible sites** —
+  recorded in FLEET-SWEEP-BASELINE. Re-check when a rule gains genuine
+  inline-fixable detection. Teaching-debt sweep: clean (all four
+  production NewBuilder sites deliberate; ADOPTION addendum).
+- **Release loop held:** the daemon committed docs between the green run
+  and the tag; the tag pinned the green SHA explicitly (docs-only delta,
+  the v0.4.0/v0.5.0 pattern).

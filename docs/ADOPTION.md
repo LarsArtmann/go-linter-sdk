@@ -154,6 +154,14 @@ Tracked snapshots; update alongside the refresh procedure.
   checkers at a different integration layer, out of scope for the
   `rule.NewFinding` teaching. No fixes required; re-check on consumer
   refreshes.
+- **2026-11-20 third wave — v0.6.1:** all 8 module locations bumped to
+  v0.6.1 the day of the release, gated per repo (build + full/targeted
+  tests, GOWORK=off): go-structure-linter (build), samber-linter (6/6
+  packages), go-humanize-linter (4/4), cmdguard/lint, project-meta/linter,
+  BuildFlow/execution + tools (providers suite green, 83s) + root.
+  samber-linter#5 and BuildFlow#112 were root-caused and FIXED locally in
+  the same pass (see the TODO_LIST 2026-11-20 entry for the mechanisms).
+  Push state: all local, per standing policy.
 
 ## Refresh procedure
 
