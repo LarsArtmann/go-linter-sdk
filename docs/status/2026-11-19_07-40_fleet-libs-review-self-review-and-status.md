@@ -239,8 +239,9 @@ Tags: [TODO]=already routed to TODO_LIST, [RMAP]=already in ROADMAP,
     the input; TODO/ROADMAP only carry 1-10 today).
 43. [NEW] Link `docs/review/libs/index.html` from `docs/ADOPTION.md` as
     sibling evidence.
-44. [NEW] Ask the go-finding session to cross-link this SDK's adoption report
-    from its DetectorV2 docs (fleet docs synergy).
+44. ~~[NEW] Ask the go-finding session to cross-link this SDK's adoption report
+    from its DetectorV2 docs (fleet docs synergy).~~ done — routed to go-finding's
+    TODO_LIST (docs & testing quality table, local edit 2026-11-19)
 45. [NEW] Watch go-finding local HEAD (110 commits past tag): re-audit the
     adoption score at the next root tag.
 46. [NEW] ExitCodeByConfidence quickstart mention (only godoc + stranger-CI

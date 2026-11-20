@@ -227,7 +227,7 @@ Ranked by impact:
 
 31. Implement `NewRegistryFromRules([]Rule) *Registry` constructor
 32. Add a `Filter` type for severity/category-based finding filtering
-33. Evaluate severity-tiered exit codes
+33. ~~Evaluate severity-tiered exit codes~~ done — `ExitCodeByConfidence` ships in registry.go and cli-triage runs the tiered 0/1/2/3 contract (verified 2026-11-19)
 34. Add `ExitCodeFromFindings([]Finding) int` convenience
 35. Evaluate a typed `RuleSet` wrapper
 36. Add `Category.All()` — return all built-in category values
