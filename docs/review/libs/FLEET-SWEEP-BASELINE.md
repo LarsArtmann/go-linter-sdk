@@ -109,6 +109,19 @@ Reading — the coverage channel is LIVE fleet-wide, first non-zero sweep:
   channel is active through the SDK's own Run/adapters.
 - **WithEdits still 0 refs**: remaining adoption surface (rule-level fix
   declarations, ADR-0002 GO items) — future work, tracked in ROADMAP.
+  **Eligibility sweep verdict (2026-11-19, follow-up session): zero eligible
+  landing sites exist today.** go-humanize-linter's rules are function-level
+  heuristics with type-dependent suggestions (Suggest is honest; edits would
+  fabricate span/type precision the rules do not have); cmdguard/lint and
+  samber-linter fixes are API-migration patterns across call sites (not
+  single-span rewrites); go-structure-linter's direct fixes are whole-file
+  create/delete operations, correctly carried as BeforeCode/AfterCode
+  (TextEdit has no file-create/delete op); project-meta's fix creates a new
+  file (FixEngine territory, not TextEdit). The one true inline-fix rule —
+  cli-triage's redundant-nil-guard oops example — already carries WithEdits
+  (ADR 0002 teaching, shipped with the v0.5.0-era #28 work). The channel
+  stays 0-ref BY DESIGN until a consumer rule gains genuine inline-fixable
+  detection; re-run this sweep when one lands.
 - **Accumulation note**: go-finding's `AddDetectResult` SUMS per-rule
   counts, so an N-rule registry over F files reports N·F — the documented
   contract, pinned by cmdguard's and go-humanize's new tests.

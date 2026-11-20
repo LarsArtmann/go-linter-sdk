@@ -103,8 +103,6 @@ derivations. #18 the bump checklist is encoded in
   full pass → push → CI green on the exact commit → tag → proxy + pkg.go.dev
   verify + the "Imported by" trend check (baseline 3). The CHANGELOG
   [Unreleased] entry and the PATCH slot decision are already in.
-- **#38 TODO — WithEdits adoption sweep:** the last 0-ref fleet channel
-  (ADR-0002 GO items; rules that know a mechanical fix attach TextEdits).
 - **#40 TODO — Session-record docs:** ADOPTION 2026-11-19 snapshot names
   decay #4 (concurrent-session clobber of the V2 bridge); AGENTS.md gains
   the coverage-fleet-adoption session section (post-release so it can name
