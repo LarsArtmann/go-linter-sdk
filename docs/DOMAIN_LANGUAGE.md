@@ -50,7 +50,7 @@ with a `Run` closure. Most rules are written as a `RuleFunc` struct literal,
 not by manually implementing the `Rule` interface.
 
 A `RuleFunc` is **data-shaped**: the metadata reads like a struct, and the
-`Check` logic is a function. This makes rules easy to scan in a `rules.go`
+`Check` logic is a function. This makes rules easy to scan in a rules.go
 file.
 
 - **Lives at:** `rule.go` — `type RuleFunc`
